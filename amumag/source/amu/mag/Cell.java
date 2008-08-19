@@ -86,7 +86,7 @@ public final class Cell implements Serializable{
     public transient final Vector hDemag = new Vector();
     public transient final Vector hKernel = new Vector();
     public transient final Vector hEx = new Vector();
-    public transient final Vector hDzyaloshinsky = new Vector();
+    public transient final Vector hExt = new Vector();
     public transient final Vector hSmooth = new Vector();
     
     // general purpuose storage for the sake of visualizers.
@@ -731,10 +731,6 @@ public final class Cell implements Serializable{
     
     public double get_demagEnergyDensity(){
         return -hDemag.dot(m);
-    }
-    
-    public Vector get_hDzyaloshinsky(){
-        return hDzyaloshinsky;
     }
 }
 

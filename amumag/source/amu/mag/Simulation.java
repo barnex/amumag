@@ -25,7 +25,6 @@ import amu.mag.fmm.FMM;
 import amu.mag.fmm.ShiftMap;
 import amu.geom.Mesh;
 import amu.geom.Vector;
-import amu.mag.adapt.AdaptiveMeshRules;
 import amu.mag.config.Configuration;
 import amu.mag.exchange.DzyaloshinskyModule;
 import amu.mag.exchange.Exchange6Ngbr;
@@ -37,6 +36,7 @@ import amu.io.OutputModule;
 import amu.data.DataModel;
 import amu.data.LiveMeshDataModel;
 import amu.data.LiveTableDataModel;
+import amu.mag.field.StaticField;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.Math.sqrt;
@@ -65,7 +65,6 @@ public final class Simulation {
     
     // Evolver settings
     private ExternalField externalField;
-    public Vector hExt = new Vector(); // for reflective output.
     public AdamsEvolver2 evolver;
     public double totalTime;
     public int totalIteration; //refactor: totalSteps
@@ -356,6 +355,7 @@ public final class Simulation {
     //____________________________________________________________________update
     
     private static final Vector ZERO = new Vector(0, 0, 0, true);
+    private final Vector rSiUnits = new Vector();
     
     public void update(){
        
@@ -366,14 +366,21 @@ public final class Simulation {
         mesh.rootCell.updateQ(Main.LOG_CPUS);
         
         //(2) set external field for the root cell
-        if (externalField == null) {
+        /*if (externalField == null) {
             hExt = ZERO;
         } else {
             hExt = externalField.get(totalTime);
         }
         mesh.rootCell.smooth.field[1] = -hExt.x;
         mesh.rootCell.smooth.field[2] = -hExt.y;
-        mesh.rootCell.smooth.field[3] = -hExt.z;
+        mesh.rootCell.smooth.field[3] = -hExt.z;*/
+        
+        //(2) set the space-dependend external field.
+        for(Cell cell=mesh.coarseRoot; cell != null; cell = cell.next){
+            rSiUnits.set(cell.center);
+            rSiUnits.multiply(Unit.LENGTH);
+            cell.hExt.set(externalField.get(totalTime, rSiUnits));
+        }
         
         //(3) update all other fields and torque, added to the already present external field.
         Cell.precess = precess;
@@ -460,31 +467,10 @@ public final class Simulation {
         }
         return sum/count;
     }
-    
-    public double get_Bx(){
-        if(externalField != null)
-            return externalField.get(totalTime).x;
-        else 
-            return 0.0;
-    }
-    
-    public double get_By(){
-        if(externalField != null)
-            return externalField.get(totalTime).y;
-        else 
-            return 0.0;
-    }
-    
-    public double get_Bz(){
-        if(externalField != null)
-            return externalField.get(totalTime).z;
-        else 
-            return 0.0;
-    }
 
     public void setExternalField(ExternalField externalField) {
         this.externalField = externalField;
         // set the time zero in seconds.
-        externalField.time0 = totalTime * Unit.TIME;
+        externalField.timeZero = totalTime * Unit.TIME;
     }
 }

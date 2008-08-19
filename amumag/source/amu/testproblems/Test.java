@@ -51,28 +51,24 @@ public class Test extends Problem{
     //@Override
     public void run() throws Exception{
         
-        save("m");
+        save("m", 10);
+        save("hExt", 10);
         
         final double f=562.5E6;
-	//save("m", 1.0/f/32);
-	//save(new SpaceAverage(getData("m")), 1.0/f/64);
-	
-        DataModel mz = new Component(new ZAverage(getData("m")), Vector.Z);
-        DataModel mzAbs = new Abs(mz);
-        //save(new ExtremumPosition(mzAbs, Extremum.MAX, 0.5), 10);
-        DataModel corePos = new FineExtremumPosition(mzAbs, Extremum.MAX, 0.5);
-        //save(corePos, 10);
-        DataModel coreSpeed = new RunningDerivative(corePos);
-        //save(coreSpeed, 1.0/f/128);
         
         setPrecession(false);
 	runSteps(1000);
       	
-	/*setExternalField(new ExponentialField(20E-9).multiply(new RfField(1E-3, 0, 0, f)));
+	setExternalField(new ExternalField(){
+            protected void put(double time, Vector r, Vector field) {
+                field.x = Math.sin(2*Math.PI*r.x/50E-9) * 1E-3 * Math.sin(2*Math.PI*500E6*time);
+            }
+        });
+        
 	setPrecession(true);
 	setDt(1E-5);    
 
-        runTime(60E-9);*/
+        runTime(60E-9);//*/
     }
 }
 

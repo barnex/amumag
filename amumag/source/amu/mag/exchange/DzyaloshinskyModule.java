@@ -22,6 +22,10 @@ import amu.geom.Vector;
 import amu.mag.Cell;
 import amu.mag.Simulation;
 
+/**
+ * Adds the DM-field to the exchange field.
+ * @author arne
+ */
 public class DzyaloshinskyModule {
 
     private final Simulation sim;
@@ -86,9 +90,9 @@ public class DzyaloshinskyModule {
                         double dmzdx = 0.5 * (dmzdx1 + dmzdx2);
                         double dmzdy = 0.5 * (dmzdy1 + dmzdy2);
           
-                        cell.hDzyaloshinsky.x =  d.x *   (dmzdy - dmydz);
-                        cell.hDzyaloshinsky.y =  d.y *  (-dmzdx + dmxdz);
-                        cell.hDzyaloshinsky.z =  d.z *   (dmydx - dmxdy);
+                        cell.hEx.x +=  d.x *   (dmzdy - dmydz);
+                        cell.hEx.y +=  d.y *  (-dmzdx + dmxdz);
+                        cell.hEx.z +=  d.z *   (dmydx - dmxdy);
                     }
                 }}}
     }

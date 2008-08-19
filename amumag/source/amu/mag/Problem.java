@@ -29,6 +29,7 @@ import amu.mag.adapt.AdaptiveMeshRules;
 import amu.mag.adapt.FixedMesh;
 import amu.io.Message;
 import amu.data.DataModel;
+import amu.mag.field.StaticField;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -223,6 +224,7 @@ public abstract class Problem {
         sim.setMagnetization(initialMagnetization);      
         
         // set the solver (must be last)
+        sim.setExternalField(new StaticField(0, 0, 0));
         sim.setAlphaLLG(alpha);
         sim.evolver.targetMaxAbsError = targetMaxAbsError;
         sim.evolver.targetMaxRelError = targetMaxRelError;
