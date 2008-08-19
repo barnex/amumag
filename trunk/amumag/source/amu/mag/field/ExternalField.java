@@ -26,25 +26,25 @@ public abstract class ExternalField {
     
     // the time at which the ExternalField was set, in seconds
     // can be used for relative times.
-    public double time0;
+    public double timeZero;
     
     public ExternalField(){
-        time0 = Main.sim.totalTime * Unit.TIME;
+        timeZero = Main.sim.totalTime * Unit.TIME;
     }
     
     /**
      * Returns the applied field in SI units (A/m) as a function of time (s).
      * To be overridden.
      */
-    protected abstract void put(double time, Vector field);
+    protected abstract void put(double time, Vector r, Vector field);
 
     /**
      * Returns the applied field in simulation units, used by the solver.
      * @param time
      * @return
      */
-    public final Vector get(double time) {
-        put(time*Unit.TIME, buffer);
+    public final Vector get(double time, Vector r) {
+        put((time)*Unit.TIME - timeZero, r ,buffer);
         buffer.divide(Unit.mu0 * Unit.FIELD);
         return buffer;
     }

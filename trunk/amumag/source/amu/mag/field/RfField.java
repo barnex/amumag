@@ -62,9 +62,9 @@ public final class RfField extends ExternalField{
     }
     
     @Override
-    protected void put(double time, Vector field) {
-        field.x = bx * sin(2*PI*freq*(time-time0) + phaseX);
-        field.y = by * sin(2*PI*freq*(time-time0) + phaseY);
-        field.z = bz * sin(2*PI*freq*(time-time0) + phaseZ);
+    protected void put(double time, Vector r, Vector field) {
+        field.x = bx * sin(2*PI*freq*(time) + phaseX);
+        field.y = by * sin(2*PI*freq*(time) + phaseY);
+        field.z = bz * sin(2*PI*freq*(time) + phaseZ);
     }
 }
