@@ -186,32 +186,65 @@ public final class ArrayOutputStream implements Flushable, Closeable{
         indexCount();
     }
     
-    private final void indexCount() throws IOException{
-        int dim = size.length-1;
-        
-        currentIndex[dim]++;
-        while(currentIndex[dim] >= size[dim]){
-            
-            // newline after every line of data, and after every matrix.
-            if(!binaryFormat && dim < (size.length < 3? 1:2) )
-                out.println("");
-            
-            if(size[dim] != -1){
-                currentIndex[dim] = 0;
-                dim--;
-                if(dim < 0){
-                    full = true;
-                    break;
-                }
-                else
-                    currentIndex[dim]++;
-            }
-            else
-                break; 
-        }
-       
-    }
+    private int index = 0;
     
+    private final void indexCount() throws IOException{
+//        int dim = size.length-1;
+//        
+//        currentIndex[dim]++;
+//        while(currentIndex[dim] >= size[dim]){
+//            
+//            // newline after every line of data, and after every matrix.
+//            if(!binaryFormat && dim < (size.length < 3? 1:2) )
+//                out.println("");
+//            
+//            if(size[dim] != -1){
+//                currentIndex[dim] = 0;
+//                dim--;
+//                if(dim < 0){
+//                    full = true;
+//                    break;
+//                }
+//                else
+//                    currentIndex[dim]++;
+//            }
+//            else
+//                break; 
+//        }
+        index++;
+        if (!binaryFormat) {
+            
+            // one-dimensional list
+            if (size.length == 1) {
+                out.println("");
+            } 
+            
+            // two-dimensional matrix
+            else if (size.length == 2) {
+                // ...which is actually a growing list
+                if (size[0] == -1) {
+                    if (index % size[1] == 0)
+                        out.println("");
+                }
+                // ...which is really a matrix
+                else{
+                    if (index % size[0] == 0) 
+                        out.println("");
+                }
+            }
+                        
+            // three-dimensional block
+            else if (size.length == 3) {
+                if (index % size[0] == 0) {
+                    out.println("");
+                }
+                if (index % (size[0] * size[1]) == 0) {
+                    out.println("");
+                }
+            }
+        }
+    }
+
     //__________________________________________________________________________
     
     private void writeHeader() throws IOException{

@@ -50,7 +50,7 @@ public final class Main {
         System.out.println(BANNER);
         
         assert checkAssertionsEnabled();
-        amu.debug.Test.run();
+        //amu.debug.Test.run();
         
         String arg = args[0];
         String[] args2 = new String[args.length - 1];

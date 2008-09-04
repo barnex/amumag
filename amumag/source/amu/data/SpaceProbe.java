@@ -41,7 +41,7 @@ abstract class SpaceProbe extends DerivedDataModel{
     }
     
     @Override
-    public boolean isSpaceDependend(){
+    public boolean isSpaceDependent(){
         return false;
     }
     

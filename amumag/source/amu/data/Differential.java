@@ -30,9 +30,9 @@ public final class Differential extends DerivedDataModel{
     private int delta;
     private SavedDataModel ref;
     
-    public Differential(File dir, String name, int delta) throws IOException{
-        super(new SavedDataModel(dir, name));
-        ref = new SavedDataModel(dir, name);
+    public Differential(File file, int delta) throws IOException{
+        super(new SavedDataModel(file));
+        ref = new SavedDataModel(file);
         this.delta = delta;
     }
     

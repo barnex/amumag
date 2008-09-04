@@ -41,7 +41,7 @@ public class ConstantModel extends DataModel{
     }
 
     @Override
-    public boolean isSpaceDependend() {
+    public boolean isSpaceDependent() {
         return true;
     }
 
@@ -51,7 +51,7 @@ public class ConstantModel extends DataModel{
     }
 
     @Override
-    public boolean isTimeDependend() {
+    public boolean isTimeDependent() {
         return false;
     }
 

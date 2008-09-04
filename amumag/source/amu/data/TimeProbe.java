@@ -41,7 +41,7 @@ public abstract class TimeProbe extends DerivedDataModel{
     public abstract void put(Index r, Vector v) throws IOException;
   
     @Override
-    public boolean isTimeDependend(){
+    public boolean isTimeDependent(){
         return false;
     }
     
