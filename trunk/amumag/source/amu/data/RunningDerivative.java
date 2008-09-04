@@ -23,7 +23,7 @@ import java.io.IOException;
 
 /**
  * Time derivative of incrementally obtained data, e.g. during a running simulation.
- * Can be used for live simulation data, which is time-independend 
+ * Can be used for live simulation data, which is time-inDependent 
  * (the available data is always a snapshot of the running simulation).
  * @author arne
  */
@@ -35,8 +35,8 @@ public class RunningDerivative extends DerivedDataModel{
     
     public RunningDerivative(DataModel m){
         super(m);
-        if(m.isSpaceDependend())
-            throw new IllegalArgumentException("DataModel must be space-independend.");
+        if(m.isSpaceDependent())
+            throw new IllegalArgumentException("DataModel must be space-inDependent.");
     }
     
     Vector value = new Vector();

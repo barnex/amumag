@@ -244,6 +244,8 @@ public final class Cell implements Serializable{
        
             h.set(hDemag);
             h.add(hEx);
+            // 2008-09-03 : 
+            h.add(hExt);
             
              if(precess)
                 updateTorque();

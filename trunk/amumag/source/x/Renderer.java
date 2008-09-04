@@ -38,7 +38,7 @@ public abstract class Renderer {
     
     public Color background = Color.WHITE;
 
-    public abstract void colorSurface();
+    //public abstract void colorSurface();
     
     public final DataModel getModel() {
         return model;

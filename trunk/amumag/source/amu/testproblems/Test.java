@@ -35,11 +35,11 @@ public class Test extends Problem{
         setBoxSizeX(250E-9);
         setBoxSizeY(250E-9);
         setBoxSizeZ(50E-9);
-        setMaxCellSizeX(8E-9);
-        setMaxCellSizeY(8E-9);
+        setMaxCellSizeX(16E-9);
+        setMaxCellSizeY(16E-9);
         setMaxCellSizeZ(1.0/0.0);
         setFmmOrder(1);
-        setFmmAlpha(0.9);
+        //setFmmAlpha(0.9);
         setKernelIntegrationAccuracy(1);
         setMagnetization(new Vortex(1));
         setTargetMaxAbsError(1E-5);
@@ -51,24 +51,35 @@ public class Test extends Problem{
     //@Override
     public void run() throws Exception{
         
-        save("m", 10);
-        save("hExt", 10);
-        
-        final double f=562.5E6;
-        
-        setPrecession(false);
-	runSteps(1000);
-      	
-	setExternalField(new ExternalField(){
-            protected void put(double time, Vector r, Vector field) {
-                field.x = Math.sin(2*Math.PI*r.x/50E-9) * 1E-3 * Math.sin(2*Math.PI*500E6*time);
-            }
-        });
-        
-	setPrecession(true);
-	setDt(1E-5);    
+       final double f=562.5E6;
+	
+	save("m", 1/f/32);
+	save(new SpaceAverage(getData("hExt")), 10);
+	save(new SpaceAverage(getData("m")), 10);
+	save("hExt", 1000);
+	save("maxTorque", 10);
 
-        runTime(60E-9);//*/
+	setPrecession(false);
+	runTorque(3E-1);
+	setFmmOrder(2);
+	runTime(12E-9);
+	//setFmmOrder(3);
+	//runTime(10E-9);
+
+	DataModel mz = new Component(new ZAverage(getData("m")), Vector.Z);
+        DataModel mzAbs = new Abs(mz);
+        save(mz, 32/f);
+        DataModel corePos = new FineExtremumPosition(mzAbs, Extremum.MAX, 0.5);
+        save(corePos, 1.0/f/256);
+        DataModel coreSpeed = new RunningDerivative(corePos);
+        save(coreSpeed, 1.0/f/64);
+	
+	setExternalField(new StaticField(1E-3, 0, 0));
+	
+	setPrecession(true);
+	setDt(1E-5);
+
+	runTime(100E-9);
     }
 }
 

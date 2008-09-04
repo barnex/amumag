@@ -21,6 +21,7 @@ import amu.geom.Mesh;
 import amu.geom.Vector;
 import amu.core.Index;
 import amu.io.ArrayOutputStream;
+import amu.mag.Main;
 import amu.mag.Unit;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -125,7 +126,7 @@ public abstract class DataModel {
      * 
      * @return whether the function is space-dependend.
      */
-    public abstract boolean isSpaceDependend();
+    public abstract boolean isSpaceDependent();
     
     /**
      * 
@@ -133,7 +134,7 @@ public abstract class DataModel {
      * as a range of integer arguments.
      */
     public Index getSpaceDomain(){
-        if(isSpaceDependend())
+        if(isSpaceDependent())
             return getMesh().getBaseSize();
         else
             return null;
@@ -148,7 +149,7 @@ public abstract class DataModel {
     /**
      * @return whether the function is time-dependend.
      */
-    public abstract boolean isTimeDependend();
+    public abstract boolean isTimeDependent();
     
     
      public abstract int getTimeDomain();
@@ -203,10 +204,10 @@ public abstract class DataModel {
      * to a list with the name of the data model.
      */
     public void incrementalSave(File baseDir) throws IOException{
-        if(isTimeDependend())
+        if(isTimeDependent())
             throw new IllegalArgumentException("incrementalSave can only be used for time-independend data.");
         
-        if(isSpaceDependend()){
+        if(isSpaceDependent()){
             incrementalSaveDir(baseDir);
         }
         else{
@@ -284,6 +285,30 @@ public abstract class DataModel {
         tableOut.flush();
     }
     
+    public void save() throws IOException{
+        save(new File(Main.WD));
+    }
+    
+    /**
+     * Smart autosave.
+     */
+    public void save(File baseDir) throws IOException {
+        if (isTimeDependent()) {
+            if (isSpaceDependent()) {
+                AtTime at = new AtTime(this, 0);
+                for (int t = 0; t < getTimeDomain(); t++) {
+                    at.setTime(t);
+                    at.incrementalSaveDir(baseDir, new File(getName()));
+                }
+            } else {
+                for (int t = 0; t < getTimeDomain(); t++) {
+                    incrementalSaveFile(baseDir);
+                }
+            }
+        } else {
+            save(baseDir, getName());
+        }
+    }
     
     public void save(File dir, String name) throws IOException{
         // 2008-06-17: BufferedOutputStream doubles performance.
@@ -309,7 +334,7 @@ public abstract class DataModel {
 
     private void write(ArrayOutputStream out) throws IOException{
         
-         if(isTimeDependend()){
+         if(isTimeDependent()){
             int timeDomain = getTimeDomain();
             for(int t=0; t<timeDomain; t++)
                 write(t, out);
@@ -318,20 +343,23 @@ public abstract class DataModel {
             write(-1, out);
     }
     
-    private void write(int time, ArrayOutputStream out) throws IOException{
-     
-        if(isSpaceDependend()){
+    private void write(int time, ArrayOutputStream out) throws IOException {
+
+        if (isSpaceDependent()) {
             Index i = new Index();
             Index s = getSpaceDomain();
-            for(int x=0; x<s.x; x++)
-                for(int y=0; y<s.y; y++)
-                    for(int z=0; z<s.z; z++){
+            // first Z, then Y, then X.
+            for (int z = 0; z < s.z; z++) {
+                for (int y = 0; y < s.y; y++) {
+                    for (int x = 0; x < s.x; x++) {
                         i.set(x, y, z);
                         write(time, i, out);
                     }
+                }
+            }
+        } else {
+            write(time, null);
         }
-        else
-            write(time, null);    
     }
         
     private final Vector buffer2 = new Vector();
@@ -353,18 +381,18 @@ public abstract class DataModel {
     private int[] getSize(){
         
         int length = 0;
-        if(isTimeDependend())
+        if(isTimeDependent())
             length += 1;
-        if(isSpaceDependend())
+        if(isSpaceDependent())
             length += 3;
         
         int[] size = new int[length]; 
         int i=0;
-        if(isTimeDependend()){
+        if(isTimeDependent()){
             size[i] = getTimeDomain();
             i++;
         }
-        if(isSpaceDependend()){
+        if(isSpaceDependent()){
             Index space = getSpaceDomain();
             size[i] = space.x;
             size[i+1] = space.y;
@@ -380,7 +408,7 @@ public abstract class DataModel {
     public String toString(){
         StringBuffer b = new StringBuffer();
         
-        if (isTimeDependend() && !isSpaceDependend()) {
+        if (isTimeDependent() && !isSpaceDependent()) {
             double[] time = getTime();
             for (int t = 0; t < time.length; t++) {
                 try {

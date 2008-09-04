@@ -60,13 +60,13 @@ public abstract class DerivedDataModel extends DataModel{
     }
 
     @Override
-    public boolean isTimeDependend() {
-        return originalModel.isTimeDependend();
+    public boolean isTimeDependent() {
+        return originalModel.isTimeDependent();
     }
 
     @Override
-    public boolean isSpaceDependend() {
-        return originalModel.isSpaceDependend();
+    public boolean isSpaceDependent() {
+        return originalModel.isSpaceDependent();
     }
     
 }

@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 /**
- * Data of a live running simulation. The data is dependend on space.
+ * Data of a live running simulation. The data is Dependent on space.
  * @author arne
  */
 public final class LiveMeshDataModel extends DataModel{
@@ -86,7 +86,7 @@ public final class LiveMeshDataModel extends DataModel{
     }
 
     @Override
-    public boolean isSpaceDependend() {
+    public boolean isSpaceDependent() {
         return true;
     }
 
@@ -96,7 +96,7 @@ public final class LiveMeshDataModel extends DataModel{
     }
 
     @Override
-    public boolean isTimeDependend() {
+    public boolean isTimeDependent() {
         return false;
     }
 

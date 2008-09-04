@@ -79,7 +79,7 @@ public class DR3DRenderer extends Renderer{
     public DR3DRenderer(DataModel model) throws IOException {
         this.model = model;
         setPolys(model.getMesh());
-        colorSurface();
+        wireframe();
     }
     
     // sets the data but not the mesh.
@@ -126,6 +126,7 @@ public class DR3DRenderer extends Renderer{
 	update();
     }
     
+    @Override
     public void updateColors() throws IOException{      
         setColorMap(colorMap);
     }
@@ -135,7 +136,7 @@ public class DR3DRenderer extends Renderer{
         Vector buffer = new Vector();
         this.colorMap = map;
         if (map == null) {
-            colorSurface();
+            wireframe();
         }
         else{
             //this.colorMap = map;
@@ -143,7 +144,7 @@ public class DR3DRenderer extends Renderer{
                 map = new ColorMap3D();
 
             for (Poly p : polygons) {
-                model.put( -1,p.index, buffer);
+                model.put(-1, p.index, buffer);
                 p.color = map.get(buffer);
                 //p.lineColor = p.color;
                 p.lineColor = null;
@@ -151,19 +152,40 @@ public class DR3DRenderer extends Renderer{
         }
     }
 
-    public void colorSurface(){
+    public void surface(Color fill, double contrast) {
         Vector lamp = new Vector(model.getMesh().boxSize);
-        
+
         lamp.x = lamp.maxNorm() / 2;
         lamp.y = 0;
         lamp.z = lamp.maxNorm();
         lamp.multiply(2);
-        Color fill = new Color(255, 255, 255);
-        Color line = new Color(0, 0, 0);
-        Light light = new Light(lamp, fill, 0.5);
-        for(Poly p: polygons){
+
+        Light light = new Light(lamp, fill, contrast);
+
+        for (Poly p : polygons) {
             light.colorize(p);
-            p.lineColor = new Color(p.color.getRed()/2, p.color.getGreen()/2, p.color.getBlue()/2);
+            p.lineColor = p.color;
+        }
+
+    }
+    
+    public void surfaceWireframe(Color fill, double contrast){
+        surface(fill, contrast);
+         for (Poly p : polygons) {
+            p.lineColor = new Color(p.color.getRed() / 2,
+                    p.color.getGreen() / 2,
+                    p.color.getBlue() / 2);
+        }
+    }
+    
+    public void wireframe() {
+        wireframe(null, Color.BLACK);
+    }
+
+    public void wireframe(Color fill, Color line){
+        for (Poly p : polygons) {
+            p.color = fill;
+            p.lineColor = line;
         }
     }
     

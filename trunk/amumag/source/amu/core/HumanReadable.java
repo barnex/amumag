@@ -14,26 +14,8 @@
  *  GNU General Public License for more details (licence.txt).
  */
 
-package amu.data;
+package amu.core;
 
-import amu.geom.Vector;
+public final class HumanReadable{
 
-public class Component extends Scalarizer {
-
-    private int component;
-
-    public Component(DataModel model, int component) {
-        super(model);
-        this.component = component;
-    }
-
-    @Override
-    public double toDouble(Vector v) {
-        return v.getComponent(component);
-    }
-
-    @Override
-    public String getName() {
-        return originalModel.getName() + Names.OPERATOR + ((char)('x' + component));
-    }
 }
