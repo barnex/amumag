@@ -70,6 +70,10 @@ public abstract class Renderer {
         ImageIO.write(img, "png", file);
     }
     
+    public void savePng(File file) throws IOException{
+        savePng(file, 0, 0, 0, 0);
+    }
+            
     public void saveEps(File file, double xmin, double xmax, double ymin, double ymax) throws IOException{     
         EpsGraphics2D epsg = new EpsGraphics2D(model.getName(), file, 
                 (int)(xmin-0.5), (int)(ymin-0.5), (int)(xmax+0.5), (int)(ymax+0.5));

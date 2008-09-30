@@ -26,6 +26,8 @@ import amu.mag.Simulation;
 import amu.mag.Unit;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Data of a live running simulation. The data is Dependent on space.
@@ -34,20 +36,44 @@ import java.lang.reflect.Field;
 public final class LiveMeshDataModel extends DataModel{
 
     private final Simulation sim;
-    private final String fieldName;
-    private final Field field;
-    private final boolean isVector;
+    private final String name;
+    private Method method;
+    private Field field;
+    private boolean isVector;
     
-    public LiveMeshDataModel(Simulation sim, String fieldName) throws NoSuchFieldException{
+    public static final Class[] EMPTY = new Class[]{};
+    
+    public LiveMeshDataModel(Simulation sim, String name){
         this.sim = sim;
-        field = Cell.class.getField(fieldName);
-        if(field.getType().equals(Vector.class))
-            isVector = true;
-        else if(field.getType().equals(double.class))
-            isVector = false;
-        else
-            throw new Bug();
-        this.fieldName = fieldName;
+        try {
+            // check if "name" is the name of a field
+            field = Cell.class.getField(name);
+            if (field.getType().equals(Vector.class)) {
+                isVector = true;
+            } else if (field.getType().equals(double.class)) {
+                isVector = false;
+            } else {
+                throw new IllegalArgumentException("Type of " + name + " is " + field.getType() + ", should be double or Vector.");
+            }
+            method = null;
+        } catch (NoSuchFieldException e) {
+            // ... otherwise check if get_"name" is a method
+            try {
+                method = Cell.class.getMethod("get_" + name, EMPTY);
+                if (method.getReturnType().equals(Vector.class)) {
+                    isVector = true;
+                } else if (method.getReturnType().equals(double.class)) {
+                    isVector = false;
+                } else {
+                    throw new IllegalArgumentException("Type of " + name + " is " + method.getReturnType() + ", should be double or Vector.");
+                }
+                field = null;
+            } catch (NoSuchMethodException e2) {
+                // "name is invalid"
+                throw new IllegalArgumentException("Output field does not exist: " + name);
+            }
+        }
+        this.name = name;
     }
     
     @Override
@@ -69,14 +95,23 @@ public final class LiveMeshDataModel extends DataModel{
         if (cell != null) {
             try {
                 if (isVector) {
-                    v.set((Vector) field.get(cell));
+                    if(method == null)
+                        v.set((Vector) field.get(cell));
+                    else
+                        v.set((Vector) method.invoke(cell, (Object[])EMPTY));
                 } else {
-                    v.x = field.getDouble(cell);
+                    if(method == null)
+                        v.x = field.getDouble(cell);
+                    else
+                        v.x = ((Double)(method.invoke(cell, (Object[])EMPTY))).doubleValue();
                 }
             } catch (IllegalArgumentException e) {
                 throw new Bug(e);
             } catch (IllegalAccessException e2) {
                 throw new Bug(e2);
+            }
+            catch(InvocationTargetException e3){
+                throw new Error(e3);
             }
         } 
         else{
@@ -117,11 +152,11 @@ public final class LiveMeshDataModel extends DataModel{
 
     @Override
     public String getName() {
-        return fieldName;
+        return name;
     }
 
     @Override
     public String getUnit() {
-        return Unit.getUnit(fieldName);
+        return Unit.getUnit(name);
     }
 }

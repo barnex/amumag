@@ -93,7 +93,7 @@ public final class Simulation {
         try {
             // see if the field name is a variable of Cell
             return new LiveMeshDataModel(this, field);
-        } catch (NoSuchFieldException ex) {
+        } catch (IllegalArgumentException ex) {
             // if not, see if it's a variable of Evolver
             return new LiveTableDataModel(this, field);
             // if not, NoSuchFieldException is thrown.
@@ -158,7 +158,7 @@ public final class Simulation {
      * @throws java.lang.Exception
      */
     public void runTime(double duration) throws IOException{
-        Message.title("run: " + duration + " s");
+        Message.title("run: " + duration*Unit.TIME + " s");
         Message.hrule();
         //duration /= Unit.TIME;
         double startTime = totalTime;

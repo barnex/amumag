@@ -79,7 +79,8 @@ public class DR3DRenderer extends Renderer{
     public DR3DRenderer(DataModel model) throws IOException {
         this.model = model;
         setPolys(model.getMesh());
-        wireframe();
+        surface();
+        //();
     }
     
     // sets the data but not the mesh.
@@ -136,7 +137,7 @@ public class DR3DRenderer extends Renderer{
         Vector buffer = new Vector();
         this.colorMap = map;
         if (map == null) {
-            wireframe();
+            surface();
         }
         else{
             //this.colorMap = map;
@@ -152,6 +153,10 @@ public class DR3DRenderer extends Renderer{
         }
     }
 
+    public void surface(){
+        surface(Color.WHITE, 0.9);
+    }
+    
     public void surface(Color fill, double contrast) {
         Vector lamp = new Vector(model.getMesh().boxSize);
 
@@ -188,6 +193,8 @@ public class DR3DRenderer extends Renderer{
             p.lineColor = line;
         }
     }
+    
+ 
     
     public void save(File file) throws IOException{   
         width = 4096;

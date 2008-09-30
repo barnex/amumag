@@ -19,7 +19,7 @@ package amu.mag.field;
 
 import amu.mag.*;
 import amu.geom.Vector;
-
+   
 public abstract class ExternalField {
 
     private final Vector buffer = new Vector();

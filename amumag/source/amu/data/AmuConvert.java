@@ -58,7 +58,7 @@ public final class AmuConvert{
     
     public void zaverage(File file) throws IOException{
         SavedDataModel data = new SavedDataModel(file);
-        DataModel derived = new ZAverage(data);
+        DataModel derived = new ZAverage(new Component(data, Z));
         derived.save(file.getParentFile());
     }
     
