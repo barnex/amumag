@@ -35,11 +35,11 @@ public class Test extends Problem{
         setBoxSizeX(250E-9);
         setBoxSizeY(250E-9);
         setBoxSizeZ(50E-9);
-        setMaxCellSizeX(16E-9);
-        setMaxCellSizeY(16E-9);
+        setMaxCellSizeX(8E-9);
+        setMaxCellSizeY(8E-9);
         setMaxCellSizeZ(1.0/0.0);
         setFmmOrder(1);
-        //setFmmAlpha(0.9);
+        setFmmAlpha(1);
         setKernelIntegrationAccuracy(1);
         setMagnetization(new Vortex(1));
         setTargetMaxAbsError(1E-5);
@@ -51,35 +51,28 @@ public class Test extends Problem{
     //@Override
     public void run() throws Exception{
         
-       final double f=562.5E6;
-	
-	save("m", 1/f/32);
-	save(new SpaceAverage(getData("hExt")), 10);
-	save(new SpaceAverage(getData("m")), 10);
-	save("hExt", 1000);
-	save("maxTorque", 10);
-
-	setPrecession(false);
-	runTorque(3E-1);
-	setFmmOrder(2);
-	runTime(12E-9);
-	//setFmmOrder(3);
-	//runTime(10E-9);
-
-	DataModel mz = new Component(new ZAverage(getData("m")), Vector.Z);
-        DataModel mzAbs = new Abs(mz);
-        save(mz, 32/f);
-        DataModel corePos = new FineExtremumPosition(mzAbs, Extremum.MAX, 0.5);
-        save(corePos, 1.0/f/256);
-        DataModel coreSpeed = new RunningDerivative(corePos);
-        save(coreSpeed, 1.0/f/64);
-	
-	setExternalField(new StaticField(1E-3, 0, 0));
-	
-	setPrecession(true);
-	setDt(1E-5);
-
-	runTime(100E-9);
+       save("m", 10);
+       save(new SpaceAverage(getData("m")), 10);
+       
+       setPrecession(false);
+       setExternalField(new StaticField(20E-3, 0, 0));
+       runTime(20E-9);
+       
+       save("dampingPowerDensity", 10);
+       save("exchangePowerDensity", 10);
+       save("magneticFieldPowerDensity", 10);
+       save("energyDensity", 10);
+       save("powerDensity", 10);
+       save(new Integral(getData("dampingPowerDensity")), 10);
+       save(new Integral(getData("exchangePowerDensity")), 10);
+       save(new Integral(getData("magneticFieldPowerDensity")), 10);
+       save(new Integral(getData("energyDensity")), 10);
+       save(new Integral(getData("powerDensity")), 10);
+       
+       setPrecession(true);
+       setExternalField(new StaticField(0, 0, 0));
+       runTime(1E-9);
+       
     }
 }
 

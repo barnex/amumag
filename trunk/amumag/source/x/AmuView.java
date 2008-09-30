@@ -150,6 +150,10 @@ public final class AmuView {
         frame.getContentPane().repaint();
     }
 
+    public void exit(){
+        System.exit(0);
+    }
+    
     public void time(int time) throws IOException {
         msg("Opening time: " + time);
         if(view.scroller.getValue() != time)
@@ -164,6 +168,14 @@ public final class AmuView {
         return timeProbedData.getTime_();
     }
 
+    public void save(String file) throws IOException{
+        renderer.save(new File(file));
+    }
+    
+    public void savePng(String file) throws IOException{
+        renderer.savePng(new File(file));
+    }
+        
     public void quantity(String scalar) throws IOException{
         if(scalar.equals("x")){
             renderer.setModel(new Component(displayedData, X));

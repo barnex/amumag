@@ -89,6 +89,10 @@ public final class Cell implements Serializable{
     public transient final Vector hExt = new Vector();
     public transient final Vector hSmooth = new Vector();
     
+    // hack
+    public transient final Vector hExPrevious = new Vector();
+    public transient final Vector hMagPrevious = new Vector();
+    
     // general purpuose storage for the sake of visualizers.
     public transient Vector dataBuffer = null;
 
@@ -116,7 +120,7 @@ public final class Cell implements Serializable{
     
     //__________________________________________________________________________init
     
-    // does not belong here.
+    // does not really belong here.
     private void createVertices(Pool<Vector> vertexPool){
 	vertex = new Vector[8];
 	    for(int i = 0; i<= 1; i++){
@@ -232,6 +236,12 @@ public final class Cell implements Serializable{
             }
         }
         else{ //leaf cell: update kernel, exch and torque.
+            
+            // hack
+            hExPrevious.set(hEx);
+            hMagPrevious.set(hDemag);
+            hMagPrevious.add(hExt);
+            
             kernel.update(hKernel);
             exchange.update();
             
@@ -734,8 +744,56 @@ public final class Cell implements Serializable{
     public double get_demagEnergyDensity(){
         return -hDemag.dot(m);
     }
+    
+    public double get_dampingPowerDensity(){
+        // - m cross H
+        double _mxHx = -m.y*h.z + h.y*m.z;
+	double _mxHy =  m.x*h.z - h.x*m.z;
+	double _mxHz = -m.x*h.y + h.x*m.y;
+        
+        // - m cross (m cross H)
+        double _mxmxHx =  m.y*_mxHz - _mxHy*m.z;
+        double _mxmxHy = -m.x*_mxHz + _mxHx*m.z;
+        double _mxmxHz =  m.x*_mxHy - _mxHx*m.y; 
+        
+        // dm_damping/dt
+        double dmx_dt = _mxmxHx * alpha;
+        double dmy_dt = _mxmxHy * alpha;
+        double dmz_dt = _mxmxHz * alpha;
+        
+        return -(dmx_dt*h.x + dmy_dt*h.y + dmz_dt*h.z);
+    }
+    
+    public double get_exchangePowerDensity() {
+        double dhx = hEx.x - hExPrevious.x;
+        double dhy = hEx.y - hExPrevious.y;
+        double dhz = hEx.z - hExPrevious.z;
+        
+        double dt = Main.sim.evolver.prevDt;
+        
+        return -(dhx * m.x + dhy*m.y + dhz*m.z) / dt;
+    }
+    
+    public double get_magneticFieldPowerDensity(){
+        double dhx = hDemag.x + hExt.x - hMagPrevious.x;
+        double dhy = hDemag.y + hExt.y - hMagPrevious.y;
+        double dhz = hDemag.z + hExt.z - hMagPrevious.z;
+        
+        double dt = Main.sim.evolver.prevDt;
+        
+        return -(dhx * m.x + dhy*m.y + dhz*m.z) / dt;
+    }
+    
+    public double get_powerDensity(){
+        return get_dampingPowerDensity() + get_exchangePowerDensity() + get_magneticFieldPowerDensity();
+    }
+    
+    public double get_conservativePowerDensity(){
+        return get_exchangePowerDensity() + get_magneticFieldPowerDensity();
+    }
 }
 
     // Donald Knuth wrote:
-    // "We should forget about small efficiencies, about 97% of the time. Premature optimization is the root of all evil.
+    // "We should forget about small efficiencies, about 97% of the time. 
+    // Premature optimization is the root of all evil."
  

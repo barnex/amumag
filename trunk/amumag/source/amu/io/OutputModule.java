@@ -22,6 +22,8 @@
 package amu.io;
 
 import amu.mag.Simulation;
+import java.beans.XMLEncoder;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
