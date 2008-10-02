@@ -35,44 +35,23 @@ public class Test extends Problem{
         setBoxSizeX(250E-9);
         setBoxSizeY(250E-9);
         setBoxSizeZ(50E-9);
-        setMaxCellSizeX(8E-9);
-        setMaxCellSizeY(8E-9);
-        setMaxCellSizeZ(1.0/0.0);
+        setMaxCellSizeX(4E-9);
+        setMaxCellSizeY(4E-9);
+        setMaxCellSizeZ(50E-9/4.0);
         setFmmOrder(1);
         setFmmAlpha(1);
         setKernelIntegrationAccuracy(1);
         setMagnetization(new Vortex(1));
         setTargetMaxAbsError(1E-5);
-        //addShape(new Cylinder(50E-9));
-        //addTransform(new Stripline(20E-9, 15E-9));
+        addShape(new Cylinder(125E-9));
+        addTransform(new ToplayerHelix(12E-9, Math.PI/32, Math.PI/2, 25E-9));
     }
       
     
     //@Override
     public void run() throws Exception{
         
-       save("m", 10);
-       save(new SpaceAverage(getData("m")), 10);
-       
-       setPrecession(false);
-       setExternalField(new StaticField(20E-3, 0, 0));
-       runTime(20E-9);
-       
-       save("dampingPowerDensity", 10);
-       save("exchangePowerDensity", 10);
-       save("magneticFieldPowerDensity", 10);
-       save("energyDensity", 10);
-       save("powerDensity", 10);
-       save(new Integral(getData("dampingPowerDensity")), 10);
-       save(new Integral(getData("exchangePowerDensity")), 10);
-       save(new Integral(getData("magneticFieldPowerDensity")), 10);
-       save(new Integral(getData("energyDensity")), 10);
-       save(new Integral(getData("powerDensity")), 10);
-       
-       setPrecession(true);
-       setExternalField(new StaticField(0, 0, 0));
-       runTime(1E-9);
-       
+       save("m");
     }
 }
 
