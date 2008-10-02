@@ -386,12 +386,26 @@ public final class AmuView {
                 else {
                     JMenu mesh = new JMenu("Mesh");
                     mesh.add(new JMenuItem(new RefAction("Wireframe", "mesh wireframe")));
+                    mesh.add(new JMenuItem(new RefAction("Black & White", "mesh blackandwhite")));
+                    mesh.add(new JMenuItem(new RefAction("Surface", "mesh surface")));
                     add(mesh);
                 }
             }
         }
     }
 
+    public void mesh(String type) throws IOException{
+        if("wireframe".equals(type))
+            ((DR3DRenderer)renderer).wireframe();
+        else if("blackandwhite".equals(type))
+            ((DR3DRenderer)renderer).wireframe(Color.WHITE, Color.BLACK);
+        else if("surface".equals(type))
+            ((DR3DRenderer)renderer).surface();
+        else
+            throw new IllegalArgumentException(type);
+        repaint();
+    }
+    
     private void msg(String msg){
         label.setText(msg);
     }
