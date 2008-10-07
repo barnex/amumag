@@ -17,6 +17,7 @@
 
 package amu.mag.config;
 
+import amu.core.Index;
 import amu.geom.Vector;
 
 /**
@@ -25,7 +26,7 @@ import amu.geom.Vector;
  */
 public abstract class Configuration {
 
-    public abstract void putM(double x, double y, double z, Vector target);
+    public abstract void putM(double x, double y, double z, Vector target, Index index);
     
     public static void normalizeVerySafe(Vector m){
         m.normalize();

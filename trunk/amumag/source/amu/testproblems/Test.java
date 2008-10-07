@@ -24,10 +24,11 @@ import amu.mag.*;
 import amu.mag.config.*;
 import amu.mag.field.ExponentialField;
 import amu.data.*;
+import java.io.File;
 
 public class Test extends Problem{
 
-    public void init(){
+    public void init() throws Exception{
         setOutputDir("/home/arne/Desktop/test.amu");
         setMs(800E3);
         setA(13E-12);
@@ -35,23 +36,23 @@ public class Test extends Problem{
         setBoxSizeX(250E-9);
         setBoxSizeY(250E-9);
         setBoxSizeZ(50E-9);
-        setMaxCellSizeX(4E-9);
-        setMaxCellSizeY(4E-9);
-        setMaxCellSizeZ(50E-9/4.0);
+        setMaxCellSizeX(8E-9);
+        setMaxCellSizeY(8E-9);
+        setMaxCellSizeZ(50E-9/2);
+ 
+        
         setFmmOrder(1);
         setFmmAlpha(1);
         setKernelIntegrationAccuracy(1);
-        setMagnetization(new Vortex(1));
+        setMagnetization(new Vortex());
         setTargetMaxAbsError(1E-5);
-        addShape(new Cylinder(125E-9));
-        addTransform(new ToplayerHelix(12E-9, Math.PI/32, Math.PI/2, 25E-9));
+        //addShape(new Cylinder(125E-9));
+        addTransform(new OuterlayerRoughness(12.5E-9, 50E-9));
     }
       
-    
     //@Override
     public void run() throws Exception{
-        
-       save("m");
+       save(getData("m"), "groundstate");
     }
 }
 

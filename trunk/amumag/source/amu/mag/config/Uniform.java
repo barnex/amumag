@@ -21,6 +21,7 @@
 
 package amu.mag.config;
 
+import amu.core.Index;
 import amu.geom.Vector;
 
 /**
@@ -36,7 +37,7 @@ public class Uniform extends Configuration{
     }
     
     @Override
-    public void putM(double x, double y, double z, Vector target) {
+    public void putM(double x, double y, double z, Vector target, Index index) {
         target.set(m);
     }
 

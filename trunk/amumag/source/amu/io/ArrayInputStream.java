@@ -117,8 +117,6 @@ public final class ArrayInputStream{
             return new Vector(readDoubleImpl(), readDoubleImpl(), readDoubleImpl());
     }
     
-    
-    
     /**
      * Reads a 1-dimensional list of doubles.
      */
@@ -146,6 +144,49 @@ public final class ArrayInputStream{
         }
     }
 
+    public final double[][] readMatrix() throws IOException{
+        if(getDimension() != 2)
+            throw new IOException("File does not contain a matrix: dimension = " + getDimension());
+            double[][] matrix = new double[size[0]][size[1]];
+            for(int j=0; j<matrix[0].length; j++)
+                for(int i=0; i<matrix.length; i++)   
+                    matrix[i][j] = readDoubleImpl();
+            return matrix;
+    }
+
+    public final double[][][] readBlock() throws IOException{
+        if(getDimension() != 2)
+            throw new IOException("File does not contain a block: dimension = " + getDimension());
+            double[][][] matrix = new double[size[0]][size[1]][size[2]];
+            for(int k=0; k<matrix[0][0].length; k++)
+                for(int j=0; j<matrix[0].length; j++)
+                    for(int i=0; i<matrix.length; i++)        
+                        matrix[i][j][k] = readDoubleImpl();
+            return matrix;
+    }
+
+       public final Vector[][][] readVectorBlock() throws IOException{
+        if(getDimension() != 3)
+            throw new IOException("File does not contain a block: dimension = " + getDimension());
+            Vector[][][] matrix = new Vector[size[0]][size[1]][size[2]];
+            for(int k=0; k<matrix[0][0].length; k++)
+                for(int j=0; j<matrix[0].length; j++)
+                    for(int i=0; i<matrix.length; i++)
+                        matrix[i][j][k] = readVector();
+            return matrix;
+    }
+       
+    public final Object read() throws IOException{
+        if(getDimension() == 1 && !vectorData)
+            return readList();
+        else if(getDimension() == 2 && !vectorData)
+            return readMatrix();
+        else if(getDimension() == 3 && !vectorData)
+            return readBlock();
+        else
+            throw new IllegalArgumentException();
+    }
+    
     private final int getDimension() {
         return size.length;
     }

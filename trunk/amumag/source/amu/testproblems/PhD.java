@@ -56,7 +56,7 @@ public class PhD extends Problem{
     
     //@Override
     public void run() throws Exception{
-        save("m");
+        save(getData("m"));
         
     }
 }

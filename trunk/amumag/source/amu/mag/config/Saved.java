@@ -14,29 +14,25 @@
  *  GNU General Public License for more details (licence.txt).
  */
 
-
 package amu.mag.config;
 
 import amu.core.Index;
 import amu.geom.Vector;
-import static java.lang.Math.*;
+import amu.io.ArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
-public class Region extends Configuration{
+public final class Saved extends Configuration{
+
+    private Vector[][][] saved;
     
-    private Vector center;
-    private double r;
-    private Vector m;
-
-    public Region(Vector center, double r, Vector m){
-        this.center = center;
-        this.r = r;
-        this.m = m;
+    public Saved(File file) throws IOException{
+        saved = new ArrayInputStream(new FileInputStream(file)).readVectorBlock();
     }
     
     @Override
-    public void putM(double x, double y, double z, Vector target,Index index) {
-        if(abs(x-center.x) < r && abs(y-center.y) <r)
-            target.set(m);
+    public void putM(double x, double y, double z, Vector target, Index index) {
+        target.set(saved[index.x][index.y][index.z]);
     }
-
 }
