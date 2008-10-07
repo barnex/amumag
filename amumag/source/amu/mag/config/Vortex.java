@@ -16,6 +16,7 @@
 
 package amu.mag.config;
 
+import amu.core.Index;
 import amu.geom.Vector;
 import amu.mag.Unit;
 import static java.lang.Math.sqrt;
@@ -84,7 +85,7 @@ public class Vortex extends Configuration{
     }
     
     @Override
-    public void putM(double x, double y, double z, Vector target) {
+    public void putM(double x, double y, double z, Vector target, Index index) {
         if(once){
             center.divide(Unit.LENGTH);
             once = false;

@@ -17,6 +17,7 @@
 
 package amu.mag.config;
 
+import amu.core.Index;
 import amu.geom.Vector;
 import static java.lang.Math.*;
 
@@ -29,7 +30,7 @@ public class Landau extends Configuration{
     
     
     @Override
-    public void putM(double x, double y, double z, Vector target) {
+    public void putM(double x, double y, double z, Vector target, Index index) {
         double angle = atan2(y, x);
         if(angle < PI/4 && angle > -PI/4)
             target.set(0, -1, 0);

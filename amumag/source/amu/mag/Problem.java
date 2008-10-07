@@ -118,8 +118,16 @@ public abstract class Problem {
         return sim.getModel(field);
     }
     
-    public void save(String field) throws NoSuchFieldException, IOException{
+    /*public void save(String field) throws NoSuchFieldException, IOException{
         save(sim.getModel(field));
+    }*/
+    
+    public void save(DataModel model, String dest) throws IOException{
+        model.save(sim.getBaseDirectory(), dest);
+    }
+    
+    public void save(DataModel model, File dest) throws IOException{
+        model.save(dest);
     }
     
     public void save(DataModel model) throws IOException{

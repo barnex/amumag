@@ -319,11 +319,23 @@ public final class Simulation {
     }
     
     protected void setMagnetization(Configuration config){
-        for(Cell cell = mesh.baseRoot; cell != null; cell = cell.next){
-            Vector r = cell.center;
-            config.putM(r.x, r.y, r.z, cell.m);
-            Configuration.normalizeVerySafe(cell.m);
-        }
+//        for(Cell cell = mesh.baseRoot; cell != null; cell = cell.next){
+//            Vector r = cell.center;
+//            config.putM(r.x, r.y, r.z, cell.m,null);
+//            Configuration.normalizeVerySafe(cell.m);
+//        }
+        Index index = new Index();
+        for(int i=0; i<mesh.baseLevel.length; i++)
+            for(int j=0; j<mesh.baseLevel[i].length; j++)
+                for(int k=0; k<mesh.baseLevel[i][j].length; k++){
+                    Cell cell = mesh.baseLevel[i][j][k];
+                    if(cell != null){
+                        index.set(i,j,k);
+                        Vector r = cell.center;
+                        config.putM(r.x, r.y, r.z, cell.m, index);
+                        Configuration.normalizeVerySafe(cell.m);
+                    }
+                }
     }
     
     protected void addMagnetization(Configuration config){
@@ -332,7 +344,7 @@ public final class Simulation {
             Vector r = cell.center;
             Vector m = cell.m;
             buffer.set(cell.m);
-            config.putM(r.x, r.y, r.z, m);
+            config.putM(r.x, r.y, r.z, m,null);
             m.add(buffer);
             Configuration.normalizeVerySafe(m);
         }
