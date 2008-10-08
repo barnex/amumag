@@ -33,6 +33,10 @@ public class CombinedHomeomorphism extends Homeomorphism{
     
     @Override
     public void getMove(Vector r, Vector target, Mesh mesh, Index cellIndex, Index vertexIndex) {
+        //2008-10-07: bugfix
+        buffer.reset();
+        target.reset();
+        
         a.getMove(r, buffer, mesh, cellIndex, vertexIndex);
         b.getMove(r, target, mesh, cellIndex, vertexIndex);
         target.add(buffer);

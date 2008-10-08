@@ -387,6 +387,7 @@ public final class AmuView {
                     JMenu mesh = new JMenu("Mesh");
                     mesh.add(new JMenuItem(new RefAction("Wireframe", "mesh wireframe")));
                     mesh.add(new JMenuItem(new RefAction("Black & White", "mesh blackandwhite")));
+                    mesh.add(new JMenuItem(new RefAction("Shaded Frame", "mesh litlines")));
                     mesh.add(new JMenuItem(new RefAction("Surface", "mesh surface")));
                     add(mesh);
                 }
@@ -401,6 +402,8 @@ public final class AmuView {
             ((DR3DRenderer)renderer).wireframe(Color.WHITE, Color.BLACK);
         else if("surface".equals(type))
             ((DR3DRenderer)renderer).surface();
+        else if("litlines".equals(type))
+            ((DR3DRenderer)renderer).litLines();
         else
             throw new IllegalArgumentException(type);
         repaint();

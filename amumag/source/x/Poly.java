@@ -16,16 +16,14 @@
 
 package x;
 
-import amu.core.Pool;
 import amu.geom.Vector;
-import amu.mag.Cell;
 import amu.mag.Face;
 import amu.core.Index;
 import java.awt.Color;
 import java.util.IdentityHashMap;
 
 /**
- *
+ * Polygon, rendered in amuviews' 3D view.
  */
 public final class Poly implements Comparable<Poly>{
 	
@@ -41,7 +39,40 @@ public final class Poly implements Comparable<Poly>{
         public final Vector transformedNormal;
 	public boolean inBack;
         
+        public Poly(Face face, Vector normal, IdentityHashMap<Vector, Vector> vertexPool, int triangle){
+            
+            vertex = new Vector[3];
+            
+            int a = triangle;
+            int b = (triangle+1)%4;
+            vertex[1] = intern(face.vertex[a], vertexPool);
+            vertex[2] = intern(face.vertex[b], vertexPool);
+            vertex[0] = intern(face.center, vertexPool);
+            
+            double xa = vertex[1].x - vertex[0].x;
+            double xb = vertex[2].x - vertex[0].x;
+            double ya = vertex[1].y - vertex[0].y;
+            double yb = vertex[2].y - vertex[0].y;
+            double za = vertex[1].z - vertex[0].z;
+            double zb = vertex[2].z - vertex[0].z;
+            
+            double xcross =  ya*zb - yb*za;
+            double ycross = -xa*zb + xb*za;
+            double zcross =  xa*yb - xb*ya;
+        
+            this.normal = new Vector(xcross, ycross, zcross);
+            if(this.normal.dot(normal) < 0) //make sure normal points outwards.
+                this.normal.multiply(-1);
+	    this.normal.normalizeSafe();
+            this.transformedNormal = new Vector(this.normal);
+	}
 	
+        private Vector intern(Vector vertex, IdentityHashMap<Vector, Vector> vertexPool){
+            if(vertexPool.get(vertex) == null)
+		    vertexPool.put(vertex, new Vector(vertex)); // checklist plus link to transformed vertex at the same time
+		return vertexPool.get(vertex);
+        }
+        
 	public Poly(Face face, Vector normal, IdentityHashMap<Vector, Vector> vertexPool){
             
             

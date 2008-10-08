@@ -22,6 +22,7 @@ import java.awt.Graphics2D;
 import java.io.IOException;
 import static java.lang.Math.*;
 import amu.data.DataModel;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
@@ -66,7 +67,10 @@ public abstract class Renderer {
     
     public void savePng(File file, double xmin, double xmax, double ymin, double ymax) throws IOException{
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
-        paint((Graphics2D) (img.getGraphics()), width, height);
+        Graphics2D graphics = (Graphics2D)(img.getGraphics());
+        graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);   
+        paint(graphics, width, height);
         ImageIO.write(img, "png", file);
     }
     

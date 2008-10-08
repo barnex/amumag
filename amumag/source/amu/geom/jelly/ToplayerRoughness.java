@@ -31,10 +31,16 @@ public class ToplayerRoughness extends RandomHomeomorphism{
     protected double length, amplitude;
     protected boolean initiated = false;
     
-    public ToplayerRoughness(double amplitude, double length){
+    public ToplayerRoughness(double amplitude, double length, int seed){
+        super(seed);
         this.length = length;
         this.amplitude = amplitude;
     }
+    
+    public ToplayerRoughness(double amplitude, double length){
+        this(amplitude, length, 0);
+    }
+    
     
     @Override
     public void getMove(Vector r, Vector target) {
