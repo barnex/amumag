@@ -67,7 +67,7 @@ public class DR3DRenderer extends Renderer{
     public static final Color FILL_COLOR = null;
     
     //One polygon to be re-used many times for drawing each polygon of the 3D object
-    private final Polygon POLYGON_BUFFER = new Polygon(new int[4], new int[4], 4);
+    private final Polygon POLYGON_BUFFER = new Polygon(new int[3], new int[3], 3);
     private final Stroke STROKE = new BasicStroke(1);
     
     //__________________________________________________________________________
@@ -109,9 +109,11 @@ public class DR3DRenderer extends Renderer{
 			for(int f=0; f<cell.faces.length; f++){
 			    Face face = cell.faces[f];
 			    if(face.sideness != 0){
-				Poly p = new Poly(face, cell.normal[f], vertexPool);
-                                p.index = new Index(i, j, k);
-				polys.add(p);
+                                for(int triangle=0; triangle<4; triangle++){
+                                    Poly p = new Poly(face, cell.normal[f], vertexPool, triangle);
+                                    p.index = new Index(i, j, k);
+                                    polys.add(p);
+                                }
 			    }
 			}
                     }
@@ -155,6 +157,17 @@ public class DR3DRenderer extends Renderer{
 
     public void surface(){
         surface(Color.WHITE, 0.9);
+    }
+    
+    public void litLines(){
+        litLines(new Color(200, 200, 200), 1.0);
+    }
+    
+    public void litLines(Color fill, double contrast){
+        surface(fill, contrast);
+        for (Poly p : polygons) {
+            p.color = Color.WHITE;
+        }
     }
     
     public void surface(Color fill, double contrast) {
@@ -242,13 +255,13 @@ public class DR3DRenderer extends Renderer{
 	g.setStroke(STROKE);
         
 	for(Poly p: polygons){    
-            
+            //System.out.print('*');
             //08-05-15
             if(Thread.currentThread().isInterrupted())
                 break;
             
 	    if(!p.inBack && p.transformedNormal.z > 0){
-		for(int i=0; i<4; i++){
+		for(int i=0; i<POLYGON_BUFFER.xpoints.length; i++){
 		    POLYGON_BUFFER.xpoints[i] = (int) p.vertex[i].x;
 		    POLYGON_BUFFER.ypoints[i] = (int) p.vertex[i].y;
 		}

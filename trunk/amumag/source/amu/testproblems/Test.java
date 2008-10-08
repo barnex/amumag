@@ -47,7 +47,7 @@ public class Test extends Problem{
         setMagnetization(new Vortex());
         setTargetMaxAbsError(1E-5);
         //addShape(new Cylinder(125E-9));
-        addTransform(new OuterlayerRoughness(12.5E-9, 50E-9));
+        addTransform(new SubstratelayerRoughness(12.5E-9, 50E-9).combine(new ToplayerRoughness(12.5E-9, 50E-9)));
     }
       
     //@Override

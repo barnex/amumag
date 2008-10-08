@@ -19,7 +19,7 @@ package x;
 import amu.geom.Vector;
 import java.awt.Color;
 /**
- *
+ * Colorizes a Polygon, using flat, diffuse shading.
  */
 public final class Light{
 
@@ -38,7 +38,8 @@ public final class Light{
 	for (Vector v : poly.vertex) {
 	    center.add(v);
 	}
-	center.divide(-4.0);
+	center.divide(poly.vertex.length);
+        center.multiply(-1.0);
 	center.add(light);
 	center.normalizeSafe();
 	double inprod = (center.dot(poly.normal));
