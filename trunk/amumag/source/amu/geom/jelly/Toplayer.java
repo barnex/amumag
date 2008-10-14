@@ -14,29 +14,37 @@
  *  GNU General Public License for more details (licence.txt).
  */
 
-package amu.mag.config;
+package amu.geom.jelly;
 
 import amu.core.Index;
+import amu.geom.Mesh;
 import amu.geom.Vector;
-import amu.io.ArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 
-public final class Saved extends Configuration{
+/**
+ * Limits an other homeomorphism to the top layer of cells.
+ * @author arne
+ */
+public final class Toplayer extends Homeomorphism{
 
-    private Vector[][][] saved;
+    private final Homeomorphism original;
     
-    public Saved(File file) throws IOException{
-        saved = new ArrayInputStream(new FileInputStream(file)).readVectorBlock();
-    }
-    
-    public Saved(String file) throws IOException{
-        this(new File(file));
+    public Toplayer(Homeomorphism original){
+        this.original = original;
     }
     
     @Override
-    public void putM(double x, double y, double z, Vector target, Index index) {
-        target.set(saved[index.x][index.y][index.z]);
+    public void getMove(Vector r, Vector target) {
+        throw new UnsupportedOperationException("Unused");
+    }
+
+    @Override
+    public void getMove(Vector r, Vector target, Mesh mesh, Index cellIndex, Index vertexIndex){
+        int z = cellIndex.z + vertexIndex.z;
+        
+        int maxZ = mesh.baseLevel[0][0].length;
+        if(z == 0)
+            original.getMove(r, target, mesh, cellIndex, vertexIndex);
+        else
+            target.set(0, 0, 0);
     }
 }

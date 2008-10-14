@@ -20,26 +20,31 @@ import amu.core.Index;
 import amu.geom.Mesh;
 import amu.geom.Vector;
 
-public final class TranslatedHomeomorphism extends Homeomorphism{
-    
-    private final Vector delta;
-    private final Homeomorphism original;
-    private final Vector buffer = new Vector();
-    
-    public TranslatedHomeomorphism(Homeomorphism shape, Vector delta){
-	this.original = shape;
-	this.delta = delta;
-    }
+/**
+ * Limits an other homeomorphism to the top layer of cells.
+ * @author arne
+ */
+public final class Outerlayer extends Homeomorphism{
 
-   
-    @Override
-    public void getMove(Vector r, Vector target, Mesh mesh, Index cellIndex, Index vertexIndex){
-        buffer.set(r);
-        buffer.subtract(delta);
-        original.getMove(buffer, target, mesh, cellIndex, vertexIndex);
+    private final Homeomorphism original;
+    
+    public Outerlayer(Homeomorphism original){
+        this.original = original;
     }
     
+    @Override
     public void getMove(Vector r, Vector target) {
         throw new UnsupportedOperationException("Unused");
+    }
+
+    @Override
+    public void getMove(Vector r, Vector target, Mesh mesh, Index cellIndex, Index vertexIndex){
+        int z = cellIndex.z + vertexIndex.z;
+        
+        int maxZ = mesh.baseLevel[0][0].length;
+        if(z == 0 || z == maxZ)
+            original.getMove(r, target, mesh, cellIndex, vertexIndex);
+        else
+            target.set(0, 0, 0);
     }
 }

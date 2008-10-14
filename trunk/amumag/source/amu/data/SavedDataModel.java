@@ -142,8 +142,8 @@ public final class SavedDataModel extends DataModel{
         }
     }
     
-    public static Mesh readMesh(File file) throws IOException{
-        Mesh mesh;
+    public static Mesh readMesh(File file){// throws IOException{ //comment for gcj
+        Mesh mesh = null;
         try {
             Message.debug("read mesh: " + file.getAbsolutePath());
             ObjectInputStream in = new ObjectInputStream(new GZIPInputStream(new FileInputStream(file)));
@@ -151,10 +151,10 @@ public final class SavedDataModel extends DataModel{
             in.close();
         } catch (Exception ex) {
             
-            throw new IOException("Error reading file: " + file.getAbsolutePath(), ex);
+            //throw new IOException("Error reading file: " + file.getAbsolutePath(), ex);
             // patch for gcj:
-            //ex.printStackTrace();
-            //System.exit(-1);
+            ex.printStackTrace();
+            System.exit(-1);
         }
         // init data buffer
         Cell[][][][] levels = mesh.levels;
