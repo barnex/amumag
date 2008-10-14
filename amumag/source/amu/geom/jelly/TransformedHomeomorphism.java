@@ -38,7 +38,7 @@ public final class TransformedHomeomorphism extends Homeomorphism{
 	double yt = matrix[1].dot(v);
 	double zt = matrix[2].dot(v);
 	buffer.set(xt, yt, zt);
-        original.getMove(buffer, target);
+        original.getMove(buffer, target, mesh, cellIndex, vertexIndex);
     }
 
     @Override

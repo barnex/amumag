@@ -14,29 +14,24 @@
  *  GNU General Public License for more details (licence.txt).
  */
 
-package amu.mag.config;
+package amu.geom.jelly;
 
-import amu.core.Index;
 import amu.geom.Vector;
-import amu.io.ArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 
-public final class Saved extends Configuration{
-
-    private Vector[][][] saved;
+public final class Bump extends Homeomorphism{
     
-    public Saved(File file) throws IOException{
-        saved = new ArrayInputStream(new FileInputStream(file)).readVectorBlock();
-    }
+    private final double sigma2;
+    private final double height;
     
-    public Saved(String file) throws IOException{
-        this(new File(file));
+    public Bump(double height, double sigma){
+        this.height = height;
+        this.sigma2 = sigma*sigma;
     }
     
     @Override
-    public void putM(double x, double y, double z, Vector target, Index index) {
-        target.set(saved[index.x][index.y][index.z]);
+    public void getMove(Vector r, Vector target) {
+        double r2 = r.x * r.x + r.y * r.y;
+        target.z = height * Math.exp(-r2/(sigma2));
     }
+
 }

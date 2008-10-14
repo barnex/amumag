@@ -22,6 +22,10 @@ import amu.geom.Vector;
 import amu.mag.Cell;
 import java.io.IOException;
 
+/**
+ * TODO: take into account cell volume.
+ * @author arne
+ */
 public final class Integral extends SpaceProbe{
 
     public Integral(DataModel m){

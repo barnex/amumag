@@ -72,9 +72,13 @@ public final class FaceKernel extends KernelModule{
 	if(level > 0){
 	    t.split(triangles);
 	    for(int i=0; i<t.split.length; i++){
-		integrate(t.split[i], faceArea, level-1);
-		t.buffer.add(t.split[i].buffer);
-		triangles.recycle(t.split[i]);
+                Triangle tsplitI = t.split[i];
+		integrate(tsplitI, faceArea, level-1);
+		//t.buffer.add(tsplitI.buffer); inlined:
+		t.buffer.x += tsplitI.buffer.x;
+                t.buffer.y += tsplitI.buffer.y;
+                t.buffer.z += tsplitI.buffer.z;
+                triangles.recycle(tsplitI);
 	    }
 	}
 	else{
