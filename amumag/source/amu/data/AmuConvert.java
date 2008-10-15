@@ -81,4 +81,10 @@ public final class AmuConvert{
         DataModel derived = new Differential(file, diff);
         derived.save(file.getParentFile());
     }
+    
+    public void gradient(File file) throws IOException{
+        SavedDataModel data = new SavedDataModel(file);
+        DataModel derived = new Gradient(data);
+        derived.save(file.getParentFile());
+    }
 }
