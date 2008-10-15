@@ -33,26 +33,33 @@ public class Test extends Problem{
         setMs(800E3);
         setA(13E-12);
         setAlpha(0.01);
-        setBoxSizeX(250E-9);
-        setBoxSizeY(250E-9);
-        setBoxSizeZ(50E-9);
-        setMaxCellSizeX(8E-9);
-        setMaxCellSizeY(8E-9);
-        setMaxCellSizeZ(50E-9/2);
+        setBoxSizeX(100E-9);
+        setBoxSizeY(100E-9);
+        setBoxSizeZ(40E-9);
+        setMaxCellSizeX(4E-9);
+        setMaxCellSizeY(4E-9);
+        setMaxCellSizeZ(100000000E-9);
  
         
-        setFmmOrder(1);
-        setFmmAlpha(1);
-        setKernelIntegrationAccuracy(1);
-        setMagnetization(new Vortex());
+        setFmmOrder(2);
+        //setFmmAlpha(10);
+        setKernelIntegrationAccuracy(2);
+        setMagnetization(new Vortex(-1, 1));
         setTargetMaxAbsError(1E-5);
-        //addShape(new Cylinder(125E-9));
-        addTransform(new SubstratelayerRoughness(12.5E-9, 50E-9).combine(new ToplayerRoughness(12.5E-9, 50E-9)));
+        addShape(new Cylinder(50E-9));
+        setFiniteDifferences(true);
     }
       
     //@Override
     public void run() throws Exception{
-       save(getData("m"), "groundstate");
+       setPrecession(false);
+       runTime(1E-9);
+       save(getData("m"));
+       save(new Gradient(new Component(getData("m"), 0)));
+       save(new Gradient(new Component(getData("m"), 1)));
+       save(new Gradient(new Component(getData("m"), 2)));
+       save(new Gyrofield(getData("m")));
+       save(new Integral(new Gyrofield(getData("m"))));
     }
 }
 

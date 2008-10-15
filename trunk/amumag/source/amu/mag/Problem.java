@@ -405,6 +405,11 @@ public abstract class Problem {
                 setDt(1E-5);
         }
     }
+    
+    public void setFiniteDifferences(boolean fd){
+        requireNotYetInitiated();
+        this.hybridMesh = !fd;
+    }
 
     public void setDt(double dt) {
         this.dt = dt;
