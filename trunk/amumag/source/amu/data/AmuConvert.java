@@ -87,4 +87,22 @@ public final class AmuConvert{
         DataModel derived = new Gradient(data);
         derived.save(file.getParentFile());
     }
+    
+    public void gyrofield(File file) throws IOException{
+        SavedDataModel data = new SavedDataModel(file);
+        DataModel derived = new Gyrofield(data);
+        derived.save(file.getParentFile());
+    }
+    
+    public void dampingtensor(File file) throws IOException{
+        SavedDataModel data = new SavedDataModel(file);
+        DataModel derived = new DampingTensor(data);
+        derived.save(file.getParentFile());
+    }
+    
+    public void integral(File file) throws IOException{
+        SavedDataModel data = new SavedDataModel(file);
+        DataModel derived = new Integral(data);
+        derived.save(file.getParentFile());
+    }
 }

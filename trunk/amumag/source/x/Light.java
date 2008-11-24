@@ -63,4 +63,15 @@ public final class Light{
 	 double remain = (contrast) * l * color;
 	 return (int)(stay + remain);
     }
+    
+//    private int light(int color, double inprod){
+//         if(inprod > 1)
+//             inprod = 1;
+//         else if(inprod < 0)
+//             inprod = -inprod;
+//	 double l =  (inprod); //tussen 0 en 1;
+//	 double stay = (1-contrast) * color;
+//	 double remain = (contrast) * l * color;
+//	 return (int)(stay + remain);
+//    }
 }

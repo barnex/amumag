@@ -36,30 +36,23 @@ public class Test extends Problem{
         setBoxSizeX(100E-9);
         setBoxSizeY(100E-9);
         setBoxSizeZ(40E-9);
-        setMaxCellSizeX(4E-9);
-        setMaxCellSizeY(4E-9);
-        setMaxCellSizeZ(100000000E-9);
+        setMaxCellSizeX(8E-9);
+        setMaxCellSizeY(8E-9);
+        setMaxCellSizeZ(8E-9);
  
-        
         setFmmOrder(2);
-        //setFmmAlpha(10);
-        setKernelIntegrationAccuracy(2);
+        setFmmAlpha(10);
+        setKernelIntegrationAccuracy(0);
         setMagnetization(new Vortex(-1, 1));
-        setTargetMaxAbsError(1E-5);
-        addShape(new Cylinder(50E-9));
-        setFiniteDifferences(true);
+        setTargetMaxAbsError(5E-2);
+        
     }
-      
+    
     //@Override
     public void run() throws Exception{
-       setPrecession(false);
+       save(new SpaceAverage(getData("hExt")), 1);
+       setExternalField(new Gauss(1E-3, 100E-12, 400E-12));
        runTime(1E-9);
-       save(getData("m"));
-       save(new Gradient(new Component(getData("m"), 0)));
-       save(new Gradient(new Component(getData("m"), 1)));
-       save(new Gradient(new Component(getData("m"), 2)));
-       save(new Gyrofield(getData("m")));
-       save(new Integral(new Gyrofield(getData("m"))));
     }
 }
 

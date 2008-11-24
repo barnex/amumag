@@ -127,7 +127,9 @@ public final class SavedDataModel extends DataModel{
                     throw new IllegalArgumentException();
                 if (time != current_t)
                     readData(time);
-                v.set(mesh.getCell(mesh.nLevels - 1, r).dataBuffer);
+                Cell cell = mesh.getCell(mesh.nLevels - 1, r);
+                if(cell != null)
+                    v.set(cell.dataBuffer);
             }
             else{
                 if(time != -1)

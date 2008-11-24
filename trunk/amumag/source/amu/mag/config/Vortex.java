@@ -54,7 +54,7 @@ public class Vortex extends Configuration{
     /**
      * Vortex around the center.
      */
-    public Vortex(int polarization, int circulation){
+    public Vortex(int circulation, int polarization){
         this(0, 0, 0, polarization, circulation);
     }
     
@@ -109,5 +109,10 @@ public class Vortex extends Configuration{
                 Configuration.normalizeVerySafe(target);
             }
         }
+    }
+    
+    @Override
+    public String toString(){
+        return "Vortex, C = " + circulation + ", P = " + polarization;
     }
 }

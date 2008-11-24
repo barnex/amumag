@@ -168,6 +168,27 @@ public final class AmuView {
         return timeProbedData.getTime_();
     }
 
+    public void type(String dim) throws IOException{
+        if(dim.startsWith("2")){
+            renderer = new DR2DRenderer(displayedData);
+            new Controller((DR2DRenderer)renderer).showInFrame();
+        }
+        else if(dim.startsWith("3"))
+            renderer = new DR3DRenderer(displayedData);
+        else
+            throw new IllegalArgumentException("Type must be either 2D or 3D");
+        repaint();
+    }
+        
+//    public void view(String dir){
+//        if(renderer instanceof DR2DRenderer){
+//            DR2DRenderer renderer2D = (DR2DRender) renderer;
+//        }
+//        else{
+//            //set phi, theta
+//        }
+//    }
+    
     public void save(String file) throws IOException{
         renderer.save(new File(file));
     }
