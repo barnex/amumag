@@ -112,6 +112,7 @@ public class FineExtremumPosition extends ExtremumPosition{
         }
         extremumPosition.multiply(Unit.LENGTH);
         v.set(extremumPosition);
+        
     }
 
     @Override

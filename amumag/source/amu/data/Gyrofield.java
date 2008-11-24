@@ -26,13 +26,13 @@ import static amu.geom.Vector.Z;
 import static amu.core.Index.UNIT;
 
 
-public final class Gyrofield extends DerivedDataModel{
+public class Gyrofield extends DerivedDataModel{
 
     public Gyrofield(DataModel model){
         super(model);
     }
     
-    private final Vector M = new Vector();
+    protected final Vector M = new Vector();
     @Override
     public void put(int time, Index r, Vector v) throws IOException {
         v.set(0, 0, 0);
@@ -59,19 +59,19 @@ public final class Gyrofield extends DerivedDataModel{
                     }
                 }
             }
-            v.setComponent(i, g);
+            v.setComponent(i, -0.5*g);
         }
     }
     
-    private final Index neighIndex = new Index();
-    private final Vector f0 = new Vector(), fNeigh = new Vector();
+    protected final Index neighIndex = new Index();
+    protected final Vector f0 = new Vector(), fNeigh = new Vector();
     
-    private final Vector[] gradOfComponent = new Vector[]{new Vector(), new Vector(), new Vector()};
+    protected final Vector[] gradOfComponent = new Vector[]{new Vector(), new Vector(), new Vector()};
     
     /**
      * Levi-Civita symbol (totally asymmetric unit tensor).
      */
-    private int e(int i, int j, int k){
+    protected int e(int i, int j, int k){
         if(i == 0 && j == 1 && k == 2
          ||i == 1 && j == 2 && k == 0
          ||i == 2 && j == 0 && k== 1)
@@ -87,11 +87,11 @@ public final class Gyrofield extends DerivedDataModel{
     /**
      * Generalized Kronecker symbol.
      */
-    private int d(int m, int n, int p, int i, int j, int k){
+    protected int d(int m, int n, int p, int i, int j, int k){
         return e(i, j, k) * e (m, n, p);
     }
     
-    private void updateGradients(int time, Index r) throws IOException {
+    protected void updateGradients(int time, Index r) throws IOException {
 
         Cell cell = originalModel.getMesh().getCell(r);
         if (cell != null) {

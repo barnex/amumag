@@ -38,7 +38,7 @@ public class ToplayerHelix extends Helix{
     }
     
     public ToplayerHelix(double stepSize, double hang, double phase){
-        this(stepSize, hang, phase, 1);
+        this(stepSize, hang, phase, 0);
     }
     
     public ToplayerHelix(double stepSize, double hang){
@@ -64,5 +64,9 @@ public class ToplayerHelix extends Helix{
             super.getMove(r, target);
         else
             target.set(0, 0, 0);
+    }
+    
+    public String toString(){
+       return "Toplayer" + super.toString();
     }
 }

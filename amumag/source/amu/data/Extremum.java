@@ -18,12 +18,12 @@
 package amu.data;
 
 import amu.debug.Bug;
-import amu.geom.Mesh;
 import amu.geom.Vector;
 import amu.mag.Cell;
 import amu.core.Index;
 import java.io.IOException;
-
+import static java.lang.Math.abs;
+        
 /**
  * Returns the maximum or minimum value of the data set over space, thus removing
  * the spatial dependence of the data.
@@ -31,16 +31,23 @@ import java.io.IOException;
  */
 public class Extremum extends SpaceProbe{
 
-    public static final int MIN = -1, MAX = 1;
-    
+    /**
+     * return minimum, maximum or value with maximum absolute value (keeping its sign).
+     */
+    public static final int MIN = -1, MAX = 1, MAX_ABS = 0;
+    private double portion = 1.0;
     protected int type;
             
     public Extremum(DataModel m, int type){
+        this(m, type, 1.0);
+    }
+    
+    public Extremum(DataModel m, int type, double portion){
         super(m);
         this.type = type;
-        if(type != MIN && type != MAX)
-            throw new IllegalArgumentException("type = " + type + ", should be 1 or -1");
-        
+        if(type != MIN && type != MAX && type != MAX_ABS)
+            throw new IllegalArgumentException("type = " + type + ", should be 0, 1 or -1");
+        this.portion = portion;
     }
 
     @Override
@@ -49,8 +56,9 @@ public class Extremum extends SpaceProbe{
         double max = Double.NEGATIVE_INFINITY;
         Index index = new Index();
         Cell[][][] base = originalModel.getMesh().baseLevel;
-        for(int i=0; i<base.length; i++)
-            for(int j=0; j<base[i].length; j++)
+        for(int i= (int)(0.5*(1-portion)*base.length); i< (int)(0.5*(1+portion)*base.length); i++)
+            for(int j=(int)(0.5*(1-portion)*base[0].length); j<(int)(0.5*(1+portion)*base[0].length); j++)
+              
                 for(int k=0; k<base[i][j].length; k++){
                     Cell cell = base[i][j][k];
                     if(cell != null){
@@ -66,6 +74,12 @@ public class Extremum extends SpaceProbe{
             v.x = max;
         else if(type == MIN)
             v.x = min;
+        else if (type == MAX_ABS){
+            if(abs(max) > abs(min))
+                v.x = max;
+            else
+                v.x = min;
+        }
         else
             throw new Bug();
     }

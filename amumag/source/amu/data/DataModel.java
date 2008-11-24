@@ -25,6 +25,7 @@ import amu.mag.Main;
 import amu.mag.Unit;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import static amu.io.ArrayOutputStream.*;
@@ -102,6 +103,10 @@ public abstract class DataModel {
             put(time, r, buffer);
             return buffer.x;
         }
+    }
+    
+    public double getDouble() throws IOException{
+        return getDouble(-1, null);
     }
 
    /**
@@ -253,6 +258,32 @@ public abstract class DataModel {
     private ArrayOutputStream tableOut;
     private Vector buffer3;
     
+    private void incrementalSaveFile(File baseDir, int t) throws IOException {
+        if(tableOut == null){ //first time invocation
+            // init array output stream
+            File file = new File(baseDir, getName());
+            int dim = isVector()? 3: 1;
+            tableOut = new ArrayOutputStream(new FileOutputStream(file), 
+                    new int[]{-1, dim+1}, FLOAT_PRECISSION, TEXT_FORMAT);
+            buffer3 = new Vector();
+            
+            tableOut.writeProperty("name", getName());
+            tableOut.writeProperty("unit", getUnit());
+            tableOut.writeProperty("firstColumn", "time(s)");
+        }
+        
+        tableOut.writeDouble(getTime()[t]);
+        put(t, null, buffer3);
+        if(isVector()){
+            tableOut.writeDouble(buffer3.x);
+            tableOut.writeDouble(buffer3.y);
+            tableOut.writeDouble(buffer3.z);
+        }
+        else{
+            tableOut.writeDouble(buffer3.x);
+        }
+        tableOut.flush();
+    }
     /**
      * Temporary implementation which writes a table, including times.
      * @param baseDir
@@ -302,7 +333,7 @@ public abstract class DataModel {
                 }
             } else {
                 for (int t = 0; t < getTimeDomain(); t++) {
-                    incrementalSaveFile(baseDir);
+                    incrementalSaveFile(baseDir, t);
                 }
             }
         } else {
@@ -331,6 +362,8 @@ public abstract class DataModel {
         out.flush();
         out.close();
     }
+
+  
 
     private void write(ArrayOutputStream out) throws IOException{
         

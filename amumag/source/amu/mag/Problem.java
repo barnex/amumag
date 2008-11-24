@@ -163,7 +163,7 @@ public abstract class Problem {
     public void runTorque(double maxTorque) throws IOException{
         sim.runTorque(maxTorque);
     }
-    
+            
     public void setExternalField(ExternalField field){
         sim.setExternalField(field);
     }
@@ -270,12 +270,11 @@ public abstract class Problem {
     }  
     
     public double getArg(int index){
-        try{
+        // do not catch arrayindexoutofboundsexception, gcj does not like...
+        if(index < getArgs().length)
             return Double.parseDouble(getArgs()[index]);
-        }
-        catch(ArrayIndexOutOfBoundsException e){
-            throw new ArrayIndexOutOfBoundsException("Argument " + index + " has not been specified");
-        }
+        else
+            throw new IllegalArgumentException("Command-line argument #" + (index+1) + " has not been provided.");
     }
     
     public void setMagnetization(Configuration c){
@@ -297,6 +296,10 @@ public abstract class Problem {
         this.outputDir = outputDir;
     }
 
+    public File getOutputDir(){
+        return new File(outputDir);
+    }
+    
     public void setMs(double ms) {
         requireNotYetInitiated();
         this.ms = ms;
