@@ -30,6 +30,7 @@ import amu.mag.adapt.FixedMesh;
 import amu.io.Message;
 import amu.data.DataModel;
 import amu.mag.field.StaticField;
+import amu.mag.time.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -87,11 +88,13 @@ public abstract class Problem {
     private double dt = 1E-5;
     private AdaptiveMeshRules aMRules = new FixedMesh();
     
-    private double targetMaxAbsError = 1E-5;
-    private double targetMaxRelError = POSITIVE_INFINITY;
-    private double targetRmsAbsError = POSITIVE_INFINITY;
-    private double targetRmsRelError = POSITIVE_INFINITY;
-    private double targetMaxDm       = 0.01;
+    private AmuSolver solver;
+    
+//    private double targetMaxAbsError = 1E-5;
+//    private double targetMaxRelError = POSITIVE_INFINITY;
+//    private double targetRmsAbsError = POSITIVE_INFINITY;
+//    private double targetRmsRelError = POSITIVE_INFINITY;
+//    private double targetMaxDm       = 0.01;
     
     private final ArrayList shapes;
     
@@ -232,15 +235,20 @@ public abstract class Problem {
         sim.setMagnetization(initialMagnetization);      
         
         // set the solver (must be last)
-        sim.setExternalField(new StaticField(0, 0, 0));
         sim.setAlphaLLG(alpha);
-        sim.evolver.targetMaxAbsError = targetMaxAbsError;
+        
+        sim.solver = solver;
+        sim.solver.init(sim);
+        
+        /*sim.evolver.targetMaxAbsError = targetMaxAbsError;
         sim.evolver.targetMaxRelError = targetMaxRelError;
         sim.evolver.targetRmsAbsError = targetRmsAbsError;
         sim.evolver.targetRmsRelError = targetRmsRelError;
         sim.evolver.targetMaxDm = targetMaxDm;
-        sim.evolver.dt = dt;
+        sim.evolver.dt = dt;*/
         
+        sim.setExternalField(new StaticField(0, 0, 0));
+         
         initiated = true;
     }
     
@@ -275,6 +283,15 @@ public abstract class Problem {
             return Double.parseDouble(getArgs()[index]);
         else
             throw new IllegalArgumentException("Command-line argument #" + (index+1) + " has not been provided.");
+    }
+    
+    public void setSolver(AmuSolver solver){
+        if(initiated){
+            sim.solver = solver;
+            sim.solver.init(sim);
+        }
+        else
+            this.solver = solver; // will be set upon initImpl()
     }
     
     public void setMagnetization(Configuration c){
@@ -364,7 +381,7 @@ public abstract class Problem {
         this.kernelIntegrationAccuracy = kernelIntegrationAccuracy;
     }
 
-    public void setTargetMaxAbsError(double targetMaxAbsError) {
+    /*public void setTargetMaxAbsError(double targetMaxAbsError) {
         this.targetMaxAbsError = targetMaxAbsError;
         if(initiated)
             sim.evolver.targetMaxAbsError = targetMaxAbsError;
@@ -397,15 +414,15 @@ public abstract class Problem {
         if(initiated)
             sim.evolver.targetMaxDm = targetMaxDm;
     }
-
+    */
     public void setPrecession(boolean precession) {
         this.precession = precession;
         if(initiated){
             sim.precess = precession;
             // this is typically done after a relaxation, when dt can be huge
             // let's make sure the solver doesn't start with too big steps.
-            if(precession = true && sim.evolver.dt > 1E-5)
-                setDt(1E-5);
+            /*if(precession = true && sim.evolver.dt > 1E-5)
+                setDt(1E-5);*/
         }
     }
     
@@ -414,11 +431,11 @@ public abstract class Problem {
         this.hybridMesh = !fd;
     }
 
-    public void setDt(double dt) {
+    /*public void setDt(double dt) {
         this.dt = dt;
         if(initiated)
             sim.evolver.dt = dt;
-    }
+    }*/
     
     public final double square(double r){
         return r*r;

@@ -17,51 +17,42 @@
 package amu.mag.time;
 
 import amu.geom.Vector;
-import amu.mag.Cell;
-import amu.mag.Main;
 import amu.io.Message;
-import static java.lang.Math.*;
-import static java.lang.Double.POSITIVE_INFINITY;
+import amu.mag.Cell;
+import amu.mag.Simulation;
 
-public class AmuSolver{
-    
-    private static double alpha;
-    
-    private final Cell cell;
-    
-    //statistics for last step
-    public static double
-            rmsAbsStepError,
-            rmsRelStepError, 
-            maxAbsStepError, 
-            maxRelStepError,
-            maxDm,
-            maxTorque;
+public abstract class AmuSolver{
     
     
-    public AmuSolver(Cell cell){
-        this.cell = cell;
+    // root time step
+    public double dt;
+    // previous root time step
+    public double prevDt;
+    
+    //public double totalTime;
+    public int totalSteps;
+    public double maxTorque;
+    
+    protected Simulation sim;
+    
+    public AmuSolver(){
+    
     }
     
-    
-    public static void init() {
-       Main.sim.update();
-    }
-    
-    public static void step(){
-        // fields are assumed up-to-date
+    public void init(Simulation sim){
+        if(this.sim != null)
+            throw new IllegalArgumentException("Solver already initiated");
+        else
+            this.sim = sim;
         
+        Message.title("Solver");
+        Message.indent("Type:\t " + toString());
     }
     
-    private static void updateMaxTorquesGlobal(){
+    public abstract  void stepImpl();
     
-    }
-    
-    private void updateMaxTorques(){
-    
-    }
-    
-    private static void torque(Vector m, Vector h, Vector torque){
+    protected void torque(Vector m, Vector h, Vector torque){
+        
         // - m cross H
         double _mxHx = -m.y*h.z + h.y*m.z;
 	double _mxHy =  m.x*h.z - h.x*m.z;
@@ -72,8 +63,26 @@ public class AmuSolver{
         double _mxmxHy = -m.x*_mxHz + _mxHx*m.z;
         double _mxmxHz =  m.x*_mxHy - _mxHx*m.y; 
         
-        torque.x = _mxHx + _mxmxHx * alpha;
-        torque.y = _mxHy + _mxmxHy * alpha;
-        torque.z = _mxHz + _mxmxHz * alpha;          
+        double gilbert = 1.0 / (1.0 + Cell.alpha * Cell.alpha);
+        torque.x = (_mxHx + _mxmxHx * Cell.alpha) * gilbert;
+        torque.y = (_mxHy + _mxmxHy * Cell.alpha) * gilbert;
+        torque.z = (_mxHz + _mxmxHz * Cell.alpha) * gilbert; 
+    }
+    
+     /**
+     * Returns the largest field in the system.
+     * @return
+     */
+    protected double maxH(){
+        double maxH2 = 0.0;
+        int i = 0;
+        for (Cell cell = sim.mesh.baseRoot; cell != null; cell = cell.next) {
+            if (cell.h.norm2() > maxH2) {
+                maxH2 = cell.h.norm2();
+            }
+            i++;
+        }
+        double maxH = Math.sqrt(maxH2);
+        return maxH;  
     }
 }

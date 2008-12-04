@@ -30,7 +30,7 @@ public final class PerIterations extends IoTab{
         
         @Override
         public void update() throws IOException {
-            if(outputManager.sim.totalIteration % divider == 0)
+            if(outputManager.sim.getTotalIteration() % divider == 0)
                 model.incrementalSave(outputManager.getBaseDir());
         }
     

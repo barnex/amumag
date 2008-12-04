@@ -23,7 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 
 public final class Main {
             
-    public static int CPUS = 2;//Runtime.getRuntime().availableProcessors();
+    public static int CPUS = Runtime.getRuntime().availableProcessors();
     public static int LOG_CPUS = log2(CPUS);
     //private static int THREADS = pow2(LOG_CPUS);
     
@@ -31,7 +31,7 @@ public final class Main {
     public static final String CP = System.getProperty("java.class.path");
     
     public static final String VM = System.getProperty("java.version");
-    private static final String VERSION = "2b218"; //140+commit74
+    private static final String VERSION = "2b232"; //140+commit74+13
     private static final String MEMORY = Runtime.getRuntime().maxMemory() / (1024*1024) + "MB";
     
     private static final String BANNER = 

@@ -14,27 +14,36 @@
  *  GNU General Public License for more details (licence.txt).
  */
 
-package amu.io;
+package amu.mag.time;
 
-import amu.data.DataModel;
-import java.io.IOException;
+import amu.geom.Vector;
 
- 
-public final class PerTime extends IoTab{
+/**
+ * Trivial, 0th order extrapolator for debugging.
+ * @author arne
+ */
+public final class Extrapolator0 extends Extrapolator{
 
-        private final double time;
-        private int saveCount = 0;
-        
-        public PerTime(DataModel model, double time){
-            super(model);
-            this.time = time;
-        }
-  
-        @Override
-        public void update() throws IOException {
-            if(outputManager.sim.getTotalTime() / time >= saveCount){
-                saveCount = (int) (outputManager.sim.getTotalTime() / time)+1;
-                model.incrementalSave(outputManager.getBaseDir());
-            }
-        }
+    private double vx, vy, vz;
+    
+    public Extrapolator0(){
     }
+    
+    public void addPoint(double dt, Vector v){
+        vx = v.x;
+        vy = v.y;
+        vz = v.z;
+    }
+    
+    public void replaceLastPoint(double dt, Vector v){
+        vx = v.x;
+        vy = v.y;
+        vz = v.z;
+    }
+    
+    public void extrapolate(double dt, Vector target){
+        target.x = vx;
+        target.y = vy;
+        target.z = vz;
+    }
+}

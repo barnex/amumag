@@ -354,7 +354,7 @@ public final class Vector implements Comparable<Vector>, Serializable{
     
     @Override
     public String toString(){
-	return "(" + x + ", " + y + ", " + z + ")";
+	return x + " " + y + " " + z;
     }
     
     public boolean sizeLargerThan(Vector other){
