@@ -30,13 +30,13 @@ import amu.mag.exchange.DzyaloshinskyModule;
 import amu.mag.exchange.Exchange6Ngbr;
 import amu.mag.fmm.*;
 import amu.mag.kernel.*;
-import amu.mag.time.AdamsEvolver2;
 import amu.io.Message;
 import amu.io.OutputModule;
 import amu.data.DataModel;
 import amu.data.LiveMeshDataModel;
 import amu.data.LiveTableDataModel;
 import amu.mag.field.StaticField;
+import amu.mag.time.AmuSolver;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.Math.sqrt;
@@ -64,11 +64,13 @@ public final class Simulation {
     private DzyaloshinskyModule dzyaloshinsky; 
     
     // Evolver settings
-    private ExternalField externalField;
-    public AdamsEvolver2 evolver;
-    public double totalTime;
-    public int totalIteration; //refactor: totalSteps
+    public ExternalField externalField;
+    public AmuSolver solver;
     public boolean precess = true;
+    /** Total simulation time needs to be stored here and not in the solver,
+     *  since the latter can be replaced by a new one.
+     */
+    public double totalTime = 0.0; 
     
     // Output settings
     public final OutputModule output;
@@ -104,13 +106,13 @@ public final class Simulation {
     
     private boolean initiated = false;
 
-    private static final String UP = Message.ESC + "4F";
+    private static final String UP = Message.ESC + "3F"; // up 2 lines
     private static final String CLEAR = Message.ESC + "K";
     
     private void printStatus() {
         
         System.out.print("step  : ");
-        System.out.print(totalIteration);
+        System.out.print(solver.totalSteps);
         System.out.println(CLEAR);
         
         System.out.print("time  : ");
@@ -118,13 +120,13 @@ public final class Simulation {
         System.out.print(" s");
         System.out.println(CLEAR);
         
-        System.out.print("torque: ");
+        /*System.out.print("torque: ");
         System.out.print((float)(evolver.maxTorque));
-        System.out.println(CLEAR);
+        System.out.println(CLEAR);*/
         
         System.out.print("dt    : ");
-        System.out.print((float)(evolver.dt * Unit.TIME));
-        System.out.print(" s");
+        System.out.print((float)(solver.dt * Unit.TIME));
+        System.out.print(" s (" + (float)solver.dt + "/gammaMs)");
         System.out.println(CLEAR);
         
         System.out.print(UP);
@@ -140,7 +142,7 @@ public final class Simulation {
             //first notify output: saves initial configuration.
             output.notifyStep();
             printStatus();
-            evolver.stepImpl();
+            solver.stepImpl();
             //totalIteration++; is done by evolver.
     }
     
@@ -161,11 +163,11 @@ public final class Simulation {
         Message.title("run: " + duration*Unit.TIME + " s");
         Message.hrule();
         //duration /= Unit.TIME;
-        double startTime = totalTime;
+        double startTime = getTotalTime();
         do{
             runStepWithOutput();
         }
-        while(totalTime - startTime < duration);
+        while(getTotalTime() - startTime < duration);
         // make sure we just go over the specified duration.
         runStepWithOutput();
     }
@@ -314,8 +316,7 @@ public final class Simulation {
     
    
     protected void setAlphaLLG(double alpha){
-        evolver = new AdamsEvolver2(this, alpha);
-        evolver.init();
+        Cell.alpha = alpha;
     }
     
     protected void setMagnetization(Configuration config){
@@ -369,6 +370,9 @@ public final class Simulation {
     private static final Vector ZERO = new Vector(0, 0, 0, true);
     private final Vector rSiUnits = new Vector();
     
+    /**
+     * full update.
+     */
     public void update(){
        
         mesh.aMRules.update();
@@ -377,26 +381,40 @@ public final class Simulation {
 	updateCharges();
         mesh.rootCell.updateQ(Main.LOG_CPUS);
         
-        //(2) set external field for the root cell
-        /*if (externalField == null) {
-            hExt = ZERO;
-        } else {
-            hExt = externalField.get(totalTime);
-        }
-        mesh.rootCell.smooth.field[1] = -hExt.x;
-        mesh.rootCell.smooth.field[2] = -hExt.y;
-        mesh.rootCell.smooth.field[3] = -hExt.z;*/
-        
         //(2) set the space-dependend external field.
         for(Cell cell=mesh.coarseRoot; cell != null; cell = cell.next){
             rSiUnits.set(cell.center);
             rSiUnits.multiply(Unit.LENGTH);
-            cell.hExt.set(externalField.get(totalTime, rSiUnits));
+            cell.hExt.set(externalField.get(getTotalTime(),rSiUnits));
         }
         
         //(3) update all other fields and torque, added to the already present external field.
-        Cell.precess = precess;
+        //Cell.precess = precess;
 	mesh.rootCell.updateHParallel(Main.LOG_CPUS);
+    }
+    
+    
+    public void updateHSmooth(){
+        
+        //(1) update magnetic charges and moments
+	updateCharges();
+        mesh.rootCell.updateQ(Main.LOG_CPUS);
+        
+//        //(2) set the space-dependend external field.
+//        for(Cell cell=mesh.coarseRoot; cell != null; cell = cell.next){
+//            rSiUnits.set(cell.center);
+//            rSiUnits.multiply(Unit.LENGTH);
+//            cell.hExt.set(externalField.get(getTotalTime(),rSiUnits));
+//        }
+        
+        //(3) update all other fields and torque, added to the already present external field.
+        //Cell.precess = precess;
+	mesh.rootCell.updateHSmoothParallel(Main.LOG_CPUS);
+    }
+    
+    public void updateHFast(){
+        updateCharges();
+        mesh.rootCell.updateHFastParallel(Main.LOG_CPUS);
     }
     
     /**
@@ -483,6 +501,14 @@ public final class Simulation {
     public void setExternalField(ExternalField externalField) {
         this.externalField = externalField;
         // set the time zero in seconds.
-        externalField.timeZero = totalTime * Unit.TIME;
+        externalField.timeZero = getTotalTime() * Unit.TIME;
+    }
+
+    public double getTotalTime() {
+        return totalTime;
+    }
+
+    public int getTotalIteration() {
+        return solver.totalSteps;
     }
 }

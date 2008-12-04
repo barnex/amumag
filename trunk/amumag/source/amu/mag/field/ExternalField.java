@@ -29,7 +29,7 @@ public abstract class ExternalField {
     public double timeZero;
     
     public ExternalField(){
-        timeZero = Main.sim.totalTime * Unit.TIME;
+        timeZero = Main.sim.getTotalTime() * Unit.TIME;
     }
     
     /**
@@ -39,6 +39,7 @@ public abstract class ExternalField {
     protected abstract void put(double time, Vector r, Vector field);
 
     /**
+     * 
      * Returns the applied field in simulation units, used by the solver.
      * @param time
      * @return
@@ -47,6 +48,10 @@ public abstract class ExternalField {
         put((time)*Unit.TIME - timeZero, r ,buffer);
         buffer.divide(Unit.mu0 * Unit.FIELD);
         return buffer;
+    }
+    
+    public final void updateHExt(Cell cell, double time){
+        put(time, cell.center, cell.hExt);
     }
     
     //________________________________________________________________operations

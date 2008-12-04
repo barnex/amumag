@@ -23,7 +23,8 @@ import amu.geom.Mesh;
 import amu.geom.Vector;
 import amu.mag.Simulation;
 import amu.mag.Unit;
-import amu.mag.time.AdamsEvolver2;
+//import amu.mag.time.AdamsEvolver2;
+import amu.mag.time.AmuSolver;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
@@ -43,8 +44,8 @@ public final class LiveTableDataModel extends DataModel{
         this.sim = sim;
         this.fieldName = fieldName;
         try {
-            field = AdamsEvolver2.class.getField(fieldName);
-            this.obj = sim.evolver;
+            field = AmuSolver.class.getField(fieldName);
+            this.obj = sim.solver;
         } catch (NoSuchFieldException ex) {
             field = Simulation.class.getField(fieldName);
             this.obj = sim;
@@ -59,7 +60,7 @@ public final class LiveTableDataModel extends DataModel{
     
     @Override
    public double getTimeForIncrementalSave(){
-        return sim.totalTime * Unit.TIME;
+        return sim.getTotalTime() * Unit.TIME;
    }
 
     public void incrementalSave() throws IOException {

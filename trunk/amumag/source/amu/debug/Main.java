@@ -17,18 +17,31 @@
 
 package amu.debug;
 
+import amu.geom.Vector;
+import amu.mag.time.*;
+
+
+
 
 public class Main {
 
     public static void main(String[] args) throws Exception{
         amu.mag.Main.main(new String[]{"amu.testproblems.Test"});
         
-        /*DataModel diff = new Differential(new File("rftoplayerrough3d20.0nm50.0nm-ramp.amu"), "m", 32);
-        AtTime at = new AtTime(new ZAverage(diff), 0);
+        /*Extrapolator ex = new Extrapolator2();
+        ex.addPoint(0, new Vector());
+        ex.addPoint(1, new Vector(-1, -1, -1));
+        ex.addPoint(1, new Vector(-4, -4, -4));
+        Vector target = new Vector();
+        double x = 2;
         
-        for(int i=0; i < diff.getTimeDomain(); i++){
-            at.setTime(i);
-            at.incrementalSaveDir(null, new File("diff"));
+        for(int i=0; i<1000; i++){
+            double r = 0.5-Math.random();
+            
+            ex.extrapolate(r, target);
+            ex.addPoint(r, target);
+            x+=r;
+            System.out.println(x + " " + target);
         }//*/
     }
 }

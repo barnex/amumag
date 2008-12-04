@@ -78,7 +78,7 @@ public final class LiveMeshDataModel extends DataModel{
     
     @Override
    public double getTimeForIncrementalSave(){
-        return sim.totalTime*Unit.TIME;
+        return sim.getTotalTime()*Unit.TIME;
    }
 
     public void incrementalSave() throws IOException {

@@ -30,6 +30,7 @@ import static amu.geom.Vector.X;
 import static amu.geom.Vector.Y;
 import static amu.geom.Vector.Z;   
 import amu.mag.kernel.Kernel;
+import amu.mag.time.AmuSolver;
 import java.io.Serializable;
 import static java.lang.Math.sqrt;
 
@@ -50,7 +51,7 @@ public final class Cell implements Serializable{
     
     public Vector[] vertex;
 
-    public Vector size;						// currently a buffer, to be removed.
+    public transient Vector size;                                               // currently a buffer, to be removed.
     
     public transient Cell child1, child2;                                       // the child cells.
     public transient Cell parent;                                               // the parent cell of the cell.
@@ -74,14 +75,6 @@ public final class Cell implements Serializable{
     
     public transient Vector debug = new Vector();
     
-    //buffers for diff. eq. solvers
-    public transient final Vector 
-            m_backup = new Vector(), 
-            dmdt_backup = new Vector(), 
-            m_estimate = new Vector(),
-            dmdt_previous = new Vector(),
-            stepError = new Vector();
-    
     // partial fields
     public transient final Vector hDemag = new Vector();
     public transient final Vector hKernel = new Vector();
@@ -89,14 +82,15 @@ public final class Cell implements Serializable{
     public transient final Vector hExt = new Vector();
     public transient final Vector hSmooth = new Vector();
     
-    // hack
-    public transient final Vector hExPrevious = new Vector();
-    public transient final Vector hMagPrevious = new Vector();
-    
     // general purpuose storage for the sake of visualizers.
     public transient Vector dataBuffer = null;
 
     public transient Exchange6Ngbr exchange;
+    
+    //public transient AmuSolver solver;
+    
+    private transient final Vector hExPrevious = new Vector(),
+            hMagPrevious = new Vector();
     
     //__________________________________________________________________________constructors
     
@@ -146,7 +140,9 @@ public final class Cell implements Serializable{
     
     //__________________________________________________________________________FMM
     
+    // obsolete -> AmuSolver.torque.
     public void updateTorque(){
+        
         // - m cross H
         double _mxHx = -m.y*h.z + h.y*m.z;
 	double _mxHy =  m.x*h.z - h.x*m.z;
@@ -188,7 +184,7 @@ public final class Cell implements Serializable{
      *
      * TODO: name should be changed.
      */
-    public void updateSmoothField(){
+    /*public void updateSmoothField(){
 	
 	// update this cell's smooth field, given the smooth field of the parent.
 	// might be done nicer...
@@ -254,14 +250,151 @@ public final class Cell implements Serializable{
        
             h.set(hDemag);
             h.add(hEx);
-            // 2008-09-03 : 
             h.add(hExt);
-            
-             if(precess)
-                updateTorque();
-             else
-                updateTorqueNoPrecession();
         }
+    }
+    
+    /**
+     * Updates the smooth ("slow") part of H, assuming all other contributions
+     * are up-to date. excludes hExt.
+     * @param level
+     */
+    public void updateHSmoothParallel(final int level){
+        smooth.update(parent);
+        
+        if(child1!=null){ //adaptive mesh
+            if(level > 0){ // fork for parallel processing
+                
+                try {
+                    Thread fork = new Thread() {
+                        @Override
+                        public void run() {
+                            child1.updateHSmoothParallel(level - 1);
+                        }
+                    };
+                    
+                    fork.start();
+                    child2.updateHSmoothParallel(level - 1);
+                    fork.join();
+                } 
+                catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            
+            else{ // use this thread
+                child1.updateHSmoothParallel(level-1);
+                child2.updateHSmoothParallel(level-1);
+            }
+        }
+        else{ //leaf cell        
+             // hack
+            hExPrevious.set(hEx);
+            hMagPrevious.set(hDemag);
+            hMagPrevious.add(hExt);
+            
+            hSmooth.x = -smooth.field[1];
+            hSmooth.y = -smooth.field[2];
+            hSmooth.z = -smooth.field[3];
+        
+            hDemag.set(hSmooth);
+            hDemag.add(hKernel);
+       
+            h.set(hDemag);
+            h.add(hEx);
+            h.add(hExt);
+        }
+    }
+        
+    /**
+     * Updates the "fast" contributions to H (kernel and exchange).
+     * Invalidates other fields (hSmooth, hDemag, h, hExt);
+     * @param level
+     */
+    public void updateHFastParallel(final int level){
+        
+        if(child1!=null){ //adaptive mesh
+            if(level > 0){ // fork for parallel processing
+                
+                try {
+                    Thread fork = new Thread() {
+                        @Override
+                        public void run() {
+                            child1.updateHFastParallel(level - 1);
+                        }
+                    };
+                    
+                    fork.start();
+                    child2.updateHFastParallel(level - 1);
+                    fork.join();
+                } 
+                catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            
+            else{ // use this thread
+                child1.updateHFastParallel(level-1);
+                child2.updateHFastParallel(level-1);
+            }
+        }
+        else{ //leaf cell: update kernel, exch
+            /*kernel.update(hKernel);
+            exchange.update();
+            
+            h.set(Double.NaN, 1234, 5678);
+            hDemag.set(Double.NaN, 1234, 5678);
+            hSmooth.set(Double.NaN, 1234, 5678);
+            hExt.set(Double.NaN, 1234, 5678);*/
+            
+            
+             // hack
+            hExPrevious.set(hEx);
+            hMagPrevious.set(hDemag);
+            hMagPrevious.add(hExt);
+            
+            kernel.update(hKernel);
+            exchange.update();
+            
+            hSmooth.x = -smooth.field[1];
+            hSmooth.y = -smooth.field[2];
+            hSmooth.z = -smooth.field[3];
+        
+            hDemag.set(hSmooth);
+            hDemag.add(hKernel);
+       
+            h.set(Double.NaN, 123, 456);
+            hExt.set(h);
+        }
+    }
+    
+    /**
+     * updates H, assuming hSmooth, hKernel, hExt, hEx are all up to date
+     * issued after a root step of the amusolver, which has been updating
+     * field contributions asynchronously.
+     */
+    public void resyncH(){
+    
+        if(child1 != null){
+            child1.resyncH();
+            child2.resyncH();
+        }
+        
+        // hack
+        hExPrevious.set(hEx);
+        hMagPrevious.set(hDemag);
+        hMagPrevious.add(hExt);
+
+        hSmooth.x = -smooth.field[1];
+        hSmooth.y = -smooth.field[2];
+        hSmooth.z = -smooth.field[3];
+
+        hDemag.set(hSmooth);
+        hDemag.add(hKernel);
+
+        h.set(hDemag);
+        h.add(hEx);
+        h.add(hExt);
     }
     
     //__________________________________________________________________________
@@ -604,41 +737,6 @@ public final class Cell implements Serializable{
     
     //__________________________________________________________________________
     
-    /*public void putVector(int type, Vector v){
-        switch(type){
-            case Output.MAG: 
-                v.set(m); 
-                break;
-            case Output.H_DEMAG: 
-                v.set(hDemag); 
-                break;
-            case Output.H_EX:
-                v.set(hEx); 
-                break;
-            case Output.H:
-                v.set(h);
-                break;
-            case Output.DMDT:
-                v.set(torque);
-                break;
-            default:
-                throw new Bug();
-        }
-    }*/
-    
-    //__________________________________________________________________________
-    
-     /*public double getScalar(int type) {
-        switch(type){
-            case Output.CHARGE: 
-                return multipole.q[0];
-            default: 
-                throw new Bug();
-         }
-     }*/
-     
-     //__________________________________________________________________________
-    
      @Override
     public boolean equals(Object obj) {
         assert obj instanceof Cell;
@@ -769,7 +867,7 @@ public final class Cell implements Serializable{
         double dhy = hEx.y - hExPrevious.y;
         double dhz = hEx.z - hExPrevious.z;
         
-        double dt = Main.sim.evolver.prevDt;
+        double dt = Main.sim.solver.prevDt;
         
         return -(dhx * m.x + dhy*m.y + dhz*m.z) / dt;
     }
@@ -779,7 +877,7 @@ public final class Cell implements Serializable{
         double dhy = hDemag.y + hExt.y - hMagPrevious.y;
         double dhz = hDemag.z + hExt.z - hMagPrevious.z;
         
-        double dt = Main.sim.evolver.prevDt;
+        double dt = Main.sim.solver.prevDt;
         
         return -(dhx * m.x + dhy*m.y + dhz*m.z) / dt;
     }
