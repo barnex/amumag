@@ -18,6 +18,7 @@ package amu.geom;
 import amu.core.Equality;
 import amu.mag.fmm.IntVector;
 import amu.core.Index;
+import amu.io.Message;
 import java.io.Serializable;
 import static java.lang.Math.*;
 
@@ -104,7 +105,7 @@ public final class Vector implements Comparable<Vector>, Serializable{
     /**
      * Normalizes the vector.
      */
-     public void normalize() {
+    public void normalize() {
         divide(norm());
     }
      
@@ -115,6 +116,16 @@ public final class Vector implements Comparable<Vector>, Serializable{
         double norm = norm();
         if(norm != 0.0)
             divide(norm);
+     }
+     
+     public void normalizeVerySafe(){
+        double norm = norm();
+        if(norm != 0.0)
+            divide(norm);
+        else{
+            Message.warning("Zero Ms !");
+            set(1, 0, 0);
+        }
      }
      
     //__________________________________________________________________________

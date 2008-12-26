@@ -1,0 +1,66 @@
+
+material parameters
+-------------------------
+	A    : 	1.3E-11 J/m
+	Ms   : 	860000.0 A/m
+	gamma: 	221100.0 m/As
+	mu0  : 	1.2566370614359173E-6 N/A^2
+	exchange length: 	5.2891184203107325E-9 m
+	unit time      : 	5.259116678762635E-12 s
+	unit energy    : 	6.875853946403952E-20 J
+
+mesh box
+-------------------------
+	box size: 	2.5000000000000004E-7m x2.5000000000000004E-7m x5.0000000000000004E-8m
+	discretization levels: 	13
+	smallest cells: 	32x32x4(=4096)
+	partitioning: 	approx. cube cells, max size: 1.5125393996245609 1.5125393996245609 2.8360113742960515
+	smallest cell size: 	7.812500000000001E-9m x 7.812500000000001E-9m x 1.2500000000000001E-8m
+	adaptivity: 	fixed mesh
+	coarsest cell size: 	7.812500000000001E-9m x 7.812500000000001E-9m x 1.2500000000000001E-8m
+
+mesh transformations
+-------------------------
+	homeomorphism: amu.testproblems.Test$1@ec16a4
+[debug] Mesh::makeFinal()
+[debug] joinCells()
+[debug] createFacesAndNormalVecrtors()
+[debug] #faces = 13568
+[debug] normal vector pool: arrays: 132 in, 4096 out, compression = 0.032226562, elements: 166 in, 792 out, compression = 0.20959596
+[debug] linkCells(), #cells = 8191, 4096 smallest cells
+[debug] linkFaces(), #faces = 13568
+WARNING: TODO: init super cells.
+[debug] makeCellsFinal()
+[debug] vertex pool: 12683 in, 65528 out, compression = 0.19355085
+[debug] face pool: 13568 in, 11008 out, compression = 1.2325581(!)
+
+exchange
+-------------------------
+	type: 6-neighbour, linear
+[debug] Exchange laplacian pool: 384 in, 4096 out, compression = 0.09375
+[debug] saved mesh.
+[debug] MESH DIM=3
+[debug] Wire: amu.mag.fmm.OpeningAngleProximity@57c885
+Wiring level:  0 1 2 3 4 5 6 7 8 9 10 11 12
+
+kernel
+-------------------------
+[debug] 553800 kernel elements, 11978 are different, outer:237288 
+[debug] Vector pool: 11972 in, 11984 out, compression = 0.99899864
+[debug] Array pool: arrays: 902 in, 4096 out, compression = 0.22021484
+	accuracy: 	2 (16 points)
+[debug] FaceKernel triangles: throughput: 1006152, maxSize: 9, got full: false, got empty: true
+[debug] initMonomials()
+[debug] order = 2, monomials = 10: 
+[debug] 1  [debug] x^1 [debug] y^1 [debug] z^1 [debug] x^2 [debug] x^1y^1 [debug] x^1z^1 [debug] y^2 [debug] y^1z^1 [debug] z^2 
+FMM order = 2
+[debug] 8191 shifts -> 215 indices.
+[debug] 167872 shifts -> 3186 indices.
+[debug] #unitQ = 4096, 210 are different
+[debug] multipole pool: arrays: 210 in, 210 out, compression = 1.0, elements: 532 in, 1260 out, compression = 0.42222223
+
+Solver
+	Type:	 AmuSolver5
+
+run: 1.0E-8 s
+-------------------------

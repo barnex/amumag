@@ -1,0 +1,16 @@
+# amumagVersion: 1
+# dimension: 2
+# size[0]: -1
+# size[1]: 2
+# doublePrecission: false
+# binaryFormat: false
+# name: energyDensity_integral
+# unit: unspecified
+# firstColumn: time(s)
+# vectorData: false
+# data
+0.0	161.93124	
+2.0612537E-12	161.88066	
+4.4236017E-12	162.07715	
+6.7908504E-12	162.49243	
+9.1277185E-12	163.07613	

@@ -35,6 +35,7 @@ import amu.io.OutputModule;
 import amu.data.DataModel;
 import amu.data.LiveMeshDataModel;
 import amu.data.LiveTableDataModel;
+import amu.debug.InvalidProblemDescription;
 import amu.mag.field.StaticField;
 import amu.mag.time.AmuSolver;
 import java.io.File;
@@ -66,7 +67,7 @@ public final class Simulation {
     // Evolver settings
     public ExternalField externalField;
     public AmuSolver solver;
-    public boolean precess = true;
+    //public boolean precess = true;
     /** Total simulation time needs to be stored here and not in the solver,
      *  since the latter can be replaced by a new one.
      */
@@ -133,7 +134,7 @@ public final class Simulation {
         
     }
     
-    private void runStepWithOutput() throws IOException{
+    private void runStepWithOutput() throws IOException, InvalidProblemDescription{
             // if this is the very first iteration, make sure the sim is updated.
             if(!initiated){
                 update();
@@ -146,7 +147,7 @@ public final class Simulation {
             //totalIteration++; is done by evolver.
     }
     
-    public void runIterations(int iterations) throws IOException{
+    public void runIterations(int iterations) throws IOException, InvalidProblemDescription{
         Message.title("run: " + iterations + " iterations");
         Message.hrule();
         for(int i=0; i<iterations; i++){
@@ -159,7 +160,7 @@ public final class Simulation {
      * @param duration The time in seconds.
      * @throws java.lang.Exception
      */
-    public void runTime(double duration) throws IOException{
+    public void runTime(double duration) throws IOException, InvalidProblemDescription{
         Message.title("run: " + duration*Unit.TIME + " s");
         Message.hrule();
         //duration /= Unit.TIME;
@@ -172,7 +173,7 @@ public final class Simulation {
         runStepWithOutput();
     }
     
-    public void runTorque(double maxtorque) throws IOException{
+    public void runTorque(double maxtorque) throws IOException, InvalidProblemDescription{
         Message.title("run: " + maxtorque + " torque");
         Message.hrule();
         if(maxtorque <= 0)

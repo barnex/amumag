@@ -40,6 +40,4 @@ public class Bend extends Homeomorphism{
                 (r.x*r.x/(lengthX*lengthX) 
                 +r.y*r.y/(lengthY*lengthY));
     }
-    
-    
 }

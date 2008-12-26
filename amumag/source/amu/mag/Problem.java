@@ -37,7 +37,12 @@ import java.util.ArrayList;
 import static java.lang.Double.POSITIVE_INFINITY;
 
 public abstract class Problem {
-    
+
+    // some useful units
+    public static final double m = 1, um = 1E-6, nm = 1E-9;
+    public static final double s = 1, us = 1E-6, ns = 1E-9, ps = 1E-12;
+    public static final double T = 1, mT = 1E-3, uT = 1E-6;
+
     // has init already been called?
     private boolean initiated = false;
     
@@ -84,11 +89,12 @@ public abstract class Problem {
     private int fmmOrder = 2;
     private double fmmAlpha = 0.9;//negative value means touchproximity
     private int kernelIntegrationAccuracy = 2;
-    private boolean precession = true;
-    private double dt = 1E-5;
+
+    //private boolean precession = true;
+    //private double dt = 1E-5;
     private AdaptiveMeshRules aMRules = new FixedMesh();
     
-    private AmuSolver solver;
+    private AmuSolver solver = new AmuSolver5(0.05, 2, 2);
     
 //    private double targetMaxAbsError = 1E-5;
 //    private double targetMaxRelError = POSITIVE_INFINITY;
@@ -155,15 +161,15 @@ public abstract class Problem {
     
     //_______________________________________________________________________run
     
-    public void runSteps(int steps) throws IOException{
+    public void runSteps(int steps) throws IOException, InvalidProblemDescription{
         sim.runIterations(steps);
     }
     
-    public void runTime(double time) throws IOException{
+    public void runTime(double time) throws IOException,  InvalidProblemDescription{
         sim.runTime(time/Unit.TIME);
     }
     
-    public void runTorque(double maxTorque) throws IOException{
+    public void runTorque(double maxTorque) throws IOException, InvalidProblemDescription{
         sim.runTorque(maxTorque);
     }
             
@@ -187,7 +193,7 @@ public abstract class Problem {
         // then start creating the simulation.
         sim = new Simulation(new File(outputDir));
         Main.sim = sim; //static link :(
-        sim.precess = precession;
+        //sim.precess = precession;
         
         Unit.setMaterial(ms, a);
        
@@ -349,6 +355,13 @@ public abstract class Problem {
         this.boxSizeZ = boxSizeZ;
     }
 
+    public void setBoxSize(double boxSizeX, double boxSizeY, double boxSizeZ){
+        requireNotYetInitiated();
+        this.boxSizeX = boxSizeX;
+        this.boxSizeY = boxSizeY;
+        this.boxSizeZ = boxSizeZ;
+    }
+
     public void setMaxCellSizeX(double maxCellSizeX) {
         requireNotYetInitiated();
         this.maxCellSizeX = maxCellSizeX;
@@ -361,6 +374,13 @@ public abstract class Problem {
 
     public void setMaxCellSizeZ(double maxCellSizeZ) {
         requireNotYetInitiated();
+        this.maxCellSizeZ = maxCellSizeZ;
+    }
+
+    public void setMaxCellSize(double maxCellSizeX, double maxCellSizeY, double maxCellSizeZ){
+        requireNotYetInitiated();
+        this.maxCellSizeX = maxCellSizeX;
+        this.maxCellSizeY = maxCellSizeY;
         this.maxCellSizeZ = maxCellSizeZ;
     }
 
@@ -415,16 +435,16 @@ public abstract class Problem {
             sim.evolver.targetMaxDm = targetMaxDm;
     }
     */
-    public void setPrecession(boolean precession) {
-        this.precession = precession;
-        if(initiated){
-            sim.precess = precession;
-            // this is typically done after a relaxation, when dt can be huge
-            // let's make sure the solver doesn't start with too big steps.
-            /*if(precession = true && sim.evolver.dt > 1E-5)
-                setDt(1E-5);*/
-        }
-    }
+//    public void setPrecession(boolean precession) {
+//        this.precession = precession;
+//        if(initiated){
+//            sim.precess = precession;
+//            // this is typically done after a relaxation, when dt can be huge
+//            // let's make sure the solver doesn't start with too big steps.
+//            /*if(precession = true && sim.evolver.dt > 1E-5)
+//                setDt(1E-5);*/
+//        }
+//    }
     
     public void setFiniteDifferences(boolean fd){
         requireNotYetInitiated();
