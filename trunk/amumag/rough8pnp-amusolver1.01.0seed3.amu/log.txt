@@ -1,0 +1,65 @@
+
+material parameters
+-------------------------
+	A    : 	1.3E-11 J/m
+	Ms   : 	860000.0 A/m
+	gamma: 	221100.0 m/As
+	mu0  : 	1.2566370614359173E-6 N/A^2
+	exchange length: 	5.2891184203107325E-9 m
+	unit time      : 	5.259116678762635E-12 s
+	unit energy    : 	6.875853946403952E-20 J
+
+mesh box
+-------------------------
+	box size: 	2.5E-7m x2.5E-7m x5.0E-8m
+	discretization levels: 	12
+	smallest cells: 	32x32x2(=2048)
+	partitioning: 	approx. cube cells, max size: 1.5125393996245609 1.5125393996245609 4.726685623826752
+	smallest cell size: 	7.8125E-9m x 7.8125E-9m x 2.5E-8m
+	adaptivity: 	fixed mesh
+	coarsest cell size: 	7.8125E-9m x 7.8125E-9m x 2.5E-8m
+[debug] Mesh::makeFinal()
+[debug] joinCells()
+[debug] createFacesAndNormalVecrtors()
+[debug] #faces = 7296
+[debug] normal vector pool: arrays: 1 in, 2048 out, compression = 4.8828125E-4, elements: 6 in, 6 out, compression = 1.0
+[debug] linkCells(), #cells = 4095, 2048 smallest cells
+[debug] linkFaces(), #faces = 7296
+WARNING: TODO: init super cells.
+[debug] makeCellsFinal()
+[debug] vertex pool: 3267 in, 32760 out, compression = 0.099725276
+[debug] face pool: 7296 in, 4992 out, compression = 1.4615384(!)
+
+exchange
+-------------------------
+	type: 6-neighbour, linear
+[debug] Exchange laplacian pool: 18 in, 2048 out, compression = 0.0087890625
+[debug] saved mesh.
+[debug] MESH DIM=3
+[debug] Wire: amu.mag.fmm.OpeningAngleProximity@ae85ab
+Wiring level:  0 1 2 3 4 5 6 7 8 9 10 11
+
+kernel
+-------------------------
+[debug] 442104 kernel elements, 292 are different, outer:188808 
+[debug] Vector pool: 292 in, 292 out, compression = 1.0
+[debug] Array pool: arrays: 180 in, 2048 out, compression = 0.087890625
+	accuracy: 	2 (16 points)
+[debug] FaceKernel triangles: throughput: 24528, maxSize: 9, got full: false, got empty: true
+[debug] initMonomials()
+[debug] order = 1, monomials = 4: 
+[debug] 1  [debug] x^1 [debug] y^1 [debug] z^1 
+FMM order = 1
+[debug] 4095 shifts -> 37 indices.
+[debug] 73928 shifts -> 278 indices.
+[debug] #unitQ = 2048, 18 are different
+[debug] multipole pool: arrays: 18 in, 18 out, compression = 1.0, elements: 12 in, 108 out, compression = 0.11111111
+
+Solver
+	Type:	 AmuSolver5
+
+run: 1.0E-11 s
+-------------------------
+
+run: 2.0E-8 s
+-------------------------
