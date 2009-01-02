@@ -145,7 +145,12 @@ public class AmuSolver5 extends AmuSolver{
         else
             dt = maxDphi;
         
-        // (2) If the solver has not been started yet, make the first (smaller) steps with lower order.
+        if(Double.isInfinite(dt)){
+            Message.warning("dt=Infinity");
+            dt = maxDphi / 10;
+        }
+        
+        // (2) If the solver has not been start ed yet, make the first (smaller) steps with lower order.
         // Make normal steps otherwise.
         if (totalSteps == 0) {
             initExtrapolators();                        // first step: push current m,h to extrapolators             
@@ -254,7 +259,8 @@ public class AmuSolver5 extends AmuSolver{
     private final Vector hNew = new Vector();
     private final Vector mnew = new Vector();
     private final Vector torquenew = new Vector();
-    
+    private final Vector hExt = new Vector();
+
     /**
      * time = totaltime + t0 + s*subDt
      * @param interpolateSlow
@@ -262,10 +268,14 @@ public class AmuSolver5 extends AmuSolver{
      * @param t0
      */
     private void subSteps(boolean interpolateSlow, boolean interpolateFast, double t0){
+        
         double subDt = dt / (subSteps * fastSteps);
         
         for (int s = 0; s < subSteps; s++) {
- 
+
+            // space-independend field.
+            hExt.set(sim.externalField.get(sim.totalTime+t0+(s+0.5)*subDt));
+
             {int i = 0; for (Cell cell = sim.mesh.baseRoot; cell != null; cell = cell.next) {
                 
                  if(probe == i) {
@@ -304,22 +314,46 @@ public class AmuSolver5 extends AmuSolver{
                     else
                         hFast[i].extrapolate( (s+0.5-subSteps)*subDt, hFastNew);
                     
-                    hNew.set(hSlowNew);
-                    hNew.add(hFastNew);
-                    sim.externalField.updateHExt(cell, sim.totalTime+t0+(s+0.5)*subDt);
-                    hNew.add(cell.hExt);
+                    //hNew.set(hSlowNew);
+                    //hNew.add(hFastNew);
+                    hNew.x = hSlowNew.x + hFastNew.x;
+                    hNew.y = hSlowNew.y + hFastNew.y;
+                    hNew.z = hSlowNew.z + hFastNew.z;
                     
+                    
+                    ////sim.externalField.updateHExt(cell, sim.totalTime+t0+(s+0.5)*subDt);
+                    ////cell.hExt.set(hExt);
+                    //hNew.add(cell.hExt);
+                    cell.hExt.x = hExt.x;
+                    cell.hExt.y = hExt.y;
+                    cell.hExt.z = hExt.z;
+                    hNew.x += hExt.x;
+                    hNew.y += hNew.y;
+                    hNew.z += hNew.z;
+
                     m[i].extrapolate((0.5)*subDt, mnew);
-                    mnew.normalize();
-                 
+
+                    //mnew.normalizeVerySafe();
+                    double invnorm = 1.0 / Math.sqrt(mnew.x * mnew.x + mnew.y * mnew.y + mnew.z * mnew.z);
+                    mnew.x *= invnorm;
+                    mnew.y *= invnorm;
+                    mnew.z *= invnorm;
+
                     torque(mnew, hNew, torquenew);
                     
                     // put the last value of the extrapolator in cell.m, it will be
                     // ahead-of-date when the step is a corrector step.
                     m[i].extrapolate(0.0, cell.m); //todo: extrapolator.getLastValue();
                     
-                    cell.m.add(subDt, torquenew);
-                    cell.m.normalize();
+                    //cell.m.add(subDt, torquenew);
+                    //cell.m.normalizeVerySafe();
+                    cell.m.x += subDt * torquenew.x;
+                    cell.m.y += subDt * torquenew.y;
+                    cell.m.z += subDt * torquenew.z;
+                    invnorm = 1.0 / Math.sqrt(cell.m.x * cell.m.x + cell.m.y * cell.m.y + cell.m.z * cell.m.z);
+                    cell.m.x *= invnorm;
+                    cell.m.y *= invnorm;
+                    cell.m.z *= invnorm;
 
                     // push m to update extrapolator
                     // !! here and only here, not outside this loop or m at the beginning of each sub-loop will be pushed twice!

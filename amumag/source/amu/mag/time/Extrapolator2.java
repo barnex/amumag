@@ -39,7 +39,12 @@ public final class Extrapolator2 extends Extrapolator{
     private double x0;
     
     private int dataPoints = 0;
-    
+
+    // cache
+    private double Ax, Ay, Az;
+    private double Bx, By, Bz;
+    private double Cx, Cy, Cz;
+
     public Extrapolator2(){
        
     }
@@ -64,6 +69,7 @@ public final class Extrapolator2 extends Extrapolator{
         x_1 = other.x_1;
         x0 = other.x0;
         dataPoints = other.dataPoints;
+        updateCache();
     }
     
     /**
@@ -88,6 +94,7 @@ public final class Extrapolator2 extends Extrapolator{
         x0 = dt;   
         
         dataPoints++;
+        updateCache();
     }
     
     public void replaceLastPoint(double dt, Vector v){
@@ -110,43 +117,77 @@ public final class Extrapolator2 extends Extrapolator{
         else{
             throw new IllegalArgumentException("Extrapolator has no data yet.");
         }
+        updateCache();
     }
-    
+
+    private final void updateCache(){
+        // only depends on time
+        double a = x0 * x0;
+        double b = -x0;
+        double c = (x0 + x_1) * (x0 + x_1);
+        double d = -(x0 + x_1);
+        double nInv = a * d - b * c;
+
+        // depends on value.x
+        double e = vx_1 - vx0;
+        double f = vx_2 - vx0;
+
+        Ax = (e * d - b * f) * nInv;
+        Bx = (a * f - e * c) * nInv;
+        Cx = vx0;
+
+        // depends on value.y
+        e = vy_1 - vy0;
+        f = vy_2 - vy0;
+
+        Ay = (e * d - b * f) * nInv;
+        By = (a * f - e * c) * nInv;
+        Cy = vy0;
+
+        // depends on value.z
+        e = vz_1 - vz0;
+        f = vz_2 - vz0;
+
+        Az = (e * d - b * f) * nInv;
+        Bz = (a * f - e * c) * nInv;
+        Cz = vz0;
+    }
+
     public void extrapolate(double dt, Vector target){
         
         if(dataPoints >= 3){
-            double a = x0*x0;
-            double b = -x0;
-            double c = (x0+x_1)*(x0+x_1);
-            double d = -(x0+x_1);
-            double n = a*d-b*c;
+//            double a = x0*x0;
+//            double b = -x0;
+//            double c = (x0+x_1)*(x0+x_1);
+//            double d = -(x0+x_1);
+//            double n = a*d-b*c;
+//
+//            double e = vx_1 - vx0;
+//            double f = vx_2 - vx0;
+//
+//            double A = (e*d - b*f) / n;
+//            double B = (a*f - e*c) / n;
+//            double C = vx0;
+              target.x = Ax*dt*dt + Bx*dt + Cx;
             
-            double e = vx_1 - vx0;
-            double f = vx_2 - vx0;
             
-            double A = (e*d - b*f) / n;
-            double B = (a*f - e*c) / n;
-            double C = vx0;
-            target.x = A*dt*dt + B*dt + C;
+//                e = vy_1 - vy0;
+//                f = vy_2 - vy0;
+//
+//                A = (e*d - b*f) / n;
+//                B = (a*f - e*c) / n;
+//                C = vy0;
             
+            target.y = Ay*dt*dt + By*dt + Cy;
             
-            e = vy_1 - vy0;
-            f = vy_2 - vy0;
+//            e = vz_1 - vz0;
+//            f = vz_2 - vz0;
+//
+//            A = (e*d - b*f) / n;
+//            B = (a*f - e*c) / n;
+//            C = vz0;
             
-            A = (e*d - b*f) / n;
-            B = (a*f - e*c) / n;
-            C = vy0;
-            
-            target.y = A*dt*dt + B*dt + C;
-            
-            e = vz_1 - vz0;
-            f = vz_2 - vz0;
-            
-            A = (e*d - b*f) / n;
-            B = (a*f - e*c) / n;
-            C = vz0;
-            
-            target.z = A*dt*dt + B*dt + C;
+            target.z = Az*dt*dt + Bz*dt + Cz;
             
         } else if (dataPoints == 2) {
             target.x = vx0 + (vx0 - vx_1) * (dt / x0);

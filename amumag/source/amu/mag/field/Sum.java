@@ -30,9 +30,9 @@ final class Sum extends BinaryOperator{
     }
     
     @Override
-    protected void put(double time,amu.geom.Vector r,Vector field) {
-        a.put(time, r, buffer);
-        b.put(time, r, field);
+    protected void put(double time, Vector field) {
+        a.put(time, buffer);
+        b.put(time, field);
         field.add(buffer);
     }
 }

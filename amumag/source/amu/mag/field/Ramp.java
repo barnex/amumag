@@ -39,7 +39,7 @@ public class Ramp extends ExternalField{
     }
     
     @Override
-    protected void put(double time, Vector r, Vector field) {
+    protected void put(double time, Vector field) {
         if(time > 0 && time <= rampTime){
             double fraction = time / rampTime;
             field.set(fraction * bx, fraction * by, fraction*bz);

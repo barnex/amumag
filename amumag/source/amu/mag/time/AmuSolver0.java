@@ -17,6 +17,7 @@
 package amu.mag.time;
 
 import amu.debug.Bug;
+import amu.debug.InvalidProblemDescription;
 import amu.geom.Vector;
 import amu.io.Message;
 import amu.mag.Cell;

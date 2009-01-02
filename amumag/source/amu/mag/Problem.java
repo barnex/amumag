@@ -94,7 +94,7 @@ public abstract class Problem {
     //private double dt = 1E-5;
     private AdaptiveMeshRules aMRules = new FixedMesh();
     
-    private AmuSolver solver = new AmuSolver5(0.05, 2, 2);
+    private AmuSolver solver = new AmuSolver5(0.05, 2, 1);
     
 //    private double targetMaxAbsError = 1E-5;
 //    private double targetMaxRelError = POSITIVE_INFINITY;

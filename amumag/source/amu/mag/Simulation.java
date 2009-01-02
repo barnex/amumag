@@ -386,7 +386,7 @@ public final class Simulation {
         for(Cell cell=mesh.coarseRoot; cell != null; cell = cell.next){
             rSiUnits.set(cell.center);
             rSiUnits.multiply(Unit.LENGTH);
-            cell.hExt.set(externalField.get(getTotalTime(),rSiUnits));
+            cell.hExt.set(externalField.get(getTotalTime()));
         }
         
         //(3) update all other fields and torque, added to the already present external field.
