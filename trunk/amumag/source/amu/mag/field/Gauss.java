@@ -29,7 +29,7 @@ public final class Gauss extends ExternalField{
     }
     
     @Override
-    protected void put(double time, Vector r, Vector field) {
+    protected void put(double time, Vector field) {
         double time0 = this.time0;
         double t2 = (time - time0);
         t2 *= t2;

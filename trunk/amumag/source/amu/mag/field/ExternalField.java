@@ -17,6 +17,7 @@
 
 package amu.mag.field;
 
+import amu.debug.InvalidProblemDescription;
 import amu.mag.*;
 import amu.geom.Vector;
    
@@ -36,23 +37,33 @@ public abstract class ExternalField {
      * Returns the applied field in SI units (A/m) as a function of time (s).
      * To be overridden.
      */
-    protected abstract void put(double time, Vector r, Vector field);
+    protected abstract void put(double time, Vector field);
+
+    
 
     /**
-     * 
+     * todo: r still internal units
      * Returns the applied field in simulation units, used by the solver.
      * @param time
      * @return
      */
-    public final Vector get(double time, Vector r) {
-        put((time)*Unit.TIME - timeZero, r ,buffer);
+    public final Vector get(double time){
+        double si_time = time*Unit.TIME - timeZero;
+        put(si_time ,buffer);
         buffer.divide(Unit.mu0 * Unit.FIELD);
+        if(buffer.isNaN())
+            throw new IllegalArgumentException("External field is NaN at " + si_time + " s");
         return buffer;
     }
     
-    public final void updateHExt(Cell cell, double time){
-        put(time, cell.center, cell.hExt);
-    }
+    /**
+     * 
+     * @param cell
+     * @param time
+     */
+    /*public final void updateHExt(Cell cell, double time){
+       cell.hExt.set(get(time));
+    }*/
     
     //________________________________________________________________operations
     

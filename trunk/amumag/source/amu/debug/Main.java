@@ -26,7 +26,7 @@ import amu.mag.time.*;
 public class Main {
 
     public static void main(String[] args) throws Exception{
-        amu.mag.Main.main(new String[]{"amu.testproblems.Test"});
+        amu.mag.Main.main(new String[]{"amu.testproblems.Probl4"});
         
         /*Extrapolator ex = new Extrapolator2();
         ex.addPoint(0, new Vector());

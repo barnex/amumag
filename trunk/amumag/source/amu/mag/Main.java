@@ -31,7 +31,7 @@ public final class Main {
     public static final String CP = System.getProperty("java.class.path");
     
     public static final String VM = System.getProperty("java.version");
-    private static final String VERSION = "2b232"; //140+commit74+13
+    private static final String VERSION = "2b231"; //140+commit74+17
     private static final String MEMORY = Runtime.getRuntime().maxMemory() / (1024*1024) + "MB";
     
     private static final String BANNER = 

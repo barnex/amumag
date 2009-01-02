@@ -49,7 +49,7 @@ public final class ExponentialField extends ExternalField{
     }
     
     @Override
-    protected void put(double time, Vector r, Vector field) {
+    protected void put(double time, Vector field) {
         field.x = bx * exp((time)/tau);
         field.y = by * exp((time)/tau);
         field.z = bz * exp((time)/tau);

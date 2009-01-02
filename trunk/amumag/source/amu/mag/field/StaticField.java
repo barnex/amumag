@@ -31,7 +31,7 @@ public final class StaticField extends ExternalField{
     }
     
     @Override
-    protected void put(double time, Vector r, Vector field) {
+    protected void put(double time, Vector field) {
         field.set(this.field);
     }
     

@@ -348,10 +348,10 @@ public final class Cell implements Serializable{
             hExt.set(Double.NaN, 1234, 5678);*/
             
             
-             // hack
-            hExPrevious.set(hEx);
-            hMagPrevious.set(hDemag);
-            hMagPrevious.add(hExt);
+             // hack. todo: uncomment when power densities are needed.
+            //hExPrevious.set(hEx);
+            //hMagPrevious.set(hDemag);
+            //hMagPrevious.add(hExt);
             
             kernel.update(hKernel);
             exchange.update();
@@ -360,9 +360,13 @@ public final class Cell implements Serializable{
             hSmooth.y = -smooth.field[2];
             hSmooth.z = -smooth.field[3];
         
-            hDemag.set(hSmooth);
-            hDemag.add(hKernel);
-       
+            //hDemag.set(hSmooth);
+            //hDemag.add(hKernel);
+            hDemag.x = hSmooth.x + hKernel.x;
+            hDemag.y = hSmooth.y + hKernel.y;
+            hDemag.z = hSmooth.z + hKernel.z;
+
+            // debug, todo: comment out.
             h.set(Double.NaN, 123, 456);
             hExt.set(h);
         }
@@ -380,21 +384,27 @@ public final class Cell implements Serializable{
             child2.resyncH();
         }
         
-        // hack
-        hExPrevious.set(hEx);
-        hMagPrevious.set(hDemag);
-        hMagPrevious.add(hExt);
+        // hack todo: uncomment when power densities are needed
+        //hExPrevious.set(hEx);
+        //hMagPrevious.set(hDemag);
+        //hMagPrevious.add(hExt);
 
         hSmooth.x = -smooth.field[1];
         hSmooth.y = -smooth.field[2];
         hSmooth.z = -smooth.field[3];
 
-        hDemag.set(hSmooth);
-        hDemag.add(hKernel);
+        //hDemag.set(hSmooth);
+        //hDemag.add(hKernel);
+        hDemag.x = hSmooth.x + hKernel.x;
+        hDemag.y = hSmooth.y + hKernel.y;
+        hDemag.z = hSmooth.z + hKernel.z;
 
-        h.set(hDemag);
-        h.add(hEx);
-        h.add(hExt);
+        //h.set(hDemag);
+        //h.add(hEx);
+        //h.add(hExt);
+        h.x = hDemag.x + hEx.x + hExt.x;
+        h.y = hDemag.y + hEx.y + hExt.y;
+        h.z = hDemag.z + hEx.z + hExt.z;
     }
     
     //__________________________________________________________________________
