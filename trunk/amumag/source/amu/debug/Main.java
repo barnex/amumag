@@ -26,14 +26,15 @@ import amu.mag.time.*;
 public class Main {
 
     public static void main(String[] args) throws Exception{
-        amu.mag.Main.main(new String[]{"amu.testproblems.Probl4"});
+        amu.mag.Main.main(new String[]{"amu.debug.TestProbl"});
         
-        /*Extrapolator ex = new Extrapolator2();
-        ex.addPoint(0, new Vector());
-        ex.addPoint(1, new Vector(-1, -1, -1));
-        ex.addPoint(1, new Vector(-4, -4, -4));
-        Vector target = new Vector();
-        double x = 2;
+       
+        /*for(double d=-10; d < 11; d+=0.1){
+            ex.extrapolate(d, target);
+            System.out.println(d + " " + target);
+        }//*/
+
+        /*double x = 2;
         
         for(int i=0; i<1000; i++){
             double r = 0.5-Math.random();
