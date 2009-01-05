@@ -66,7 +66,7 @@ public class AmuSolver5 extends AmuSolver{
     protected final static boolean INTERPOLATE = true, EXTRAPOLATE = false;
     
     //cell # to probe for debug
-    public int probe = -1;
+    public int probe = 0;
     protected boolean adaptiveStep;
     
     

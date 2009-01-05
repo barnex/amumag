@@ -16,6 +16,7 @@
 
 package amu.mag;
 
+import amu.debug.UnitTest;
 import amu.io.Message;
 import amu.io.Message;
 import java.lang.reflect.InvocationTargetException;
@@ -50,7 +51,7 @@ public final class Main {
         System.out.println(BANNER);
         
         assert checkAssertionsEnabled();
-        //amu.debug.Test.run();
+        assert unitTests();
         
         String arg = args[0];
         String[] args2 = new String[args.length - 1];
@@ -70,7 +71,11 @@ public final class Main {
         Message.warning("Assertion checking is enabled, use java -da to disable assertions and improve performance.");
         return true;
     }
-    
+
+    private static boolean unitTests(){
+        UnitTest.run();
+        return true;
+    }
     /**
      * 2-base log, rounded up.
      * number of threads for n CPU's is 2^2log(n).
