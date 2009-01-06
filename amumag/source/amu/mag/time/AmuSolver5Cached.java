@@ -23,20 +23,22 @@ import amu.mag.Simulation;
 import amu.mag.Unit;
 
 /**
- * Experimenting with SplineExtrapolator, turns out unsuited for most problems
- * as it approximates a straight curve by oscillating around it.
+ * A test implementation of the AmuSolver using larger steps for Hsmooth
+ * than for Hkernel, Hexch.
+ *
+ * @author arne
  */
-public class AmuSolver6 extends AmuSolver{
+public class AmuSolver5Cached extends AmuSolver{
 
     private static final boolean DEBUG = false;
-
+    
     // extrapolators are always up-to-date, ready to extrapolate.
     // new field values have to be added directly after any simulation update.
     /** Extrapolates the slowly varying part of the effective field (hSmooth). */
-    protected SplineExtrapolator[] hSlow;
+    protected Extrapolator2Cached[] hSlow;
     /** Extrapolates the fast varying part of the effective field (hExch + hKernel) */
-    protected SplineExtrapolator[] hFast;
-    protected SplineExtrapolator[] hFastBackup;
+    protected Extrapolator2Cached[] hFast;
+    protected Extrapolator2Cached[] hFastBackup;
 
     // extrapolators are always up-to-date, ready to extrapolate.
     // so new m values have to be added after every substep.
@@ -68,7 +70,7 @@ public class AmuSolver6 extends AmuSolver{
     protected boolean adaptiveStep;
 
 
-    public AmuSolver6(double maxDphi, boolean adaptiveStep, int fastSteps, int subSteps){
+    public AmuSolver5Cached(double maxDphi, boolean adaptiveStep, int fastSteps, int subSteps){
         if(maxDphi <= 0.0)
             throw new IllegalArgumentException();
         if(subSteps < 1 || fastSteps < 1)
@@ -80,7 +82,7 @@ public class AmuSolver6 extends AmuSolver{
         this.adaptiveStep = adaptiveStep;
     }
 
-    public AmuSolver6(double maxDphi, int fastSteps, int subSteps){
+    public AmuSolver5Cached(double maxDphi, int fastSteps, int subSteps){
         this(maxDphi, true, fastSteps, subSteps);
     }
 
@@ -88,18 +90,18 @@ public class AmuSolver6 extends AmuSolver{
     public void init(Simulation sim){
         super.init(sim);
 
-        hSlow = new SplineExtrapolator[sim.mesh.cells];
-        hFast = new SplineExtrapolator[sim.mesh.cells];
-        hFastBackup = new SplineExtrapolator[sim.mesh.cells];
+        hSlow = new Extrapolator2Cached[sim.mesh.cells];
+        hFast = new Extrapolator2Cached[sim.mesh.cells];
+        hFastBackup = new Extrapolator2Cached[sim.mesh.cells];
 
         m = new Extrapolator1[sim.mesh.cells];
         mBackupSlow = new Extrapolator1[sim.mesh.cells];
         mBackupFast = new Extrapolator1[sim.mesh.cells];
 
         for(int i=0; i<hSlow.length; i++){
-            hSlow[i] = new SplineExtrapolator();
-            hFast[i] = new SplineExtrapolator();
-            hFastBackup[i] = new SplineExtrapolator();
+            hSlow[i] = new Extrapolator2Cached();
+            hFast[i] = new Extrapolator2Cached();
+            hFastBackup[i] = new Extrapolator2Cached();
 
             m[i] = new Extrapolator1();
             mBackupSlow[i] = new Extrapolator1();
@@ -114,11 +116,11 @@ public class AmuSolver6 extends AmuSolver{
         Vector cell_hFast = new Vector();
         int i = 0;
         for (Cell cell = sim.mesh.baseRoot; cell != null; cell = cell.next) {
-            hSlow[i].init(cell.hSmooth);  // time of first point should never be used, make it NaN to be sure...
+            hSlow[i].addPoint(Double.NaN, cell.hSmooth);  // time of first point should never be used, make it NaN to be sure...
 
             cell_hFast.set(cell.hEx);
             cell_hFast.add(cell.hKernel);
-            hFast[i].init(cell_hFast);
+            hFast[i].addPoint(Double.NaN, cell_hFast);
 
             m[i].addPoint(Double.NaN, cell.m);
             i++;

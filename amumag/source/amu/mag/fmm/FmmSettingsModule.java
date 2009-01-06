@@ -51,7 +51,7 @@ public class FmmSettingsModule{
     
     public void scan(int startOrder, int stopOrder, 
             double startAlpha, double stopAlpha, double alphaStep,
-            int referenceOrder, double referenceAlpha){
+            int referenceOrder, double referenceAlpha) throws Exception{
         
         Message.println("Scan optimal FMM settings: order=" + startOrder + "-" + stopOrder +
                         ", alpha=" + startAlpha + "-" + stopAlpha + "(" + alphaStep + " step)" + 
@@ -94,7 +94,7 @@ public class FmmSettingsModule{
     }
     
     public void scan(int startOrder, int stopOrder,
-            double startAlpha, double stopAlpha, double alphaStep){
+            double startAlpha, double stopAlpha, double alphaStep) throws Exception{
             
         int referenceOrder = stopOrder + 1;
         double referenceAlpha = startAlpha;
@@ -102,7 +102,7 @@ public class FmmSettingsModule{
         scan(startOrder, stopOrder, startAlpha, stopAlpha, alphaStep, referenceOrder, referenceAlpha);
     }
             
-    public void scan(int stopOrder, double startAlpha, double stopAlpha){
+    public void scan(int stopOrder, double startAlpha, double stopAlpha) throws Exception{
         
         double alphaStep = (stopAlpha-startAlpha)/10;
         int referenceOrder = stopOrder + 1;

@@ -30,27 +30,91 @@ import java.util.logging.Logger;
 
 public final class UnitTest{
 
-    public static void extrapolator2nd(){
-        // , new SplineExtrapolator()
-        for(Extrapolator ex :new Extrapolator[]{new Extrapolator2()}){
-
-        ex.addPoint(0, new Vector(0, 0, 0));
-        ex.addPoint(1, new Vector(1, 1, 1));
-        ex.addPoint(1, new Vector(2, 4, -4));
+    public static void splineExtrapolator(){
         Vector target = new Vector();
+        SplineExtrapolator ex = new SplineExtrapolator();
 
-        // 0.0 2.0 4.0 -4.0
-        // -1.0 1.0 1.0 1.0
-        //-2.0 0.0 0.0 0.0
+        Vector b = new Vector(-2, 2, 5);
+        ex.init(b);
+        ex.extrapolate(0.0, target);
+        assert target.equals(b);
+        ex.extrapolate(1000, target);
+        assert target.equals(b);
+        
+        Vector a = new Vector(1, 2, 3);
+        ex.addPoint(2.0, a);
+        ex.extrapolate(-2.0, target);
+        assert target.equals(b);
 
+        // manual continuity check: ok
+        /*for(double d=-2.0; d<=0.0; d+=0.05){
+            ex.extrapolate(d, target);
+            System.out.println(d + " " + target);
+        }*/
+
+        Vector c = new Vector(7, 2, -3);
+        ex.addPoint(3.0, c);
         ex.extrapolate(0, target);
-        assert target.equals(new Vector(2, 4, -4));
+        assert target.equals(c);
+        
+        /*for(double d=-3.0; d<=0; d+=0.05){
+            ex.extrapolate(d, target);
+            System.out.println((d+3.0) + " " + target);
+        }*/
 
-        ex.extrapolate(-1, target);
-        assert target.equals(new Vector(1, 1, 1));
+        //test replaceLastPoint
+        ex.replaceLastPoint(2.0, b);
+        ex.extrapolate(0.0, target);
+        assert target.equals(b);
+        ex.extrapolate(-2.0, target);
+        assert target.equals(a);
+    }
 
-        ex.extrapolate(-2, target);
-        assert target.equals(new Vector(0, 0, 0));
+    public static void extrapolator2nd() {
+        for (Extrapolator ex : new Extrapolator[]{new Extrapolator2(), new Extrapolator2Cached()}) {
+            Vector target = new Vector();
+
+            Vector b = new Vector(-2, 2, 5);
+            ex.addPoint(0.0, b);
+            ex.extrapolate(0.0, target);
+            assert target.equals(b);
+            ex.extrapolate(1000, target);
+            assert target.equals(b);
+
+            Vector a = new Vector(1, 2, 3);
+            ex.addPoint(2.0, a);
+            ex.extrapolate(-2.0, target);
+            assert target.equals(b);
+
+            Vector c = new Vector(7, 2, -3);
+            ex.addPoint(3.0, c);
+            ex.extrapolate(0, target);
+            assert target.equals(c);
+
+            //test replaceLastPoint
+            ex.replaceLastPoint(2.0, b);
+            ex.extrapolate(0.0, target);
+            assert target.equals(b);
+            ex.extrapolate(-2.0, target);
+            assert target.equals(a);
+
+            ex.addPoint(0, new Vector(0, 0, 0));
+            ex.addPoint(1, new Vector(1, 1, 1));
+            ex.addPoint(1, new Vector(2, 4, -4));
+
+            // test some points on a parabola
+            // 0.0 2.0 4.0 -4.0
+            // -1.0 1.0 1.0 1.0
+            //-2.0 0.0 0.0 0.0
+
+            ex.extrapolate(0, target);
+            assert target.equals(new Vector(2, 4, -4));
+
+            ex.extrapolate(-1, target);
+            assert target.equals(new Vector(1, 1, 1));
+
+            ex.extrapolate(-2, target);
+            assert target.equals(new Vector(0, 0, 0));
         }
     }
 

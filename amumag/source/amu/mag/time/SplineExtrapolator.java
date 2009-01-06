@@ -19,7 +19,9 @@ package amu.mag.time;
 import amu.geom.Vector;
 
 /**
- * Extrapolates with piecewise quadratic functions
+ * Extrapolates with piecewise quadratic functions, ensuring C1 continuity.
+ * This scheme fails to approximate curves that suddenly become straight, so
+ * it turns out to be unsuited for most micromagnetic problems.
  * @author arne
  */
 public final class SplineExtrapolator extends Extrapolator{
@@ -69,6 +71,7 @@ public final class SplineExtrapolator extends Extrapolator{
 
             Ax = (e * d - b * f) * n;
             Bx = (a * f - e * c) * n;
+            Cx = v.x;
         }
 
         {
@@ -80,6 +83,7 @@ public final class SplineExtrapolator extends Extrapolator{
 
             Ay = (e * d - b * f) * n;
             By = (a * f - e * c) * n;
+            Cy = v.y;
         }
 
         {
@@ -91,6 +95,7 @@ public final class SplineExtrapolator extends Extrapolator{
 
             Az = (e * d - b * f) * n;
             Bz = (a * f - e * c) * n;
+            Cz = v.z;
         }
     }
 

@@ -20,7 +20,7 @@ import amu.geom.Vector;
 import static java.lang.Double.POSITIVE_INFINITY;
 
 /**
- * 2th order extrapolator.
+ * 2th order extrapolator, faster than Extrapolator2.
  * @author arne
  */
 public final class Extrapolator2Cached extends Extrapolator{
@@ -126,7 +126,7 @@ public final class Extrapolator2Cached extends Extrapolator{
         double b = -x0;
         double c = (x0 + x_1) * (x0 + x_1);
         double d = -(x0 + x_1);
-        double nInv = a * d - b * c;
+        double nInv = 1.0/(a * d - b * c);
 
         // depends on value.x
         double e = vx_1 - vx0;

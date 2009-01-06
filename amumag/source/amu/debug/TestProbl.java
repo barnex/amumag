@@ -15,6 +15,7 @@ import amu.mag.time.*;
 public class TestProbl extends Problem{
 
     public void init(){
+        System.exit(0);
         setOutputDir("probl4-solver5.amu");
         setMs(800E3);
         setA(13E-12);
