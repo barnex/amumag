@@ -22,7 +22,7 @@ import java.util.Hashtable;
 
 /**
  * Perhaps we could replace all of this by a sparse matrix class + Intern.
- * (premature optimalization...)
+ * (premature optimization...)
  *
  * The shift of a child with respect to its parent has only a small number of possible values.
  * This class makes a map of shift-integer pairs, which allows every different shift, shiftFactor[]
