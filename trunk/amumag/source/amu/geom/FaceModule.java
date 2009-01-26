@@ -51,17 +51,19 @@ public final class FaceModule {
     public void createFacesAndNormalVectors(){
         Message.debug("createFacesAndNormalVecrtors()");
         
-	/*for(Cell[][][] level: mesh.levels)
-	    for(Cell[][] levelI: level)*/
-        //2008-08-06: base level only.
-            for(Cell[][] levelI: mesh.baseLevel)
-		for(Cell[] levelIJ: levelI)
-		    for(Cell cell: levelIJ)
-			if(cell != null){
-			    createFaces(cell);
+	     for (Cell[][][] level : mesh.levels){ // //2008-08-06: base level only.
+            for (Cell[][] levelI : level) {
+                for (Cell[] levelIJ : levelI) {
+                    for (Cell cell : levelIJ) {
+                        if (cell != null) {
+                            createFaces(cell);
                             createNormalVectors(cell);
                             check(cell);
-			}
+                        }
+                    }
+                }
+            }
+         }
 	Message.debug("#faces = " + count);
         Message.debug("normal vector pool: " + normalVectorPool.getStats());
         normalVectorPool = null;

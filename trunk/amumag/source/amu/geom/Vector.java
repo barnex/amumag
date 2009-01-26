@@ -227,8 +227,8 @@ public final class Vector implements Comparable<Vector>, Serializable{
     public void cross(Vector other){
         assert !immutable;
         double xcross =  y*other.z - other.y*z;
-	double ycross = -x*other.z + other.x*z;
-	double zcross =  x*other.y - other.x*y;
+        double ycross = -x*other.z + other.x*z;
+        double zcross =  x*other.y - other.x*y;
         x = xcross;
         y = ycross; 
         z = zcross;

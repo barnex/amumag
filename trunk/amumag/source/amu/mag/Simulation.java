@@ -55,11 +55,13 @@ public final class Simulation {
     public Mesh mesh;
     
     // FMM settings
-    //private fmm ? units (material?)
     public int order = 0;
     public double alpha = -1;
     private int kernelIntegrationAccuracy = 0;
     
+    // 
+    public static double dipoleCutoff = 0.0;
+
     // exchange settings
     //private ExchangeModule exch;
     private DzyaloshinskyModule dzyaloshinsky; 

@@ -90,12 +90,12 @@ public final class DR2DRenderer extends Renderer{
     
     public int faceWidth = 1;
     public Stroke faceStroke = new BasicStroke(faceWidth*2, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL);
-    private ColorMap faceColorMap = new ColorMap(1.0);
+    private ColorMap faceColorMap = new ColorMap(1.0, Color.BLUE, Color.BLACK, Color.RED);
     
     public Stroke magStroke = new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL);
     private ColorMap magColorMap = new ColorMap(1.0);
     
-    private ColorMap magCompColorMap = new ColorMap(1.0);
+    private ColorMap magCompColorMap = new ColorMap(1.0, Color.BLACK, Color.GRAY, Color.WHITE);
     
     /** Inset (in pixels) around the image. */
     private static final int marge = 10;
@@ -108,9 +108,9 @@ public final class DR2DRenderer extends Renderer{
             dirForYAxis = new int[]{Z, Z, Y},
             dirForZAxis = new int[]{X, Y, Z};
         
-    private int componentToColor = X;
-    private boolean drawCells = true;
-    private boolean drawFaces;
+    private int componentToColor = Z;
+    private boolean drawCells = false;
+    private boolean drawFaces = true;
     private boolean drawVector = true;
     
     //__________________________________________________________________________
@@ -150,7 +150,7 @@ public final class DR2DRenderer extends Renderer{
 	// cell may not exist anymore (cut out), and its size may not represent
 	// the thickness of a slice. a true 3D view is needed.
         //sliceZ = levels[level][start.x][start.y][start.z].position.getComponent(screenZ);
-	sliceZ = (slice + 0.5) * mesh.rootCell.size.getComponent(screenZ);
+        sliceZ = (slice + 0.5) * mesh.rootCell.size.getComponent(screenZ);
     }
     
     /** Sets the slice position along the viewing direction. */

@@ -24,6 +24,7 @@ import javax.swing.JFrame;
 import amu.data.AtTime;
 import amu.data.Component;
 import amu.data.DataModel;
+import amu.data.Extremum;
 import amu.data.Norm;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -49,6 +50,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.Hashtable;
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -149,6 +151,65 @@ public final class AmuView {
         frame.setVisible(true);
         frame.getContentPane().repaint();
     }
+
+ private static final Hashtable<String, Color> colorHash = new Hashtable<String, Color>();
+    static{
+        colorHash.put("white", Color.WHITE);
+        colorHash.put("gray", Color.GRAY);
+        colorHash.put("black", Color.BLACK);
+        colorHash.put("red", Color.RED);
+        colorHash.put("green", Color.GREEN);
+        colorHash.put("blue", Color.BLUE);
+    }
+    private Color color(String name){
+        if(!colorHash.containsKey(name))
+                throw new IllegalArgumentException("Color not defined: " + name);
+        else
+            return colorHash.get(name);
+    }
+
+     public void colormap(String a, String b, String c) throws IOException{
+        renderer.colorMap.setColors(color(a), color(b), color(c));
+        renderer.updateColors();
+        repaint();
+    }
+
+    public void scale(double min, double max) throws IOException{
+        renderer.colorMap.setValues(min, max);
+        renderer.updateColors();
+        repaint();
+    }
+
+    public String scale(){
+        return renderer.colorMap.getMin() + ", " + renderer.colorMap.getMax();
+    }
+
+    public String autoscale() throws IOException{
+        Extremum probe = new Extremum(timeProbedData, Extremum.MIN);
+        double min = probe.getDouble( -1,null);//already time independend (t=-1) because of time probe
+        probe = new Extremum(timeProbedData, Extremum.MAX);
+        double max = probe.getDouble( -1,null);
+        scale(min, max);
+        return scale();
+    }
+
+//    public void phi(double phi) throws IOException{
+//        renderer.setCameraDirection(phi, theta());
+//        repaint();
+//    }
+//
+//    public double phi(){
+//        return renderer.phi;
+//    }
+//
+//    public void theta(double theta) throws IOException{
+//        renderer.setCameraDirection(phi(), theta);
+//        repaint();
+//    }
+//
+//    public double theta(){
+//        return renderer.theta;
+//    }
 
     public void exit(){
         System.exit(0);

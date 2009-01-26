@@ -26,8 +26,9 @@ import amu.mag.time.*;
 public class Main {
 
     public static void main(String[] args) throws Exception{
-        amu.mag.Main.main(new String[]{"amu.debug.TestProbl"});
-        
+
+        amu.mag.Main.main(new String[]{"amu.testproblems.Test"});
+        //x.AmuView.main(new String[]{"/home/arne/Desktop/test.amu/m"});
        
         /*for(double d=-10; d < 11; d+=0.1){
             ex.extrapolate(d, target);
