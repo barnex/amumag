@@ -395,6 +395,7 @@
 
 package amu.mag.time;
 
+import amu.debug.Bug;
 import amu.geom.Vector;
 import amu.io.Message;
 import amu.mag.Cell;
@@ -411,6 +412,7 @@ public class Relax5 extends AmuSolver5{
 
     public Relax5(double maxDphiDt, int faststeps, int slowsteps){
         super(maxDphiDt, faststeps, slowsteps);
+         throw new Bug("broken??");
     }
 
     @Override

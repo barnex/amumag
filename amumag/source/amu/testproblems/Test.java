@@ -1,3 +1,15 @@
+package amu.testproblems;
+
+
+import amu.data.Integral;
+import amu.data.Norm;
+import amu.geom.solid.Cylinder;
+import amu.mag.Problem;
+import amu.mag.config.Random;
+import amu.mag.config.Vortex;
+import amu.mag.time.AmuSolver5;
+import amu.mag.time.Relax5;
+
 /*
  *  This file is part of amumag,
  *  a finite-element micromagnetic simulation program.
@@ -14,45 +26,36 @@
  *  GNU General Public License for more details (licence.txt).
  */
 
-package amu.testproblems;
-
-import amu.geom.Vector;
-import amu.mag.field.*;
-import amu.geom.jelly.*;
-import amu.geom.solid.*;
-import amu.mag.*;
-import amu.mag.config.*;
-import amu.mag.field.ExponentialField;
-import amu.data.*;
-import java.io.File;
-
 public class Test extends Problem{
 
-    public void init() throws Exception{
+    @Override
+    public void init() throws Exception {
         setOutputDir("/home/arne/Desktop/test.amu");
-        setMs(800E3);
+        setMs(736E3);
         setA(13E-12);
-        setAlpha(0.01);
-        setBoxSizeX(100E-9);
-        setBoxSizeY(100E-9);
-        setBoxSizeZ(40E-9);
-        setMaxCellSizeX(8E-9);
-        setMaxCellSizeY(8E-9);
-        setMaxCellSizeZ(8E-9);
- 
-        setFmmOrder(2);
-        setFmmAlpha(10);
-        setKernelIntegrationAccuracy(0);
-        setMagnetization(new Vortex(-1, 1));
-        setTargetMaxAbsError(5E-2);
-        
+        setBoxSize(200E-9, 200E-9, 40E-9);
+        setMaxCellSize(5E-9, 5E-9, 1.0/0.0);
+        //addShape(new Cylinder(100E-9));
+        setMagnetization(new Vortex(1, 1));
+        setSolver(new AmuSolver5(0.02, 2, 1));
+        setKernelIntegrationAccuracy(4);
+        setFmmAlpha(0.6);
+        setDipoleCutoff(0.01);
+        setAlpha(0.5);
     }
-    
-    //@Override
-    public void run() throws Exception{
-       save(new SpaceAverage(getData("hExt")), 1);
-       setExternalField(new Gauss(1E-3, 100E-12, 400E-12));
-       runTime(1E-9);
-    }
-}
 
+    @Override
+    public void run() throws Exception {
+       
+        int save = 10;
+        save(getData("m"), save);
+        save(getData("charge"), save);
+        save(getData("dipole"), save);
+        save(new Norm(getData("dipole")), save);
+        save(getData("chargefree"), save);
+        save(new Integral(getData("energyDensity")), save);
+
+         runSteps(1000);
+    }
+
+}

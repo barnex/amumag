@@ -105,4 +105,10 @@ public final class AmuConvert{
         DataModel derived = new Integral(data);
         derived.save(file.getParentFile());
     }
+
+    public void coreuppos(File file) throws IOException{
+        SavedDataModel data = new SavedDataModel(file);
+        DataModel derived = new FineExtremumPosition(data, FineExtremumPosition.MAX);
+        derived.save(file.getParentFile());
+    }
 }

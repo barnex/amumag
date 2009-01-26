@@ -20,7 +20,6 @@ import amu.geom.Vector;
 import amu.io.Message;
 import amu.mag.time.Extrapolator;
 import amu.mag.time.Extrapolator2;
-import amu.mag.time.Extrapolator2Cached;
 import amu.mag.time.SplineExtrapolator;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -29,6 +28,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class UnitTest{
+
+    public static void vector() {
+        Vector a = new Vector();
+        a.set(1, 2, 3);
+        Vector b = new Vector(1 + 1E-13, 2 - 1E-13, 3 + 1E-13);
+        Vector c = new Vector(3, 4, 5);
+
+        assert a.equals(b);
+        assert a.hashCode() == b.hashCode();
+        assert !a.equals(c);
+    }
 
     public static void splineExtrapolator(){
         Vector target = new Vector();
@@ -71,7 +81,7 @@ public final class UnitTest{
     }
 
     public static void extrapolator2nd() {
-        for (Extrapolator ex : new Extrapolator[]{new Extrapolator2(), new Extrapolator2Cached()}) {
+        for (Extrapolator ex : new Extrapolator[]{new Extrapolator2()}) {
             Vector target = new Vector();
 
             Vector b = new Vector(-2, 2, 5);

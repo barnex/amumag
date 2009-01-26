@@ -14,33 +14,10 @@
  *  GNU General Public License for more details (licence.txt).
  */
 
-package amu.debug;
+package amu.mag.time;
 
-import amu.geom.Vector;
+public final class RK4Data{
 
-/**
- * Tests a few core methods.
- * ->obsolete?
- */
-public final class Test{
+    public double k1, k2, k3, k4;
 
-    public static void run(){
-        //2007-dec-08: removed vector equality check
-	//if(!testVector()) throw new Bug();
-	//testPool();
-	//testArrayPool();
-    }
-    
-    public static boolean testVector(){
-	boolean ok = true;
-	Vector a = new Vector();
-	a.set(1, 2, 3);
-	Vector b = new Vector(1+1E-9, 2-1E-10, 3+1E-10);
-	Vector c = new Vector(3, 4, 5);
-	
-	ok &= a.equals(b);
-	ok &= a.hashCode() == b.hashCode();
-	ok &= !a.equals(c);
-	return ok;
-    }
 }

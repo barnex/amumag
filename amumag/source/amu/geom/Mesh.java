@@ -29,6 +29,7 @@ import amu.mag.adapt.AdaptiveMeshRules;
 import amu.mag.adapt.TestAdaptiveMesh;
 import amu.mag.fmm.WireModule;
 import amu.io.Message;
+import java.io.OutputStream;
 import java.io.Serializable;
 import static java.lang.Math.*;
 import static amu.geom.Vector.*;
@@ -54,10 +55,10 @@ public final class Mesh implements Serializable{
     public final int coarseLevelIndex;              
     
     //"mutable" fields
-    public transient Cell rootCell;                           // Root for all cells
-    public transient Cell coarseRoot;                         // Root for the coarsest allowed simulation level
-    public transient Cell baseRoot;                           // Root for the smallest level
-    public transient Face rootFace;                           // Root for all faces
+    public Cell rootCell;                           // Root for all cells
+    public Cell coarseRoot;                         // Root for the coarsest allowed simulation level
+    public Cell baseRoot;                           // Root for the smallest level
+    public Face rootFace;                           // Root for all faces (linkedlist).
     
     //temporary fields
     public transient Pool<Vector> vertexPool;
@@ -70,7 +71,10 @@ public final class Mesh implements Serializable{
     public int dimension;
 
     public int cells, baseCells, coarseCells, faces;
-    
+
+    public void toText(OutputStream out){
+
+    }
     public Mesh(Vector boxSize, Vector maxCellSize, AdaptiveMeshRules aMRules) {
         // 2008-08-14: partition aspect ratio -> cube (better FMM, smaller opening angles.)
         

@@ -70,7 +70,7 @@ public abstract class Problem {
     
     private double ms;
     private double a;
-    private double alpha;
+    private double alpha = -1.0;
     
     private double boxSizeX;
     private double boxSizeY;
@@ -89,12 +89,13 @@ public abstract class Problem {
     private int fmmOrder = 2;
     private double fmmAlpha = 0.9;//negative value means touchproximity
     private int kernelIntegrationAccuracy = 2;
+    private double dipoleCutoff = 0.0;
 
     //private boolean precession = true;
     //private double dt = 1E-5;
     private AdaptiveMeshRules aMRules = new FixedMesh();
     
-    private AmuSolver solver = new AmuSolver5(0.05, 2, 1);
+    private AmuSolver solver = new AmuSolver5(0.02, 2, 1);
     
 //    private double targetMaxAbsError = 1E-5;
 //    private double targetMaxRelError = POSITIVE_INFINITY;
@@ -234,13 +235,16 @@ public abstract class Problem {
         sim.setAlpha(fmmAlpha);
         sim.setKernelIntegrationAccuracy(kernelIntegrationAccuracy);
         sim.setOrder(fmmOrder);
-            
+        Simulation.dipoleCutoff = this.dipoleCutoff;
+
         // initial magnetization
         if(initialMagnetization == null)
             throw new InvalidProblemDescription("Initial magnetization has not been set.");
         sim.setMagnetization(initialMagnetization);      
         
         // set the solver (must be last)
+        if(alpha == -1.0)
+          throw new InvalidProblemDescription("Alpha has not been set.");
         sim.setAlphaLLG(alpha);
         
         sim.solver = solver;
@@ -338,6 +342,10 @@ public abstract class Problem {
         if(initiated)
             sim.alpha = alpha;
     }
+
+    public void setDipoleCutoff(double cutoff){
+      this.dipoleCutoff = cutoff;
+    };
 
     public void setBoxSizeX(double boxSizeX) {
         requireNotYetInitiated();
