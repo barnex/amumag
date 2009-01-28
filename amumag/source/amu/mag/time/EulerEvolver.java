@@ -34,7 +34,7 @@ public final class EulerEvolver extends Evolver{
     }
     
     public void init(){
-      Cell.alpha=alpha; 
+      Cell.alphaLLG=alpha;
     }
 
     public void stepImpl(){

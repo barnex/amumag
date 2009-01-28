@@ -3,11 +3,14 @@ package amu.testproblems;
 
 import amu.data.Integral;
 import amu.data.Norm;
+import amu.data.SpaceAverage;
 import amu.geom.solid.Cylinder;
 import amu.mag.Problem;
 import amu.mag.config.Random;
 import amu.mag.config.Vortex;
+import amu.mag.time.AmuSolver0;
 import amu.mag.time.AmuSolver5;
+import amu.mag.time.RK4;
 import amu.mag.time.Relax5;
 
 /*
@@ -30,17 +33,18 @@ public class Test extends Problem{
 
     @Override
     public void init() throws Exception {
-        setOutputDir("/home/arne/Desktop/test.amu");
+        double step = 0.2;
+        setOutputDir("/home/arne/Desktop/rk4step" + step + ".amu");
         setMs(736E3);
         setA(13E-12);
         setBoxSize(200E-9, 200E-9, 40E-9);
         setMaxCellSize(5E-9, 5E-9, 1.0/0.0);
         //addShape(new Cylinder(100E-9));
         setMagnetization(new Vortex(1, 1));
-        setSolver(new AmuSolver5(0.02, 2, 1));
+        setSolver(new RK4(step));
         setKernelIntegrationAccuracy(4);
         setFmmAlpha(0.6);
-        setDipoleCutoff(0.01);
+        setDipoleCutoff(0.00);
         setAlpha(0.5);
     }
 
@@ -49,11 +53,13 @@ public class Test extends Problem{
        
         int save = 10;
         save(getData("m"), save);
+        save(new SpaceAverage(getData("m")), save);
         save(getData("charge"), save);
         save(getData("dipole"), save);
         save(new Norm(getData("dipole")), save);
         save(getData("chargefree"), save);
         save(new Integral(getData("energyDensity")), save);
+        save(getData("dt"), save);
 
          runSteps(1000);
     }

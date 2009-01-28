@@ -41,7 +41,7 @@ public class FmmSettingsModule{
         this.sim = sim;
         this.mesh = sim.mesh;
         originalOrder = sim.order;
-        originalAlpha = sim.alpha;
+        originalAlpha = sim.alphaFMM;
     }
     
     /**
@@ -58,7 +58,7 @@ public class FmmSettingsModule{
                         ", reference: order=" + referenceOrder + ", alpha=" + referenceAlpha
                 );
         
-        sim.setAlpha(referenceAlpha);
+        sim.setAlphaFMM(referenceAlpha);
         sim.setOrder(referenceOrder);
         sim.update();
         
@@ -70,7 +70,7 @@ public class FmmSettingsModule{
         
         // changing alpha is more expensive than changing order: outer loop.
         for(double alpha = startAlpha; alpha <= stopAlpha; alpha += alphaStep){
-            sim.setAlpha(alpha);
+            sim.setAlphaFMM(alpha);
             for(int order = startOrder; order <= stopOrder; order++){
                 sim.setOrder(order);
                 

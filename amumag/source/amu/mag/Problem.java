@@ -70,7 +70,7 @@ public abstract class Problem {
     
     private double ms;
     private double a;
-    private double alpha = -1.0;
+    private double alphaLLG = -1.0;
     
     private double boxSizeX;
     private double boxSizeY;
@@ -232,7 +232,7 @@ public abstract class Problem {
        
         
         // init FMM
-        sim.setAlpha(fmmAlpha);
+        sim.setAlphaFMM(fmmAlpha);
         sim.setKernelIntegrationAccuracy(kernelIntegrationAccuracy);
         sim.setOrder(fmmOrder);
         Simulation.dipoleCutoff = this.dipoleCutoff;
@@ -243,9 +243,9 @@ public abstract class Problem {
         sim.setMagnetization(initialMagnetization);      
         
         // set the solver (must be last)
-        if(alpha == -1.0)
+        if(alphaLLG == -1.0)
           throw new InvalidProblemDescription("Alpha has not been set.");
-        sim.setAlphaLLG(alpha);
+        sim.setAlphaLLG(alphaLLG);
         
         sim.solver = solver;
         sim.solver.init(sim);
@@ -338,9 +338,9 @@ public abstract class Problem {
     }
 
     public void setAlpha(double alpha) {
-        this.alpha = alpha;
+        this.alphaLLG = alpha;
         if(initiated)
-            sim.alpha = alpha;
+            Cell.alphaLLG = alpha;
     }
 
     public void setDipoleCutoff(double cutoff){
@@ -401,7 +401,7 @@ public abstract class Problem {
     public void setFmmAlpha(double fmmAlpha) {
         this.fmmAlpha = fmmAlpha;
         if(initiated)
-            sim.setAlpha(fmmAlpha);
+            sim.setAlphaFMM(fmmAlpha);
     }
 
     public void setKernelIntegrationAccuracy(int kernelIntegrationAccuracy) {

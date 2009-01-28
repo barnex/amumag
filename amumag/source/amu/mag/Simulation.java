@@ -56,7 +56,7 @@ public final class Simulation {
     
     // FMM settings
     public int order = 0;
-    public double alpha = -1;
+    public double alphaFMM = -1;
     private int kernelIntegrationAccuracy = 0;
     
     // 
@@ -238,8 +238,8 @@ public final class Simulation {
     /**
      * Sets the FMM alpha (proximity) parameter.
      */
-    public void setAlpha(double alpha) {
-        setAlphaNoUpdate(alpha);
+    public void setAlphaFMM(double alpha) {
+        setAlphaFMMNoUpdate(alpha);
         
         //if order had already been set.
         if(order != 0)
@@ -253,9 +253,9 @@ public final class Simulation {
      * Depends on: mesh.
      * Invalidates: shiftMap, derivativeMap, kernelIntegration
      */
-    private void setAlphaNoUpdate(double alpha){
+    private void setAlphaFMMNoUpdate(double alpha){
         Message.debug("MESH DIM=" + mesh.dimension);
-        this.alpha = alpha;
+        this.alphaFMM = alpha;
         if(alpha >= 0.0)
             new WireModule(mesh, new OpeningAngleProximity(alpha, mesh.dimension)).wire();
         else
@@ -319,7 +319,7 @@ public final class Simulation {
     
    
     protected void setAlphaLLG(double alpha){
-        Cell.alpha = alpha;
+        Cell.alphaLLG = alpha;
     }
     
     protected void setMagnetization(Configuration config){
@@ -365,7 +365,7 @@ public final class Simulation {
      * 2008-07-17 alpha smaller than 0 means: touchProximity 
      */
     private boolean isWired() {
-        return alpha != 0.0;
+        return alphaFMM != 0.0;
     }
  
     //____________________________________________________________________update
@@ -376,25 +376,25 @@ public final class Simulation {
     /**
      * full update.
      */
-    public void update(){
-       
-        mesh.aMRules.update();
-        
-        //(1) update magnetic charges and moments
-	updateCharges();
-        mesh.rootCell.updateQ(Main.LOG_CPUS);
-        
-        //(2) set the space-dependend external field.
-        for(Cell cell=mesh.coarseRoot; cell != null; cell = cell.next){
-            rSiUnits.set(cell.center);
-            rSiUnits.multiply(Unit.LENGTH);
-            cell.hExt.set(externalField.get(getTotalTime()));
-        }
-        
-        //(3) update all other fields and torque, added to the already present external field.
-        //Cell.precess = precess;
-	mesh.rootCell.updateHParallel(Main.LOG_CPUS);
+  public void update() {
+
+    mesh.aMRules.update();
+
+    //(1) update magnetic charges and moments
+    updateCharges();
+    mesh.rootCell.updateQ(Main.LOG_CPUS);
+
+    //(2) set the space-dependend external field.
+    for (Cell cell = mesh.coarseRoot; cell != null; cell = cell.next) {
+      rSiUnits.set(cell.center);
+      rSiUnits.multiply(Unit.LENGTH);
+      cell.hExt.set(externalField.get(getTotalTime()));
     }
+
+    //(3) update all other fields and torque, added to the already present external field.
+    //Cell.precess = precess;
+    mesh.rootCell.updateHParallel(Main.LOG_CPUS);
+  }
     
     
     public void updateHSmooth(){
