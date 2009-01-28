@@ -21,22 +21,20 @@ import amu.mag.Cell;
 import amu.mag.Simulation;
 import static java.lang.Double.NaN;
 
-public final class RK4Butcher extends AmuSolver {
+public abstract class RK extends AmuSolver {
 
-  public double[][] butcher = new double[][]{
+  protected double[][] butcher = new double[][]{
     {NaN,     NaN,      NaN, NaN},
     {1.0/2.0, NaN,      NaN, NaN},
     {0.0,     1.0/2.0,  NaN, NaN},
     {0.0,     0.0, 1.0, NaN, NaN}};
-  public final double[] h = new double[]{NaN, 1.0/2.0, 1.0/2.0, 1.0};
-  public static final double[] weight = new double[]{1.0/6.0, 1.0/3.0, 1.0/3.0, 1.0/6.0};
+  protected double[] h = new double[]{NaN, 1.0/2.0, 1.0/2.0, 1.0};
+  protected double[] weight = new double[]{1.0/6.0, 1.0/3.0, 1.0/3.0, 1.0/6.0};
 
-  private boolean adaptiveStep = true;
-  private double maxDphi;
-  private RKData[] rk;
+  protected RKData[] rk;
 
-  public RK4Butcher(double maxDphi) {
-    this.maxDphi = maxDphi;
+  public RK() {
+    
   }
 
   @Override
@@ -47,30 +45,13 @@ public final class RK4Butcher extends AmuSolver {
       rk[i] = new RKData(weight.length); //=order
   }
 
+
+  protected abstract void updateDt();
+
   @Override
   public void stepImpl() {
 
-    // (0) not used in this solver, but by some differentiating data models.
-    prevDt = dt;
-
-
-    // (1) determine the intrinsic time scale of the system in its present state
-    // and use it for the time step.
-    // adaptive time step = max precession angle per step.
-    // todo: multiply by the appropriate factor for large damping or no precession.
-    if (adaptiveStep) {
-      dt = maxDphi / maxH();
-      double gilbert = 1.0 / (1.0 + Cell.alphaLLG * Cell.alphaLLG);
-      dt /= (Cell.alphaLLG * gilbert * 2.0);
-    } else {
-      dt = maxDphi;
-    }
-
-
-    if (Double.isInfinite(dt)) {
-      Message.warning("dt=Infinity");
-      dt = maxDphi / 10;
-    }
+    updateDt();
 
     //initial RK4
     double t0 = sim.totalTime;

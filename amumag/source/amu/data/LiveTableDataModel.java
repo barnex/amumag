@@ -44,10 +44,10 @@ public final class LiveTableDataModel extends DataModel{
         this.sim = sim;
         this.fieldName = fieldName;
         try {
-            field = AmuSolver.class.getField(fieldName);
+            field = sim.solver.getClass().getField(fieldName);
             this.obj = sim.solver;
         } catch (NoSuchFieldException ex) {
-            field = Simulation.class.getField(fieldName);
+            field = sim.getClass().getField(fieldName);
             this.obj = sim;
         }
         
