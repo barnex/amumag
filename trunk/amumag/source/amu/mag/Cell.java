@@ -61,7 +61,7 @@ public final class Cell implements Serializable {
   public transient final Vector m = new Vector();                             // (reduced) magnetization
   public transient final Vector h = new Vector();
   public transient final Vector torque = new Vector();
-  public transient static double alpha = Double.NaN;
+  public transient static double alphaLLG = Double.NaN;
   public transient Vector debug = new Vector();
   // partial fields
   public transient final Vector hDemag = new Vector();
@@ -133,9 +133,9 @@ public final class Cell implements Serializable {
     double _mxmxHy = -m.x * _mxHz + _mxHx * m.z;
     double _mxmxHz = m.x * _mxHy - _mxHx * m.y;
 
-    torque.x = _mxHx + _mxmxHx * alpha;
-    torque.y = _mxHy + _mxmxHy * alpha;
-    torque.z = _mxHz + _mxmxHz * alpha;
+    torque.x = _mxHx + _mxmxHx * alphaLLG;
+    torque.y = _mxHy + _mxmxHy * alphaLLG;
+    torque.z = _mxHz + _mxmxHz * alphaLLG;
   }
 
   /**
@@ -150,9 +150,9 @@ public final class Cell implements Serializable {
     //2008-02-13: added factor alpha: this will not slow down the computational speed of a
     //relaxation due to the adaptive step size, but will result in more physical times.
     // - m cross (m cross H)
-    torque.x = alpha * (m.y * _mxHz - _mxHy * m.z);
-    torque.y = alpha * (-m.x * _mxHz + _mxHx * m.z);
-    torque.z = alpha * (m.x * _mxHy - _mxHx * m.y);
+    torque.x = alphaLLG * (m.y * _mxHz - _mxHy * m.z);
+    torque.y = alphaLLG * (-m.x * _mxHz + _mxHx * m.z);
+    torque.z = alphaLLG * (m.x * _mxHy - _mxHx * m.y);
   }
 
   /**
@@ -821,7 +821,7 @@ public final class Cell implements Serializable {
     double y = _mxmxHy;
     double z = _mxmxHz;
 
-    return sqrt(x * x + y * y + z * z) * alpha;
+    return sqrt(x * x + y * y + z * z) * alphaLLG;
   }
 
   public double get_energyDensity() {
@@ -848,9 +848,9 @@ public final class Cell implements Serializable {
     double _mxmxHz = m.x * _mxHy - _mxHx * m.y;
 
     // dm_damping/dt
-    double dmx_dt = _mxmxHx * alpha;
-    double dmy_dt = _mxmxHy * alpha;
-    double dmz_dt = _mxmxHz * alpha;
+    double dmx_dt = _mxmxHx * alphaLLG;
+    double dmy_dt = _mxmxHy * alphaLLG;
+    double dmz_dt = _mxmxHz * alphaLLG;
 
     return -(dmx_dt * h.x + dmy_dt * h.y + dmz_dt * h.z);
   }

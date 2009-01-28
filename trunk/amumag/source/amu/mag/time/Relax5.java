@@ -428,10 +428,10 @@ public class Relax5 extends AmuSolver5{
         double _mxmxHy = -m.x*_mxHz + _mxHx*m.z;
         double _mxmxHz =  m.x*_mxHy - _mxHx*m.y;
 
-        double gilbert = 1.0 / (1.0 + Cell.alpha * Cell.alpha);
-        torque.x = (_mxmxHx * Cell.alpha) * gilbert;
-        torque.y = (_mxmxHy * Cell.alpha) * gilbert;
-        torque.z = (_mxmxHz * Cell.alpha) * gilbert;
+        double gilbert = 1.0 / (1.0 + Cell.alphaLLG * Cell.alphaLLG);
+        torque.x = (_mxmxHx * Cell.alphaLLG) * gilbert;
+        torque.y = (_mxmxHy * Cell.alphaLLG) * gilbert;
+        torque.z = (_mxmxHz * Cell.alphaLLG) * gilbert;
     }
 
     @Override
