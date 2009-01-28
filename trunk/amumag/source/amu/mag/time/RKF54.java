@@ -15,15 +15,11 @@
  */
 package amu.mag.time;
 
-import amu.geom.Vector;
-import amu.io.Message;
-import amu.mag.Cell;
-import amu.mag.Simulation;
 import static java.lang.Double.NaN;
 
-public final class RKF45 extends RKF {
+public final class RKF54 extends RKF {
 
-  public RKF45(double errorPerStep) {
+  public RKF54(double errorPerStep) {
     super(errorPerStep);
     butcher = new double[][]{
     {   NaN,         NaN,           NaN,           NaN,           NaN},
@@ -35,7 +31,7 @@ public final class RKF45 extends RKF {
 
     h = new double[]{NaN, 1.0/4.0, 3.0/8.0, 12.0/13.0, 1.0, 1.0/2.0};
 
-    weightForError = new double[]{16.0/135.0, 0.0, 6656.0/12825.0, 28561.0/56430.0, -9.0/50.0, 2.0/55.0};
-    weight = new double[]{25.0/216.0, 0.0, 1408.0/2565.0,  2197.0/4104.0,   -1.0/5.0,  0.0};
+    weight = new double[]{16.0/135.0, 0.0, 6656.0/12825.0, 28561.0/56430.0, -9.0/50.0, 2.0/55.0};
+    weightForError = new double[]{25.0/216.0, 0.0, 1408.0/2565.0,  2197.0/4104.0,   -1.0/5.0,  0.0};
   }
 }
