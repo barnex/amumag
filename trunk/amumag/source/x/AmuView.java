@@ -193,23 +193,23 @@ public final class AmuView {
         return scale();
     }
 
-//    public void phi(double phi) throws IOException{
-//        renderer.setCameraDirection(phi, theta());
-//        repaint();
-//    }
-//
-//    public double phi(){
-//        return renderer.phi;
-//    }
-//
-//    public void theta(double theta) throws IOException{
-//        renderer.setCameraDirection(phi(), theta);
-//        repaint();
-//    }
-//
-//    public double theta(){
-//        return renderer.theta;
-//    }
+    public void phi(double phi) throws IOException{
+        renderer.setCameraDirection(phi, theta());
+        repaint();
+    }
+
+    public double phi(){
+        return ((DR3DRenderer)renderer).phi;
+    }
+
+    public void theta(double theta) throws IOException{
+        renderer.setCameraDirection(phi(), theta);
+        repaint();
+    }
+
+    public double theta(){
+        return ((DR3DRenderer)renderer).theta;
+    }
 
     public void exit(){
         System.exit(0);

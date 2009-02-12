@@ -180,6 +180,7 @@ public final class Cell implements Serializable {
   hSmooth.z = -smooth.field[3];
   }//*/
   public void updateHParallel(final int level) {
+
     smooth.update(parent);
 
     //if(child1 != null){ // ! is leaf
@@ -447,6 +448,8 @@ public final class Cell implements Serializable {
       }
 
       double[] childQ = child1.multipole.q;
+      
+      
 
       if (!child1.chargeFree) {
         for (int in = 0; in < multipole.q.length; in++) {
@@ -476,12 +479,17 @@ public final class Cell implements Serializable {
 
     
     if (Simulation.dipoleCutoff != 0.0) {
-      chargeFree = true;
-      for (int i = 0; i < 4; i++) {
-        if (Math.abs(multipole.q[i]) > Simulation.dipoleCutoff) {
-          chargeFree = false;
-          break;
+      if (child1 == null) {//leaf
+        chargeFree = true;
+        for (int i = 0; i < 4; i++) {
+          if (Math.abs(multipole.q[i]) > Simulation.dipoleCutoff) {
+            chargeFree = false;
+            break;
+          }
         }
+      }
+      else{ //no leaf
+        chargeFree = child1.chargeFree && child2.chargeFree;
       }
     }
 

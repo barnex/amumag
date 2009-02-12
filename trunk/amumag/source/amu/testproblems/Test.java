@@ -1,67 +1,54 @@
 package amu.testproblems;
 
+import amu.geom.*;
+import amu.mag.*;
+import amu.mag.config.*;
+import amu.mag.time.*;
+import amu.mag.field.*;
+import amu.data.*;
 
-import amu.data.Integral;
-import amu.data.Norm;
-import amu.data.SpaceAverage;
-import amu.geom.solid.Cylinder;
-import amu.mag.Problem;
-import amu.mag.config.Random;
-import amu.mag.config.Vortex;
-import amu.mag.time.AmuSolver0;
-import amu.mag.time.AmuSolver5;
-import amu.mag.time.RK4;
-import amu.mag.time.Relax5;
+public class Test extends Problem {
 
-/*
- *  This file is part of amumag,
- *  a finite-element micromagnetic simulation program.
- *  Copyright (C) 2006-2008 Arne Vansteenkiste
- * 
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- * 
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details (licence.txt).
- */
+  public void init() {
+    setOutputDir("/home/arne/Desktop/test.amu");
+    setMs(860E3);
+    setA(13E-12);
+    setAlpha(0.01);
+    setBoxSizeX(300E-9);
+    setBoxSizeY(300E-9);
+    setBoxSizeZ(30E-9);
+    setMaxCellSizeX(8E-9);
+    setMaxCellSizeY(8E-9);
+    setMaxCellSizeZ(1.0 / 0.0);
+    setFmmOrder(2);
+    setFmmAlpha(0.6);
+    setKernelIntegrationAccuracy(4);
+    setMagnetization(new Vortex(1));
+    //setMagnetization(new Saved("relaxed"));
+    setSolver(new RKF54(1E-6));
+    setDipoleCutoff(0.02);
+    //setSolver(new AmuSolver5(0.02, 2, 2));
+  }
 
-public class Test extends Problem{
+  //@Override
+  public void run() throws Exception {
 
-    @Override
-    public void init() throws Exception {
-        double step = 0.2;
-        setOutputDir("/home/arne/Desktop/rk4step" + step + ".amu");
-        setMs(736E3);
-        setA(13E-12);
-        setBoxSize(200E-9, 200E-9, 40E-9);
-        setMaxCellSize(5E-9, 5E-9, 1.0/0.0);
-        //addShape(new Cylinder(100E-9));
-        setMagnetization(new Vortex(1, 1));
-        setSolver(new RK4(step));
-        setKernelIntegrationAccuracy(4);
-        setFmmAlpha(0.6);
-        setDipoleCutoff(0.00);
-        setAlpha(0.5);
-    }
+    setExternalField(new StaticField(10E-3, 0, 0));
 
-    @Override
-    public void run() throws Exception {
-       
-        int save = 10;
-        save(getData("m"), save);
-        save(new SpaceAverage(getData("m")), save);
-        save(getData("charge"), save);
-        save(getData("dipole"), save);
-        save(new Norm(getData("dipole")), save);
-        save(getData("chargefree"), save);
-        save(new Integral(getData("energyDensity")), save);
-        save(getData("dt"), save);
+//    save("m", 10);
+//    save("maxTorque", 1);
+//    save("dt", 1);
+//    save("badSteps", 1);
+//    save("lastError", 1);
+//    save(new SpaceAverage(getData("m")), 1);
+//    save(new SpaceAverage(getData("hExt")), 1);
+//    save(new SpaceAverage(getData("energyDensity")), 10);
+    //setAlpha(10);
+    //runTime(5E-9);
 
-         runSteps(1000);
-    }
-
+    //save(getData("m"), "relaxed");
+    setExternalField(new StaticField(0, 0, 0));
+    setAlpha(0.01);
+    runTime(1E-10);
+  }
 }

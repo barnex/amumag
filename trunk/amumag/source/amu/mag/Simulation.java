@@ -145,7 +145,7 @@ public final class Simulation {
             //first notify output: saves initial configuration.
             output.notifyStep();
             printStatus();
-            solver.stepImpl();
+            solver.doStep();
             //totalIteration++; is done by evolver.
     }
     

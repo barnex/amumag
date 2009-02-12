@@ -19,6 +19,7 @@ import amu.geom.Vector;
 import amu.io.Message;
 import amu.mag.Cell;
 import amu.mag.Simulation;
+import amu.mag.Unit;
 
 public abstract class AmuSolver {
 
@@ -30,6 +31,8 @@ public abstract class AmuSolver {
   public int totalSteps;
   public double maxTorque;
   protected Simulation sim;
+  public double stepTime;
+  public double realtime; //fraction of the real time speed, e.g. 1ps/s
 
   public AmuSolver() {
   }
@@ -45,7 +48,14 @@ public abstract class AmuSolver {
     Message.indent("Type:\t " + toString());
   }
 
-  public abstract void stepImpl();
+  public void doStep(){
+    long t = System.nanoTime();
+    stepImpl();
+    stepTime = 1E-9 * (System.nanoTime() - t);
+    realtime = dt * Unit.TIME / stepTime;
+  }
+
+  protected abstract void stepImpl();
 
   protected void torque(Vector m, Vector h, Vector torque) {
 
