@@ -23,6 +23,9 @@ import amu.mag.Unit;
 
 public abstract class AmuSolver {
 
+  // counts number of simulation.update();
+  public int totalUpdates;
+
   // root time step
   public double dt;
   // previous root time step

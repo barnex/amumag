@@ -30,6 +30,8 @@ import amu.mag.adapt.FixedMesh;
 import amu.io.Message;
 import amu.data.DataModel;
 import amu.mag.field.StaticField;
+import amu.mag.fmm.DynamicRewire;
+import amu.mag.fmm.WireModule;
 import amu.mag.time.*;
 import java.io.File;
 import java.io.IOException;
@@ -71,7 +73,8 @@ public abstract class Problem {
     private double ms;
     private double a;
     private double alphaLLG = -1.0;
-    
+    private int dynamicRewire = 0;  // 0: disabled, other: update frequency, e.g. once every 100 steps
+
     private double boxSizeX;
     private double boxSizeY;
     private double boxSizeZ;
@@ -236,7 +239,11 @@ public abstract class Problem {
         sim.setKernelIntegrationAccuracy(kernelIntegrationAccuracy);
         sim.setOrder(fmmOrder);
         Simulation.dipoleCutoff = this.dipoleCutoff;
-
+        if(dynamicRewire != 0){
+          sim.dynamicRewire = new WireModule(sim.mesh, new DynamicRewire(fmmAlpha, sim.mesh.dimension));
+          sim.rewireFrequency = dynamicRewire;
+        }
+        
         // initial magnetization
         if(initialMagnetization == null)
             throw new InvalidProblemDescription("Initial magnetization has not been set.");
@@ -402,6 +409,10 @@ public abstract class Problem {
         this.fmmAlpha = fmmAlpha;
         if(initiated)
             sim.setAlphaFMM(fmmAlpha);
+    }
+
+    public void setDynamicRewire(int updateFrequency){
+      this.dynamicRewire = updateFrequency;
     }
 
     public void setKernelIntegrationAccuracy(int kernelIntegrationAccuracy) {

@@ -74,7 +74,10 @@ public final class Simulation {
      *  since the latter can be replaced by a new one.
      */
     public double totalTime = 0.0; 
-    
+
+    public WireModule dynamicRewire = null;
+    public int rewireFrequency = 0;
+
     // Output settings
     public final OutputModule output;
      
@@ -241,7 +244,7 @@ public final class Simulation {
     public void setAlphaFMM(double alpha) {
         setAlphaFMMNoUpdate(alpha);
         
-        //if order had already been set.
+        //if order has already been set.
         if(order != 0)
             updateOrderAndAlphaDependend();
         
@@ -261,7 +264,8 @@ public final class Simulation {
         else
             new WireModule(mesh, new TouchProximity()).wire();
     }
-    
+
+
     //________________________________________________________________set::order
     
     public void setOrder(int order){
@@ -285,7 +289,6 @@ public final class Simulation {
     
     private void updateOrderAndAlphaDependend(){
         new ShiftMap().hash(mesh.rootCell); //is this order-dependend?
-        
         DerivativeMap.hash(mesh.rootCell);
     }
     
@@ -380,6 +383,11 @@ public final class Simulation {
 
     mesh.aMRules.update();
 
+    if(dynamicRewire != null && solver.totalUpdates % rewireFrequency == 0){ //allows rewiring in the middle of an RK step...
+      dynamicRewire.wire();
+      updateOrderAndAlphaDependend();
+    }
+
     //(1) update magnetic charges and moments
     updateCharges();
     mesh.rootCell.updateQ(Main.LOG_CPUS);
@@ -394,6 +402,8 @@ public final class Simulation {
     //(3) update all other fields and torque, added to the already present external field.
     //Cell.precess = precess;
     mesh.rootCell.updateHParallel(Main.LOG_CPUS);
+
+    solver.totalUpdates++;
   }
     
     
