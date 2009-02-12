@@ -16,6 +16,7 @@
 
 package amu.mag.fmm;
 
+import amu.geom.Vector;
 import amu.mag.Cell;
 import amu.io.Message;
 
@@ -36,7 +37,16 @@ public final class OpeningAngleProximity extends ProximityModule {
      * Checks if Cell a is near to Cell b
      */
     public boolean isNear(Cell a, Cell b) {
-        //return openingAngle2(a, b) > alpha2 || openingAngle2(b, a) > alpha2;
+
+      // safety net: they should not touch.
+      for (Vector vertexA : a.vertex) {
+            for (Vector vertexB : b.vertex) {
+                if (vertexA == vertexB) {
+                    Message.warningOnce("Opening angle proximity would allow cells to touch, this has been denied.");
+                    return true;
+                }
+            }
+        }
 
         double diam2a = a.size.x * a.size.x + a.size.y * a.size.y;
         if (dimension == 3) {

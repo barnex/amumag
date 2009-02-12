@@ -27,6 +27,7 @@ public class Test extends Problem {
     //setMagnetization(new Saved("relaxed"));
     setSolver(new RKF54(1E-6));
     setDipoleCutoff(0.02);
+    setDynamicRewire(100);
     //setSolver(new AmuSolver5(0.02, 2, 2));
   }
 
@@ -35,18 +36,18 @@ public class Test extends Problem {
 
     setExternalField(new StaticField(10E-3, 0, 0));
 
-//    save("m", 10);
-//    save("maxTorque", 1);
-//    save("dt", 1);
-//    save("badSteps", 1);
-//    save("lastError", 1);
-//    save(new SpaceAverage(getData("m")), 1);
-//    save(new SpaceAverage(getData("hExt")), 1);
-//    save(new SpaceAverage(getData("energyDensity")), 10);
-    //setAlpha(10);
-    //runTime(5E-9);
+    save("m", 10);
+    save("maxTorque", 1);
+    save("dt", 1);
+    save("badSteps", 1);
+    save("lastError", 1);
+    save(new SpaceAverage(getData("m")), 1);
+    save(new SpaceAverage(getData("hExt")), 1);
+    save(new SpaceAverage(getData("energyDensity")), 10);
+    setAlpha(10);
+    runTime(5E-9);
 
-    //save(getData("m"), "relaxed");
+    save(getData("m"), "relaxed");
     setExternalField(new StaticField(0, 0, 0));
     setAlpha(0.01);
     runTime(1E-10);
