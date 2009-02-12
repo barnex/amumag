@@ -13,7 +13,6 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details (licence.txt).
  */
-
 package amu.mag.kernel;
 
 import amu.debug.Bug;
@@ -21,33 +20,31 @@ import amu.mag.*;
 import amu.geom.Vector;
 import java.io.Serializable;
 
-public final class Kernel implements Serializable{
-    
-    /** faces to be used with a kernel element */
-    public final Face[] nearFaces;                                                   
-    
-    /** kernel elements corresponding to the nearFaces. */
-    public final Vector[] kernel;        
-    
-    public Kernel(Face[] nearFaces, Vector[] kernel) {
-	assert nearFaces.length == kernel.length;
-	this.nearFaces = nearFaces;
-	this.kernel = kernel;
+public final class Kernel implements Serializable {
+
+  /** faces to be used with a kernel element */
+  public final Face[] nearFaces;
+  /** kernel elements corresponding to the nearFaces. */
+  public final Vector[] kernel;
+
+  public Kernel(Face[] nearFaces, Vector[] kernel) {
+    assert nearFaces.length == kernel.length;
+    this.nearFaces = nearFaces;
+    this.kernel = kernel;
+  }
+
+  // calulates the kernel part of the demag field and puts the result in v.
+  public void update(Vector v) {
+    v.x = 0.0;
+    v.y = 0.0;
+    v.z = 0.0;
+    for (int f = 0; f < nearFaces.length; f++) {
+      Face face = nearFaces[f];
+      Vector kern = kernel[f];
+      final double charge = face.charge;			// 2007-06-20
+      v.x += kern.x * charge;               // todo absorb these - somewhere
+      v.y += kern.y * charge;
+      v.z += kern.z * charge;
     }
-    
-    // calulates the kernel part of the demag field and puts the result in v.
-    public void update(Vector v){
-        //v.reset();
-	v.x = 0.0;
-        v.y = 0.0;
-        v.z = 0.0;
-        for(int f=0; f<nearFaces.length; f++){
-	    Face face = nearFaces[f];
-	    Vector kern = kernel[f];
-	    final double charge = face.charge;			// 2007-06-20
-	    v.x += kern.x * charge;               // todo absorb these - somewhere
-	    v.y += kern.y * charge;
-	    v.z += kern.z * charge;
-	}
-    }
+  }
 }
