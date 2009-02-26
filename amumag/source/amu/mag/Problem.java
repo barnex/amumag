@@ -90,7 +90,7 @@ public abstract class Problem {
     
     // Fields with default values:
     private int fmmOrder = 2;
-    private double fmmAlpha = 0.9;//negative value means touchproximity
+    private double fmmAlpha = -1;//negative value means touchproximity
     private int kernelIntegrationAccuracy = 2;
     private double dipoleCutoff = 0.0;
 
@@ -98,7 +98,7 @@ public abstract class Problem {
     //private double dt = 1E-5;
     private AdaptiveMeshRules aMRules = new FixedMesh();
     
-    private AmuSolver solver = new AmuSolver5(0.02, 2, 1);
+    private AmuSolver solver = new RKF54(1E-6);
     
 //    private double targetMaxAbsError = 1E-5;
 //    private double targetMaxRelError = POSITIVE_INFINITY;
@@ -135,6 +135,10 @@ public abstract class Problem {
         save(sim.getModel(field));
     }*/
     
+    public File getBaseDir(){
+      return sim.getBaseDirectory();
+    }
+
     public void save(DataModel model, String dest) throws IOException{
         model.save(sim.getBaseDirectory(), dest);
     }

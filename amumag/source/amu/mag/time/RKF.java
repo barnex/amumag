@@ -16,6 +16,7 @@
 
 package amu.mag.time;
 
+import amu.debug.Bug;
 import amu.geom.Vector;
 import amu.mag.Cell;
 import static java.lang.Math.sqrt;
@@ -36,6 +37,9 @@ public abstract class RKF extends RK{
     this.errorPerStep = errorPerStep;
   }
 
+   /**
+    * called AFTER a step, to update for the next step
+    */
   protected void updateDt(){
     
     double scale = sqrt(sqrt( (errorPerStep) / (2.0 * lastError) ));

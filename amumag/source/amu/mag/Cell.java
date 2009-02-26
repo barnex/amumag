@@ -39,11 +39,16 @@ import static java.lang.Math.sqrt;
 public final class Cell implements Serializable {
 
   static boolean precess;
+
   // indicates when the adaptive mesh recusion can stop (stop=true: this is the last cell)
   // also temporarily (ab)used as "unlink tag" to indicate which cells have to be
   // removed by the CSGModule.
-  public transient boolean updateStopsHere;
+  public transient boolean unlinkTag;
+
+  
   public transient boolean uniform;
+  public double uniformDebug; // for saving as 1/0 vector field.
+
   public transient boolean chargeFree;
   public Vector center;
   public Vector[] vertex;
@@ -74,6 +79,9 @@ public final class Cell implements Serializable {
   public transient Exchange6Ngbr exchange;
   //public transient AmuSolver solver;
   private transient final Vector hExPrevious = new Vector(),  hMagPrevious = new Vector();
+
+
+
 
   //__________________________________________________________________________constructors
   /**
@@ -495,30 +503,30 @@ public final class Cell implements Serializable {
 
   }
 
-  /**
-   * Recursively updates the uniform flag based on the adaptive mesh rules.
-   * @param aThis
-   */
-  public void updateUniform(AdaptiveMeshRules aMRules) {
-    uniform = aMRules.isUniform(this);
-    if (uniform) {
-      setChildrenUniform();
-    } else if (child1 != null) {
-      child1.updateUniform(aMRules);
-      child2.updateUniform(aMRules);
-    }
-  }
-
-  /**
-   * sets the uniform flag of this cell and all its children true.
-   */
-  private void setChildrenUniform() {
-    uniform = true;
-    if (child1 != null) {
-      child1.setChildrenUniform();
-      child2.setChildrenUniform();
-    }
-  }
+//  /**
+//   * Recursively updates the uniform flag based on the adaptive mesh rules.
+//   * @param aThis
+//   */
+//  public void updateUniform(AdaptiveMeshRules aMRules) {
+//    uniform = aMRules.isUniform(this);
+//    if (uniform) {
+//      setChildrenUniform();
+//    } else if (child1 != null) {
+//      child1.updateUniform(aMRules);
+//      child2.updateUniform(aMRules);
+//    }
+//  }
+//
+//  /**
+//   * sets the uniform flag of this cell and all its children true.
+//   */
+//  private void setChildrenUniform() {
+//    uniform = true;
+//    if (child1 != null) {
+//      child1.setChildrenUniform();
+//      child2.setChildrenUniform();
+//    }
+//  }
   //__________________________________________________________________________
   //__________________________________________________________________________accessors
 

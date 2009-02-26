@@ -41,6 +41,7 @@ public abstract class ExternalField {
 
     
 
+    private static final double factor = 1.0 / (Unit.mu0 * Unit.FIELD);
     /**
      * todo: r still internal units
      * Returns the applied field in simulation units, used by the solver.
@@ -49,8 +50,14 @@ public abstract class ExternalField {
      */
     public final Vector get(double time){
         double si_time = time*Unit.TIME - timeZero;
-        put(si_time ,buffer);
-        buffer.divide(Unit.mu0 * Unit.FIELD);
+        put(si_time, buffer);
+
+        //buffer.divide(Unit.mu0 * Unit.FIELD);
+        //inlined:
+        buffer.x *= factor;
+        buffer.y *= factor;
+        buffer.z *= factor;
+
         if(buffer.isNaN())
             throw new IllegalArgumentException("External field is NaN at " + si_time + " s");
         return buffer;

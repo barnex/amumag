@@ -250,9 +250,6 @@ public final class AmuView {
 //        }
 //    }
     
-    public void save(String file) throws IOException{
-        renderer.save(new File(file));
-    }
     
     public void savePng(String file) throws IOException{
         renderer.savePng(new File(file));

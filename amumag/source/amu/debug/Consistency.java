@@ -59,7 +59,7 @@ public final class Consistency {
     public static void checkCutout(Cell thiz){
 	if(thiz.childCount() == 1)
 	    throw new Bug();
-	if(thiz.updateStopsHere == true)
+	if(thiz.unlinkTag == true)
 	    throw new Bug();
     }
     

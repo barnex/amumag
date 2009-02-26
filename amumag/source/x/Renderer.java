@@ -26,7 +26,6 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
-import org.jibble.epsgraphics.EpsGraphics2D;
 import static amu.geom.Vector.X;
 
 public abstract class Renderer {
@@ -63,10 +62,9 @@ public abstract class Renderer {
             
     public abstract void setColorMap(ColorMap map) throws IOException;
     
-    public abstract void save(File file) throws IOException;
     
     public void savePng(File file, double xmin, double xmax, double ymin, double ymax) throws IOException{
-        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D graphics = (Graphics2D)(img.getGraphics());
         graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);   
@@ -78,18 +76,7 @@ public abstract class Renderer {
         savePng(file, 0, 0, 0, 0);
     }
             
-    public void saveEps(File file, double xmin, double xmax, double ymin, double ymax) throws IOException{     
-        EpsGraphics2D epsg = new EpsGraphics2D(model.getName(), file, 
-                (int)(xmin-0.5), (int)(ymin-0.5), (int)(xmax+0.5), (int)(ymax+0.5));
-        
-        Color bgbackup = background;
-        background = null;
-        paint(epsg, width, height);
-        background = bgbackup;
-        
-        epsg.flush();
-        epsg.close();
-    }
+    
 
     public void updateColors() throws IOException {
         // overridden by 3D renderer.

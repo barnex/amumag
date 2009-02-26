@@ -231,7 +231,7 @@ public class DR3DRenderer extends Renderer{
                     ymax = v.y;
             }
             
-       saveEps(file, xmin, xmax, ymin, ymax);
+       savePng(file, xmin, xmax, ymin, ymax);
        //todo: png.
     }
     
