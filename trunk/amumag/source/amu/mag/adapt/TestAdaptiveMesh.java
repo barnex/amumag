@@ -23,7 +23,7 @@ public final class TestAdaptiveMesh extends AdaptiveMeshRules{
     private int coarseRootLevel;
 
     public TestAdaptiveMesh(){
-        this.coarseRootLevel = mesh.nLevels - 2;
+        this.coarseRootLevel = mesh.nLevels - 1 - 2;
     }
     
     public int getCoarseRootLevel() {
@@ -31,13 +31,16 @@ public final class TestAdaptiveMesh extends AdaptiveMeshRules{
     }
 
     @Override
-    public void updateStopUpdatesHere() {
+    public void updateUniform() {
         for(Cell cell=mesh.rootCell; cell != null; cell = cell.next)
-            cell.updateStopsHere = false;
+            cell.uniform = false;
+
         for(Cell[][] levelI: mesh.coarseLevel)
             for(Cell[] levelIJ: levelI)
-                for(Cell cell: levelIJ)
-                    cell.updateStopsHere = true;
+                for(Cell cell: levelIJ){
+                    cell.uniform = isUniform(cell);
+                    cell.uniformDebug = cell.uniform? 1.0: 0.0;
+                }
     }
 
     @Override

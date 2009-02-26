@@ -6,6 +6,9 @@ import amu.mag.config.*;
 import amu.mag.time.*;
 import amu.mag.field.*;
 import amu.data.*;
+import amu.geom.jelly.TopRoughness;
+import amu.geom.jelly.ToplayerRoughness;
+import amu.geom.solid.Ellipsoid;
 
 public class Test extends Problem {
 
@@ -17,18 +20,21 @@ public class Test extends Problem {
     setBoxSizeX(300E-9);
     setBoxSizeY(300E-9);
     setBoxSizeZ(30E-9);
-    setMaxCellSizeX(8E-9);
-    setMaxCellSizeY(8E-9);
-    setMaxCellSizeZ(1.0 / 0.0);
+    setMaxCellSizeX(4E-9);
+    setMaxCellSizeY(4E-9);
+    setMaxCellSizeZ(4E-9);
     setFmmOrder(2);
-    setFmmAlpha(0.6);
-    setKernelIntegrationAccuracy(4);
+    setFmmAlpha(0.9);
+    setKernelIntegrationAccuracy(2);
     setMagnetization(new Vortex(1));
     //setMagnetization(new Saved("relaxed"));
-    setSolver(new RKF54(1E-6));
-    setDipoleCutoff(0.02);
-    setDynamicRewire(100);
+    setSolver(new RKF54(1E-5));
+    setDipoleCutoff(0.05);
+    //setDynamicRewire(100);
     //setSolver(new AmuSolver5(0.02, 2, 2));
+    //addTransform(new ToplayerRoughness(30E-9, 30E-9));
+    //addShape(new Ellipsoid(150E-9, 150E-9, 50E-9));
+    //setFiniteDifferences(true);
   }
 
   //@Override
@@ -45,7 +51,9 @@ public class Test extends Problem {
     save(new SpaceAverage(getData("hExt")), 1);
     save(new SpaceAverage(getData("energyDensity")), 10);
     setAlpha(10);
-    runTime(5E-9);
+
+    runTime(1E-9);
+    
 
     save(getData("m"), "relaxed");
     setExternalField(new StaticField(0, 0, 0));

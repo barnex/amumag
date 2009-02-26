@@ -75,6 +75,8 @@ public final class Simulation {
      */
     public double totalTime = 0.0; 
 
+    public double maxTime = Double.POSITIVE_INFINITY;
+
     public WireModule dynamicRewire = null;
     public int rewireFrequency = 0;
 
@@ -168,14 +170,15 @@ public final class Simulation {
     public void runTime(double duration) throws IOException, InvalidProblemDescription{
         Message.title("run: " + duration*Unit.TIME + " s");
         Message.hrule();
-        //duration /= Unit.TIME;
-        double startTime = getTotalTime();
+        
+        maxTime = getTotalTime() + duration; // necessary to trim the last dt so it fits in the desired time
         do{
             runStepWithOutput();
         }
-        while(getTotalTime() - startTime < duration);
-        // make sure we just go over the specified duration.
-        runStepWithOutput();
+        while(getTotalTime() < maxTime);
+        
+        // reset maxtime so we don't get in trouble if we do, e.g., runSteps...
+        maxTime = Double.POSITIVE_INFINITY;
     }
     
     public void runTorque(double maxtorque) throws IOException, InvalidProblemDescription{
@@ -381,7 +384,7 @@ public final class Simulation {
      */
   public void update() {
 
-    mesh.aMRules.update();
+    //mesh.aMRules.update();
 
     if(dynamicRewire != null && solver.totalUpdates % rewireFrequency == 0){ //allows rewiring in the middle of an RK step...
       dynamicRewire.wire();

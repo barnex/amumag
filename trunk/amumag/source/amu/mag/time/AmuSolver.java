@@ -15,6 +15,7 @@
  */
 package amu.mag.time;
 
+import amu.debug.Bug;
 import amu.geom.Vector;
 import amu.io.Message;
 import amu.mag.Cell;
@@ -53,7 +54,18 @@ public abstract class AmuSolver {
 
   public void doStep(){
     long t = System.nanoTime();
-    stepImpl();
+
+    // dt is already set by the last step, let's check if we need to trim it for this step
+     if(sim.totalTime + dt > sim.maxTime) // trim dt so it fits in the desired run time.
+      dt = sim.maxTime - sim.totalTime;
+
+    if(dt == 0.0)
+      throw new Bug("dt=0.0");
+    if(Double.isNaN(dt))
+      throw new Bug("dt=NaN");
+
+    stepImpl(); // also updates dt for the next step
+
     stepTime = 1E-9 * (System.nanoTime() - t);
     realtime = dt * Unit.TIME / stepTime;
   }

@@ -50,7 +50,7 @@ public class Random extends Configuration{
     }
     
     @Override
-    public void putM(double x, double y, double z, Vector target,Index index) {
+    public void putM(double x, double y, double z, Vector target, Index index) {
         target.x = amplitude * (1.0 - 2.0*random.nextDouble());
         target.y = amplitude * (1.0 - 2.0*random.nextDouble());
         target.z = amplitude * (1.0 - 2.0*random.nextDouble());

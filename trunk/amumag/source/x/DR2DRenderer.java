@@ -469,12 +469,6 @@ public final class DR2DRenderer extends Renderer{
     public void setColorMap(ColorMap map) throws IOException {
         this.colorMap = map;
     }
-    
-    public void save(File file) throws IOException{   
-        setSize(4096, 4096);    
-       saveEps(file, 0, 0, width, height);
-       //todo: png.
-    }
 
     public void colorSurface() {
         //draw cells = false?

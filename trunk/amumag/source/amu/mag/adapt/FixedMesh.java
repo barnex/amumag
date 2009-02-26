@@ -26,15 +26,13 @@ public final class FixedMesh extends AdaptiveMeshRules{
     }
 
     @Override
-    public void updateStopUpdatesHere() {
-        //debug
-        if(mesh.coarseRoot != mesh.baseRoot)
-            throw new Bug();
+    public void updateUniform() {
+       assert mesh.coarseRoot == mesh.baseRoot;
         
         for(Cell cell=mesh.rootCell; cell != null; cell = cell.next)
-            cell.updateStopsHere = false;
+            cell.uniform = false;
         for(Cell cell=mesh.coarseRoot; cell != null; cell = cell.next)
-            cell.updateStopsHere = true;
+            cell.uniform = true;
     }
 
     @Override

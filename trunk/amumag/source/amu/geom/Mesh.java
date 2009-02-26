@@ -76,13 +76,8 @@ public final class Mesh implements Serializable{
 
     }
     public Mesh(Vector boxSize, Vector maxCellSize, AdaptiveMeshRules aMRules) {
-        // 2008-08-14: partition aspect ratio -> cube (better FMM, smaller opening angles.)
         
         this(boxSize, calcLevels(boxSize, maxCellSize), new PartitionRuleCubeMaxSize(maxCellSize), aMRules);
-        
-        /*this(boxSize, calcLevels(boxSize, maxCellSize), new PartitionRuleAspect(maxCellSize), aMRules);
-        Message.debug("using preferred cubic cell aspect ratio");//*/
-        
         
     }
     
@@ -106,7 +101,7 @@ public final class Mesh implements Serializable{
         
         this.aMRules = aMRules;
         aMRules.mesh = this;
-        aMRules.updateStopUpdatesHere();
+        aMRules.updateUniform();
         
         coarseLevelIndex = aMRules.getCoarseRootLevel();
         
