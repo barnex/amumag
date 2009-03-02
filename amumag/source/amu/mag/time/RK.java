@@ -40,7 +40,7 @@ public abstract class RK extends AmuSolver {
   @Override
   public void init(Simulation sim) {
     super.init(sim);
-    rk = new RKData[sim.mesh.cells];
+    rk = new RKData[sim.mesh.cells]; // too much...
     for(int i=0; i<rk.length; i++)
       rk[i] = new RKData(weight.length); //=order
   }

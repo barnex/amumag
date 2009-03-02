@@ -29,7 +29,7 @@ public class GyrofieldXR extends Gyrofield{
     @Override
       public void put(int time, Index r, Vector v) throws IOException {
         super.put(time, r, v);
-        v.multiply(getMesh().getCell(r).center.norm());
+        v.multiply(getMesh().getBaseCell(r).center.norm());
       }
     
     @Override

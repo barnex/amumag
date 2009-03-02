@@ -144,6 +144,7 @@ public final class Simulation {
     private void runStepWithOutput() throws IOException, InvalidProblemDescription{
             // if this is the very first iteration, make sure the sim is updated.
             if(!initiated){
+                mesh.aMRules.update();
                 update();
                 initiated = true;
             }
@@ -181,7 +182,7 @@ public final class Simulation {
         maxTime = Double.POSITIVE_INFINITY;
     }
     
-    public void runTorque(double maxtorque) throws IOException, InvalidProblemDescription{
+    /*public void runTorque(double maxtorque) throws IOException, InvalidProblemDescription{
         Message.title("run: " + maxtorque + " torque");
         Message.hrule();
         if(maxtorque <= 0)
@@ -189,7 +190,7 @@ public final class Simulation {
        do{
             runStepWithOutput();
         } while(get_maxTorque() > maxtorque);
-    }
+    }*/
     
     //_______________________________________________________________________set  
     //_________________________________________________________________set::mesh
@@ -213,9 +214,9 @@ public final class Simulation {
                 for (int j = 0; j < level[i].length; j++) {
                     for (int k = 0; k < level[i][j].length; k++) {
                         index.set(i, j, k);
-                        Cell cell = mesh.getCell(index);
+                        Cell cell = mesh.getCell(l, index);
                         if (cell != null) {
-                            cell.exchange = new Exchange6Ngbr(mesh, index);
+                            cell.exchange = new Exchange6Ngbr(mesh, l, index);
                             count++;
                             Message.progress(count);
                         }
@@ -329,11 +330,7 @@ public final class Simulation {
     }
     
     protected void setMagnetization(Configuration config){
-//        for(Cell cell = mesh.baseRoot; cell != null; cell = cell.next){
-//            Vector r = cell.center;
-//            config.putM(r.x, r.y, r.z, cell.m,null);
-//            Configuration.normalizeVerySafe(cell.m);
-//        }
+
         Index index = new Index();
         for(int i=0; i<mesh.baseLevel.length; i++)
             for(int j=0; j<mesh.baseLevel[i].length; j++)
@@ -346,6 +343,8 @@ public final class Simulation {
                         Configuration.normalizeVerySafe(cell.m);
                     }
                 }
+        // sets m of the larger cells, too.
+        mesh.rootCell.distributeBaseM();
     }
     
     protected void addMagnetization(Configuration config){
@@ -378,13 +377,15 @@ public final class Simulation {
     
     private static final Vector ZERO = new Vector(0, 0, 0, true);
     private final Vector rSiUnits = new Vector();
-    
+
+    public final Vector hExt = new Vector();
     /**
      * full update.
      */
   public void update() {
 
-    //mesh.aMRules.update();
+    // todo: only update every so often.
+    // mesh.aMRules.update(); // now in solver so it does not happen during an rk step
 
     if(dynamicRewire != null && solver.totalUpdates % rewireFrequency == 0){ //allows rewiring in the middle of an RK step...
       dynamicRewire.wire();
@@ -395,12 +396,11 @@ public final class Simulation {
     updateCharges();
     mesh.rootCell.updateQ(Main.LOG_CPUS);
 
-    //(2) set the space-dependend external field.
-    for (Cell cell = mesh.coarseRoot; cell != null; cell = cell.next) {
-      rSiUnits.set(cell.center);
-      rSiUnits.multiply(Unit.LENGTH);
-      cell.hExt.set(externalField.get(getTotalTime()));
-    }
+    //(2) set the external field via the root cell.
+    hExt.set(externalField.get(getTotalTime()));
+    mesh.rootCell.smooth.field[1] = -hExt.x;
+    mesh.rootCell.smooth.field[2] = -hExt.y;
+    mesh.rootCell.smooth.field[3] = -hExt.z;
 
     //(3) update all other fields and torque, added to the already present external field.
     //Cell.precess = precess;
@@ -410,40 +410,68 @@ public final class Simulation {
   }
     
     
-    public void updateHSmooth(){
-        
-        //(1) update magnetic charges and moments
-	updateCharges();
-        mesh.rootCell.updateQ(Main.LOG_CPUS);
-        
-//        //(2) set the space-dependend external field.
-//        for(Cell cell=mesh.coarseRoot; cell != null; cell = cell.next){
-//            rSiUnits.set(cell.center);
-//            rSiUnits.multiply(Unit.LENGTH);
-//            cell.hExt.set(externalField.get(getTotalTime(),rSiUnits));
-//        }
-        
-        //(3) update all other fields and torque, added to the already present external field.
-        //Cell.precess = precess;
-	mesh.rootCell.updateHSmoothParallel(Main.LOG_CPUS);
+//    public void updateHSmooth(){
+//
+//        //(1) update magnetic charges and moments
+//        updateCharges();
+//        mesh.rootCell.updateQ(Main.LOG_CPUS);
+//
+////        //(2) set the space-dependend external field.
+////        for(Cell cell=mesh.coarseRoot; cell != null; cell = cell.next){
+////            rSiUnits.set(cell.center);
+////            rSiUnits.multiply(Unit.LENGTH);
+////            cell.hExt.set(externalField.get(getTotalTime(),rSiUnits));
+////        }
+//
+//        //(3) update all other fields and torque, added to the already present external field.
+//        //Cell.precess = precess;
+//	mesh.rootCell.updateHSmoothParallel(Main.LOG_CPUS);
+//    }
+    
+//    public void updateHFast(){
+//        updateCharges();
+//        mesh.rootCell.updateHFastParallel(Main.LOG_CPUS);
+//    }
+    
+  /**
+   * updates the magnetic charge on all faces, also large ones.
+   */
+  private void updateCharges() {
+
+    // set the magnetization of ALL the cells, based on the updateLeaf Cells
+    mesh.rootCell.distributeMOverLevels();
+
+    // discharge all
+    for (Face face = mesh.rootFace; face != null; face = face.next) {
+      face.charge = 0.0;
+      face.adhocChargeCounter = 0;
     }
-    
-    public void updateHFast(){
-        updateCharges();
-        mesh.rootCell.updateHFastParallel(Main.LOG_CPUS);
+
+    // charge faces the normal way
+    // all faces, big and small will be charge correctly
+    // because the magnetization has been distributed over all levels
+    // and we make sure each face gets charged only once
+//    for (Cell cell = mesh.coarseRoot; cell != null; cell = cell.next) {
+//      cell.chargeFaces();
+//    }
+
+    // charge faces the normal way, starting from the smallest cells and going
+    // larger. A small face shared between a small and an elongated cell, e.g.,
+    // will only be charged by the smallest cells, which are definitely accurate
+    // (cells above updateleafs have no entirely accurate m anymore)
+    for(int l=mesh.nLevels - 1; l >= mesh.coarseLevelIndex; l--){
+      Cell[][][] level = mesh.levels[l];
+      for(Cell[][] levelI: level)
+        for(Cell[] levelIJ: levelI)
+          for(Cell cell: levelIJ){
+            if(cell != null){
+              cell.chargeFaces();
+            }
+          }
     }
-    
-    /**
-     * Currently only updates the base level.
-     */
-    private void updateCharges(){
-	for(Face face = mesh.rootFace; face != null; face = face.next)
-	    face.charge = 0.0;
-	for(Cell cell = mesh.baseRoot; cell != null; cell = cell.next)
-	    cell.chargeFaces();
-    }
-    
-    
+
+  }
+
     //____________________________________________________________output "beans"
     
     private static Bucket bucket = new Bucket(0.001, 10000);
@@ -476,13 +504,13 @@ public final class Simulation {
         return bucket.getSum();
     }
     
-    public double get_maxTorque(){
+    /*public double get_maxTorque(){
         double max2 = 0.0;
         for(Cell cell = mesh.baseRoot; cell != null; cell = cell.next)
             if(cell.torque.norm2() > max2)
                 max2 = cell.torque.norm2();
         return sqrt(max2);
-    }
+    }*/
     
     public double get_mx(){
         double sum = 0.0;

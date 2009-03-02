@@ -83,16 +83,16 @@ public class FineExtremumPosition extends ExtremumPosition{
             extremumIndex = minpos;
         
         Mesh mesh = getMesh();
-        Cell centerCell = mesh.getCell(extremumIndex);
+        Cell centerCell = mesh.getBaseCell(extremumIndex);
         
         Vector extremumPosition = new Vector();
         
         
         for(int dir = X; dir <= Z; dir++){
             Index left = extremumIndex.sum(Index.UNIT[dir].multiply(-1));
-            Cell leftCell = mesh.getCell(left);
+            Cell leftCell = mesh.getBaseCell(left);
             Index right = extremumIndex.sum(Index.UNIT[dir]);
-            Cell rightCell = mesh.getCell(right);
+            Cell rightCell = mesh.getBaseCell(right);
             
             if(leftCell != null && rightCell != null){
                 double d1 = leftCell.center.getComponent(dir);

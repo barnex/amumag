@@ -71,7 +71,7 @@ public class ExtremumPosition extends Extremum{
                     }
                 }
         Index extremumindex = (type == MAX? maxpos: minpos);
-        Vector extremumposition = getMesh().getCell(extremumindex).center;
+        Vector extremumposition = getMesh().getBaseCell(extremumindex).center;
         v.set(extremumposition);
         v.multiply(Unit.LENGTH);
     }

@@ -92,8 +92,8 @@ public class Gyrofield extends DerivedDataModel{
     }
     
     protected void updateGradients(int time, Index r) throws IOException {
-
-        Cell cell = originalModel.getMesh().getCell(r);
+        int base = getMesh().nLevels - 1;
+        Cell cell = originalModel.getMesh().getCell(base, r);
         if (cell != null) {
             Vector center = cell.center;
             originalModel.put(time, r, f0);
@@ -108,7 +108,7 @@ public class Gyrofield extends DerivedDataModel{
                     for (int side = -1; side <= +1; side += 2) {
                         neighIndex.set(r);
                         neighIndex.add(side, UNIT[comp]);
-                        Cell neighbor = originalModel.getMesh().getCell(neighIndex);
+                        Cell neighbor = originalModel.getMesh().getCell(base, neighIndex);
                         originalModel.put(time, neighIndex, fNeigh);
                         if (neighbor != null) {
                             neighborCount++;

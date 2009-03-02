@@ -47,8 +47,8 @@ public final class Exchange6Ngbr {
     private static double[][] system = new double[6][6+7];
     
             
-    public Exchange6Ngbr(Mesh mesh, Index cellPos){
-        this.cell = mesh.getCell(cellPos);
+    public Exchange6Ngbr(Mesh mesh, int level, Index cellPos){
+        this.cell = mesh.getCell(level, cellPos);
         
         Index index = new Index();
         for (int dir = X; dir <= Z; dir++) {
@@ -59,7 +59,7 @@ public final class Exchange6Ngbr {
             
             index.set(cellPos);
             index.add(-1, Index.UNIT[dir]);
-            Cell neighCellL = mesh.getCell(index);
+            Cell neighCellL = mesh.getCell(level, index);
             if (neighCellL != null) {
                 neighM[1+2*dir] = neighCellL.m;
             }
@@ -68,7 +68,7 @@ public final class Exchange6Ngbr {
             
             index.set(cellPos);
             index.add(Index.UNIT[dir]);
-            Cell neighCellR = mesh.getCell(index);
+            Cell neighCellR = mesh.getCell(level, index);
             if (neighCellR != null) {
                 neighM[1+2*dir+1] = neighCellR.m;
             }

@@ -61,7 +61,7 @@ public final class SmoothField implements Serializable {
       setToShiftedParent(parent);
     }
     /*else
-    reset();*/				// 2007-07-18: set to zeemann, currently 0 so not necessary yet.
+    reset();*/				// 2007-07-18: root set to zeemann, so not necessary.
 
     final int l = FMM.order;
 
@@ -69,10 +69,10 @@ public final class SmoothField implements Serializable {
       Cell partner = partners[i];
 
       //2009-01-28: charge-free approx
-      if (partner.chargeFree){
+      /*if (partner.chargeFree){
         //System.out.print('*');
         continue; //skip partner.
-      }
+      }*/
       double[] partnerQ = partner.multipole.q;
       double[] dHashDPartnerShiftsI = DerivativeMap.d[partnerShifts[i]];		// Still contains a lot of zeros
 

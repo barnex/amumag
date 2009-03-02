@@ -13,36 +13,38 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details (licence.txt).
  */
-
 package amu.mag.adapt;
 
 import amu.debug.Bug;
 import amu.mag.Cell;
 
-public final class FixedMesh extends AdaptiveMeshRules{
-    
-    public int getCoarseRootLevel() {
-        return mesh.nLevels - 1;
-    }
+public final class FixedMesh extends AdaptiveMeshRules {
 
-    @Override
-    public void updateUniform() {
-       assert mesh.coarseRoot == mesh.baseRoot;
-        
-        for(Cell cell=mesh.rootCell; cell != null; cell = cell.next)
-            cell.uniform = false;
-        for(Cell cell=mesh.coarseRoot; cell != null; cell = cell.next)
-            cell.uniform = true;
-    }
+  public int getCoarseRootLevel() {
+    return mesh.nLevels - 1;
+  }
 
-    @Override
-    public boolean isUniform(Cell cell) {
-        return false;
+  @Override
+  public void update() {
+    assert mesh.coarseRoot == mesh.baseRoot;
+
+    for (Cell cell = mesh.rootCell; cell != null; cell = cell.next) {
+      cell.uniform = false;
+      cell.updateLeaf = false;
     }
-    
-    @Override
-    public String toString(){
-        return "fixed mesh";
+    for (Cell cell = mesh.coarseRoot; cell != null; cell = cell.next) {
+      cell.uniform = true;
+      cell.updateLeaf = true;
     }
-    
+  }
+
+  @Override
+  public boolean isUniform(Cell cell) {
+    return false;
+  }
+
+  @Override
+  public String toString() {
+    return "fixed mesh";
+  }
 }
