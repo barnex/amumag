@@ -177,9 +177,9 @@ public abstract class Problem {
         sim.runTime(time/Unit.TIME);
     }
     
-    public void runTorque(double maxTorque) throws IOException, InvalidProblemDescription{
+    /*public void runTorque(double maxTorque) throws IOException, InvalidProblemDescription{
         sim.runTorque(maxTorque);
-    }
+    }*/
             
     public void setExternalField(ExternalField field){
         sim.setExternalField(field);
@@ -305,7 +305,12 @@ public abstract class Problem {
         else
             throw new IllegalArgumentException("Command-line argument #" + (index+1) + " has not been provided.");
     }
-    
+
+    public void setAdaptivity(AdaptiveMeshRules am){
+      requireNotYetInitiated();
+      this.aMRules = am;
+    }
+
     public void setSolver(AmuSolver solver){
         if(initiated){
             sim.solver = solver;

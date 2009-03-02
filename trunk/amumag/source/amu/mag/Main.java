@@ -32,7 +32,7 @@ public final class Main {
     public static final String CP = System.getProperty("java.class.path");
     
     public static final String VM = System.getProperty("java.version");
-    private static final String VERSION = "2b232"; //140+commit74+17
+    private static final String VERSION = "2b240"; //140+commit74+25
     private static final String MEMORY = Runtime.getRuntime().maxMemory() / (1024*1024) + "MB";
     
     private static final String BANNER = 
@@ -104,69 +104,5 @@ public final class Main {
             n--;
         }
         return pow;
-    }
-    
-    /*private static void runProblems(){
-        for(int i=0; i<problems.length; i++){
-            Message.exit();
-            Message.enter("run");
-            Message.println(problems[i].toString());
-            try{
-                problems[i].run(null);
-            }
-            catch(Exception e){
-                System.out.println();
-                e.printStackTrace();
-            }
-        }
-    }*/
-    
-    /*private static void loadProblems(String[] args){
-        problems = new Problem[args.length];
-        for(int i=0; i<problems.length; i++){
-            String arg = args[i];
-            Message.enter("read");
-            Message.print(arg);
-            try {
-                problems[i] = (Problem) Class.forName(arg).getConstructor(new Class[]{}).newInstance(new Object[]{});
-            } 
-            catch (IllegalArgumentException ex)
-            {
-                ex.printStackTrace();
-                System.exit(-1);
-            } 
-            catch (SecurityException ex) 
-            {
-                ex.printStackTrace();
-                System.exit(-1);
-            } 
-            catch (InvocationTargetException ex) 
-            {
-                ex.printStackTrace();
-                System.exit(-1);
-            } 
-            catch (InstantiationException ex) 
-            {
-                ex.printStackTrace();
-                System.exit(-1);
-            } 
-            catch (NoSuchMethodException ex) 
-            {
-                ex.printStackTrace();
-                System.exit(-1);
-            } 
-            catch (ClassNotFoundException ex) {
-                System.out.println(": class not found");
-                System.out.println("Make sure this class is located in the classpath:\n"+CP);
-                System.out.println();
-                System.exit(-1);
-                
-            } catch (IllegalAccessException ex) {
-                ex.printStackTrace();
-                System.exit(-1);
-            }
-            Message.println(": OK");
-        }
-    }*/
-    
+    } 
 }

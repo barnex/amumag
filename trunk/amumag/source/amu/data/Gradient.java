@@ -46,7 +46,7 @@ public class Gradient extends DerivedDataModel{
 
         v.set(0, 0, 0);
 
-        Cell cell = originalModel.getMesh().getCell(r);
+        Cell cell = originalModel.getMesh().getBaseCell(r);
         if (cell != null) {
             Vector center = cell.center;
             originalModel.put(time, r, f0);
@@ -60,7 +60,7 @@ public class Gradient extends DerivedDataModel{
                 for (int side = -1; side <= +1; side += 2) {
                     neighIndex.set(r);
                     neighIndex.add(side, UNIT[comp]);
-                    Cell neighbor = originalModel.getMesh().getCell(neighIndex);
+                    Cell neighbor = originalModel.getMesh().getBaseCell(neighIndex);
                     originalModel.put(time, neighIndex, fNeigh);
                     if (neighbor != null) {
                         neighborCount++;

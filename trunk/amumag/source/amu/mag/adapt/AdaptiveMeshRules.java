@@ -34,7 +34,7 @@ public abstract class AdaptiveMeshRules{
     * uniform below this cell. 
     * @param mesh
     */
-   public abstract void updateUniform();
+   public abstract void update();
    
    public abstract boolean isUniform(Cell cell);
    

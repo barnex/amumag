@@ -91,7 +91,7 @@ public final class LiveMeshDataModel extends DataModel{
             throw new IllegalArgumentException();
         }
 
-        Cell cell = sim.mesh.getCell(r);
+        Cell cell = sim.mesh.getBaseCell(r);
         if (cell != null) {
             try {
                 if (isVector) {

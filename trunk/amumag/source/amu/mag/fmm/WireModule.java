@@ -15,6 +15,7 @@
  */
 package amu.mag.fmm;
 
+import amu.debug.Bug;
 import amu.debug.Consistency;
 import amu.geom.*;
 import amu.io.Message;
@@ -53,7 +54,7 @@ public final class WireModule {
    * but go to the kernel (near cells) right away. UpdateQ() will never
    * be called on these cells. minQLevel=0: normal case.
    */
-  //public final int minQLevel = 0;
+  
   private final ProximityModule rules;
   private final Mesh mesh;
 
@@ -68,23 +69,49 @@ public final class WireModule {
     Message.print("Wiring level: ");
 
     Cell[][][][] levels = mesh.levels;
-    Cell root = mesh.rootCell;						//2007-08-02
+    Cell root = mesh.rootCell;                    //2007-08-02
     root.setPartners(new Cell[]{});
     root.setNearCells(new Cell[]{root});					//root is near to itself
 
-    for (int l = 0; l < levels.length; l++) {
+    // 2009-03-02: updateQ optimization
+    // --------------------------------
+    // due to the adaptive mesh, FMM field evaluation is now so fast
+    // that it only takes about 5% CPU, and updateQ has become the bottleneck,
+    // eating up about half of the CPU time.
+    // (optimization 1): smallest cells should NOT have partners, but use purely
+    // kernels instead. This reduces the cost for a smallest partner-partner
+    // interaction from (updateQ, evaluate SmoothField) to one kernel evaluation
+    // (which is about as expensive as the updateQ). Bonus: kernel is more accurate
+    // (optimization 2): since the Q of the smallest cells will not be needed
+    // anymore, we calculate the Q of the parent directly form the charges. This
+    // is two Q shifts less expensive.
+
+    // EXCLUDE BASE LEVEL, handled separately
+    for (int l = 0; l < levels.length - 1; l++) {
       Message.print(" " + l);
       for (int i = 0; i < levels[l].length; i++) {
         for (int j = 0; j < levels[l][i].length; j++) {
           for (int k = 0; k < levels[l][i][j].length; k++) {
             if (levels[l][i][j][k] != null) {
-              wire(levels[l][i][j][k]);
+              wireAboveBase(levels[l][i][j][k]);
             }
           }
         }
       }
     }
 
+    // wire base level here
+    int l = levels.length - 1;
+    Message.print(" " + l);
+    for (int i = 0; i < levels[l].length; i++) {
+      for (int j = 0; j < levels[l][i].length; j++) {
+        for (int k = 0; k < levels[l][i][j].length; k++) {
+          if (levels[l][i][j][k] != null) {
+            wireBase(levels[l][i][j][k]);
+          }
+        }
+      }
+    }
 
     Message.println();
 
@@ -92,19 +119,18 @@ public final class WireModule {
       Message.warning("DEBUG_SMOOTH_ONLY = true");
       removeKernel(levels[levels.length - 1]);
     }
-
-    //Consistency.checkWiringAll(mesh.rootCell);
-
-
   }
+
+  private final java.util.Vector<Cell> partnerBuffer = new java.util.Vector<Cell>();
+  private final java.util.Vector<Cell> nearBuffer = new java.util.Vector<Cell>();
 
   /**
    * Wires a Cell, but not its children.
    */
-  private void wire(Cell thiz) {
+  private void wireAboveBase(Cell thiz) {
 
-    final java.util.Vector<Cell> partnerBuffer = new java.util.Vector<Cell>();
-    final java.util.Vector<Cell> nearBuffer = new java.util.Vector<Cell>();
+    partnerBuffer.clear(); //2009-03-02: shared buffers
+    nearBuffer.clear();
 
     if (thiz.parent != null) {
       //fill partnerbuffer with candidates, they may be too near
@@ -157,6 +183,77 @@ public final class WireModule {
       thiz.setNearCells(nearCells);
     }
   }
+
+
+  /**
+   * Wires a base cell, making all cells near.
+   * @param thiz
+   */
+  private void wireBase(Cell thiz) {
+
+    partnerBuffer.clear(); //2009-03-02: shared buffers
+    nearBuffer.clear();
+
+    if (thiz.parent != null) {
+      //fill partnerbuffer with candidates, they may be too near
+      Cell[] nearParent = thiz.parent.getNearCells();
+      for (int i = 0; i < nearParent.length; i++) {
+        partnerBuffer.add(nearParent[i]);
+      }
+
+      //cull too near cells from partnerbuffer. split cells that are too large
+      //add near cells to nearbuffer.
+      int partnerCount = partnerBuffer.size();
+
+      for (int i = 0; i < partnerBuffer.size(); i++) {
+        Cell cell = partnerBuffer.get(i);
+        if (true) {                           //All candidate partners are considered near to a smallest cell
+          partnerBuffer.set(i, null);					// remove from partners
+          partnerCount--;
+          if (cell.getSize().sizeLargerThan(thiz.getSize())) {		//cell is too big
+            if (cell.child1 != null) {
+              partnerBuffer.add(cell.child1);		// add children to the end of partnerbuffer
+              partnerCount++;
+            }
+            if (cell.child2 != null) {
+              partnerBuffer.add(cell.child2);		// they may or may not be split, culled or added to the partners
+              partnerCount++;
+            }
+          } else //cell is not too big, but near
+          {
+            nearBuffer.add(cell);					// add to near cells
+          }
+        }
+      //cell is not near: do not remove
+      }
+
+      // if we did right, not partners should remain
+      if(partnerCount != 0)
+        throw new Bug();
+
+      //buffer -> array
+      Cell[] partners = new Cell[partnerCount];
+      int p = 0;
+      for (int i = 0; i < partnerBuffer.size(); i++) {
+        Cell cell = partnerBuffer.get(i);
+        if (cell != null) {
+          partners[p] = cell;
+          p++;
+        }
+      }
+      thiz.setPartners(partners);
+      // todo: null partners out
+
+
+
+      Cell[] nearCells = new Cell[nearBuffer.size()];
+      for (int i = 0; i < nearBuffer.size(); i++) {
+        nearCells[i] = nearBuffer.get(i);
+      }
+      thiz.setNearCells(nearCells);
+    }
+  }
+
 
   /**
    * disalbe kernel for smallest cells, replace by smooth field.

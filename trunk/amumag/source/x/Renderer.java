@@ -75,8 +75,6 @@ public abstract class Renderer {
     public void savePng(File file) throws IOException{
         savePng(file, 0, 0, 0, 0);
     }
-            
-    
 
     public void updateColors() throws IOException {
         // overridden by 3D renderer.

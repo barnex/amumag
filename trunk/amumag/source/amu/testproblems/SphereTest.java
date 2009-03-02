@@ -59,7 +59,7 @@ public class SphereTest extends Problem{
             for(int i=start; i<stop; i++)
                 for(int j=start; j<stop; j++)
                     for(int k=start; k<stop; k++){
-                        Cell cell = mesh.getCell(new Index(i, j, k));
+                        Cell cell = mesh.getBaseCell(new Index(i, j, k));
                 double dx = cell.hDemag.x - h.x;
                 double dy = cell.hDemag.y - h.y;
                 double dz = cell.hDemag.z - h.z;

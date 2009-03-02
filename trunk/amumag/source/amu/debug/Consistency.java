@@ -13,7 +13,6 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details (licence.txt).
  */
-
 package amu.debug;
 
 import amu.geom.*;
@@ -29,87 +28,111 @@ import static amu.geom.Vector.Z;
  * should not be necessary if the program works perfectly.
  */
 public final class Consistency {
-    
-    /**
-     * Checks if parent-child relations are consistent and no cells with only
-     * one child exist.
-     *
-     * Should be called after creating of modifying the cell tree (make cutouts).
-     */
-    public static void checkMesh(Mesh mesh){
-	for(Cell[][][] level: mesh.levels)
-	    for(Cell[][] levelI: level)
-		for(Cell[] levelIJ: levelI)
-		    for(Cell cell: levelIJ)
-			if(cell != null){
-			    checkParent(cell);
-			    checkCutout(cell);
-			}
-    }
-    
-    private static void checkParent(Cell thiz){
-	if(thiz.child1 != null){
-	    if(thiz.child1.parent != thiz)
-		throw new Bug();
-	    if(thiz.child2.parent != thiz)
-		throw new Bug();
-	}
-    }
-    
-    public static void checkCutout(Cell thiz){
-	if(thiz.childCount() == 1)
-	    throw new Bug();
-	if(thiz.unlinkTag == true)
-	    throw new Bug();
-    }
-    
-    //__________________________________________________________________________
-    
-    /**
-     * Checks for inconsistencies in the partner lists.
-     */ 
-   public static void checkWiringAll(Cell root){
-      
-	checkWiring(root);
-	if(root.child1 != null){
-	    checkWiring(root.child1);
-	    checkWiring(root.child2);
-	}
-	
-    }
-    
-    public static void checkWiring(Cell cell){
-	// check if nearCell is also partner
-	for(Cell near: cell.getNearCells())
-	    for(Cell partner: cell.getPartners())
-		if(near == partner)
-		    throw new Bug();
-	    
-	    // check if partners, or parents of partners are also partners of the parent (pffew...)
-	    if(cell.parent != null){
-		for(Cell partner: cell.getPartners())
-		    for(Cell parentPartner: cell.parent.getPartners()){
-			if(partner == parentPartner)
-			    throw new Bug();
-		    }
-	    }
-    }
-    
-    //__________________________________________________________________________
-    
-    public static void checkFacesAll(Mesh mesh){
-	for(Cell cell = mesh.rootCell; cell != null; cell = cell.next){
-	    checkFaces(cell);
+
+  /**
+   * Checks if parent-child relations are consistent and no cells with only
+   * one child exist.
+   *
+   * Should be called after creating of modifying the cell tree (making cutouts).
+   */
+  public static void checkMesh(Mesh mesh) {
+    Message.debugnoln("Checking mesh consistency: ");
+    for (Cell[][][] level : mesh.levels) {
+      for (Cell[][] levelI : level) {
+        for (Cell[] levelIJ : levelI) {
+          for (Cell cell : levelIJ) {
+            if (cell != null) {
+              checkParent(cell);
+              checkCutout(cell);
+              checkWiring(cell);
+              checkNearness(cell);
+            }
+          }
         }
+      }
     }
-    
-    public static void checkFaces(Cell cell){
-	/*if(cell.faces == null)
-	    throw new Bug();*/
-	/*if(cell.faces.length != 6)
-	    throw new Bug();
-	for(Face f: cell.faces)
-	    if(f == null)
-		throw new Bug();*/
+    Message.debug("OK");
+  }
+
+  /**
+   * checks the commutativity of the near relation, crucial for adaptive mesh.
+   * @param cell
+   */
+  private static void checkNearness(Cell cell) {
+    //for(Cell near
+  }
+
+  /**
+   * checks parent-child consistency of the binary tree.
+   * @param thiz
+   */
+  private static void checkParent(Cell thiz) {
+    if (thiz.child1 != null) {
+      if (thiz.child1.parent != thiz) {
+        throw new Bug();
+      }
+      if (thiz.child2.parent != thiz) {
+        throw new Bug();
+      }
     }
+  }
+
+  /**
+   * checks if to be removed cells are actually removed
+   * @param thiz
+   */
+  public static void checkCutout(Cell thiz) {
+    if (thiz.childCount() == 1) {
+      throw new Bug();
+    }
+    if (thiz.unlinkTag == true) {
+      throw new Bug();
+    }
+  }
+
+  //__________________________________________________________________________
+  /**
+   * Checks for inconsistencies in the partner lists.
+   */
+  public static void checkWiring(Cell cell) {
+
+    // check if nearCell is also partner
+    if (cell.getNearCells() != null) {
+      for (Cell near : cell.getNearCells()) {
+        for (Cell partner : cell.getPartners()) {
+          if (near == partner) {
+            throw new Bug();
+          }
+        }
+      }
+
+      // check if partners, or parents of partners are also partners of the parent (pffew...)
+      if (cell.parent != null) {
+        for (Cell partner : cell.getPartners()) {
+          for (Cell parentPartner : cell.parent.getPartners()) {
+            if (partner == parentPartner) {
+              throw new Bug();
+            }
+          }
+        }
+      }
+    }
+  }
+
+  //__________________________________________________________________________
+  public static void checkFacesAll(Mesh mesh) {
+    for (Cell cell = mesh.rootCell; cell != null; cell = cell.next) {
+      checkFaces(cell);
+    }
+  }
+
+  public static void checkFaces(Cell cell) {
+    /*if(cell.faces == null)
+    throw new Bug();*/
+    /*if(cell.faces.length != 6)
+    throw new Bug();
+    for(Face f: cell.faces)
+    if(f == null)
+    throw new Bug();*/
+  }
 }

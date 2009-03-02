@@ -155,6 +155,8 @@ public class DR3DRenderer extends Renderer{
         }
     }
 
+    private static final Color softwhite = new Color(255, 255, 255);
+    
     public void surface(){
         surface(Color.WHITE, 0.9);
     }

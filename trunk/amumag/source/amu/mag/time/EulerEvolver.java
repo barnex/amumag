@@ -16,14 +16,15 @@
 
 package amu.mag.time;
 
+import amu.geom.Vector;
 import amu.io.OutputModule;
 import amu.mag.Cell;
 import amu.mag.Simulation;
 
 
-public final class EulerEvolver extends Evolver{
+/*public final class EulerEvolver extends Evolver{
     
-    public double alpha;
+    /*public double alpha;
     public double dt;
     
     public EulerEvolver(Simulation sim, double alpha, double dt){
@@ -37,6 +38,7 @@ public final class EulerEvolver extends Evolver{
       Cell.alphaLLG=alpha;
     }
 
+
     public void stepImpl(){
         sim.update();
        for (Cell cell = sim.mesh.baseRoot; cell != null; cell = cell.next) {
@@ -46,4 +48,4 @@ public final class EulerEvolver extends Evolver{
           cell.m.normalizeSafe();
        }
     }
-}
+}*/

@@ -2,12 +2,12 @@
  *  This file is part of amumag,
  *  a finite-element micromagnetic simulation program.
  *  Copyright (C) 2006-2008 Arne Vansteenkiste
- * 
+ *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
- * 
+ *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -19,13 +19,13 @@ import amu.debug.Bug;
 import amu.io.Message;
 import amu.mag.Cell;
 
-public final class TestAdaptiveMesh extends AdaptiveMeshRules {
+public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
 
   private double cos;
   private final int maxLevels;
 
   //private int coarseRootLevel;
-  public TestAdaptiveMesh(double maxAngle, int maxLevels) {
+  public TestAdaptiveMesh2(double maxAngle, int maxLevels) {
     cos = Math.cos(Math.PI*maxAngle/180);
     this.maxLevels = maxLevels;
   }
@@ -37,9 +37,9 @@ public final class TestAdaptiveMesh extends AdaptiveMeshRules {
   @Override
   public void update() {
     Message.debug("Updating mesh rules...");
-    
-    // start just above smallest cells and go up to coarse level
-    
+
+     // update local uniformity
+     // start from the coarse level, will recursively go down
      for (Cell[][] levelI : mesh.coarseLevel) {
       for (Cell[] levelIJ : levelI) {
         for (Cell cell : levelIJ) {
@@ -77,9 +77,9 @@ public final class TestAdaptiveMesh extends AdaptiveMeshRules {
       if(cell.uniform){
         //should be uniform, looks fine so far
         cell.updateLeaf = true;
-        //but all near cells should be uniform too:
+        //but all near cells should be uniform too, and equal to this cell:
         for(Cell near: cell.nearCells){
-          if(!near.uniform){
+          if(!(near.uniform && near.m.dot(cell.m) > cos)){
             cell.updateLeaf = false;
             break;
           }
@@ -96,7 +96,6 @@ public final class TestAdaptiveMesh extends AdaptiveMeshRules {
         updateLeaf(cell.child1);
         updateLeaf(cell.child2);
       }
-
     }
   }
 
@@ -117,7 +116,7 @@ public final class TestAdaptiveMesh extends AdaptiveMeshRules {
       cell.uniform = true;
     }
   }
-  
+
   @Override
   public boolean isUniform(Cell cell) {
    throw new Bug("rm me");

@@ -40,7 +40,8 @@ public final class UnitTest{
         assert !a.equals(c);
     }
 
-    public static void splineExtrapolator(){
+    //obsolete
+    /*public static void splineExtrapolator(){
         Vector target = new Vector();
         SplineExtrapolator ex = new SplineExtrapolator();
 
@@ -56,21 +57,10 @@ public final class UnitTest{
         ex.extrapolate(-2.0, target);
         assert target.equals(b);
 
-        // manual continuity check: ok
-        /*for(double d=-2.0; d<=0.0; d+=0.05){
-            ex.extrapolate(d, target);
-            System.out.println(d + " " + target);
-        }*/
-
         Vector c = new Vector(7, 2, -3);
         ex.addPoint(3.0, c);
         ex.extrapolate(0, target);
         assert target.equals(c);
-        
-        /*for(double d=-3.0; d<=0; d+=0.05){
-            ex.extrapolate(d, target);
-            System.out.println((d+3.0) + " " + target);
-        }*/
 
         //test replaceLastPoint
         ex.replaceLastPoint(2.0, b);
@@ -78,7 +68,7 @@ public final class UnitTest{
         assert target.equals(b);
         ex.extrapolate(-2.0, target);
         assert target.equals(a);
-    }
+    }*/
 
     public static void extrapolator2nd() {
         for (Extrapolator ex : new Extrapolator[]{new Extrapolator2()}) {
