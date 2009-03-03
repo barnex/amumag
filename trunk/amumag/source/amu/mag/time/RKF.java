@@ -41,9 +41,9 @@ public abstract class RKF extends RK {
   protected void updateDt() {
 
     double scale = sqrt(sqrt((errorPerStep) / (2.0 * lastError)));
-    if (scale > 0.8) {  // if we do not decrease too much, or increase, then
-      scale = 1.0 + (scale - 1.0) * 0.8;  // we can adjust the step smoother.
-    }
+//    if (scale > 0.8) {  // if we do not decrease too much, or increase, then
+      //scale = 1.0 + (scale - 1.0) * 0.25;  // we can adjust the step smoother.
+//    }
 
     dt *= scale;
 
@@ -131,8 +131,6 @@ public abstract class RKF extends RK {
 
   protected final void tryStep() {
 
-    sim.mesh.aMRules.update();
-
     //initial RK4
     double t0 = sim.totalTime;
     {
@@ -171,7 +169,6 @@ public abstract class RKF extends RK {
           if (cell.updateLeaf) {
             stage3(cell, c, i);
           }
-
           c++;
         }
       }

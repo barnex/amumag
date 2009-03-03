@@ -35,7 +35,7 @@ public class Vortex extends Configuration{
     private boolean once = true;
     
     // radius of the vortex core, in exchange lengths.
-    public static final double CORE_RADIUS = 2.5;
+    public static final double CORE_RADIUS = 1.5;
             
     /**
      * Vortex around the center, circulation 1, polarization 0.

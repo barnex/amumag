@@ -20,12 +20,30 @@ import amu.io.Message;
 import amu.mag.Cell;
 import static java.lang.Double.NaN;
 
+/**
+ * The classic Runge-Kutta 4th order method with either fixed time step,
+ * fixed maximum dm/dt or fixed maximum dPhi/dt.
+ * @author arne
+ */
 public final class RK4 extends RK {
+  private double maxDphi = -1;
+  private double maxDm = -1;
+  private double maxDt = -1;
 
-  protected double maxDphi;
+  public RK4(String flag, double value) {
 
-  public RK4(double maxDphi) {
-    this.maxDphi = maxDphi;
+    if(value <= 0.0)
+      throw new IllegalArgumentException("value should be > 0");
+
+    if("dt".equalsIgnoreCase(flag))
+      maxDt = value;
+    else if("dPhi".equalsIgnoreCase(flag))
+      maxDphi = value;
+    else if("dm".equalsIgnoreCase(flag))
+      maxDm = value;
+    else
+      throw new IllegalArgumentException("expected dt, dPhi or dm, not: " + flag);
+
     butcher = new double[][]{
               {NaN, NaN, NaN, NaN},
               {1.0 / 2.0, NaN, NaN, NaN},
@@ -35,28 +53,82 @@ public final class RK4 extends RK {
     weight = new double[]{1.0 / 6.0, 1.0 / 3.0, 1.0 / 3.0, 1.0 / 6.0};
   }
 
+  
   @Override
   protected void updateDt() {
-     // (0) not used in this solver, but by some differentiating data models.
+
+    // (0) not used in this solver, but by some differentiating data models.
     prevDt = dt;
 
+    dt = Double.POSITIVE_INFINITY;
 
-    // (1) determine the intrinsic time scale of the system in its present state
-    // and use it for the time step.
-    // adaptive time step = max precession angle per step.
-    // todo: multiply by the appropriate factor for large damping or no precession.
-    //if (adaptiveStep) {
-      dt = maxDphi / maxH();
-      double gilbert = 1.0 / (1.0 + Cell.alphaLLG * Cell.alphaLLG);
-      dt /= (Cell.alphaLLG * gilbert * 2.0);
-    //} else {
-    //  dt = maxDphi;
-    //}
+    if(maxDt > 0){
+      dt = maxDt;
+    }
 
+    if(maxDphi > 0){
+      double dt_phi = 2*Math.PI * maxDphi / maxH();
+      if(dt_phi < dt)
+        dt = dt_phi;
+    }
 
+    if(maxDm > 0){
+      double dt_m = maxDm / maxTorque();
+      if(dt_m < dt)
+        dt = dt_m;
+    }
+    
+    // debug
     if (Double.isInfinite(dt)) {
       Message.warning("dt=Infinity");
-      dt = maxDphi / 10;
+      dt = 0.001;
     }
+  }
+
+  /**
+   * @return the maxDphi
+   */
+  public double getMaxDphi() {
+    return maxDphi;
+  }
+
+  /**
+   * @param maxDphi the maxDphi to set
+   */
+  public void setMaxDphi(double maxDphi) {
+    this.maxDphi = maxDphi;
+  }
+
+  /**
+   * @return the maxDm
+   */
+  public double getMaxDm() {
+    return maxDm;
+  }
+
+  /**
+   * @param maxDm the maxDm to set
+   */
+  public void setMaxDm(double maxDm) {
+    this.maxDm = maxDm;
+  }
+
+  /**
+   * @return the maxDt
+   */
+  public double getMaxDt() {
+    return maxDt;
+  }
+
+  /**
+   * @param maxDt the maxDt to set
+   */
+  public void setMaxDt(double maxDt) {
+    this.maxDt = maxDt;
+  }
+
+  @Override
+  protected void initDt() {
+    updateDt();
   }
 }

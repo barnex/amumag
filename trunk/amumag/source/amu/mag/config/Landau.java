@@ -23,22 +23,37 @@ import static java.lang.Math.*;
 
 public class Landau extends Configuration{
 
-    //private final int circulation;
-            
-    public Landau(){
-    }
+    private final int polarization;
+    private final double CORE_RADIUS = 1.5;
+    private final Vector center = new Vector();
     
+    public Landau(int polarization){
+      this.polarization = polarization;
+    }
     
     @Override
     public void putM(double x, double y, double z, Vector target, Index index) {
         double angle = atan2(y, x);
-        if(angle < PI/4 && angle > -PI/4)
+        if(angle <= PI/4 && angle >= -PI/4)
             target.set(0, -1, 0);
-        else if(angle > PI/4 && angle < 3*PI/4)
+        else if(angle >= PI/4 && angle <= 3*PI/4)
             target.set(1, 0, 0);
-        else if(angle > 3*PI/4 || angle < -3*PI/4)
+        else if(angle >= 3*PI/4 || angle <= -3*PI/4)
             target.set(0, 1, 0);
-        else if(angle < -PI/4 && angle > -3*PI/4)
+        else if(angle <= -PI/4 && angle >= -3*PI/4)
             target.set(-1, 0, 0);
+
+        if(polarization != 0){
+            double distance = sqrt(square(x-center.x) + square(y-center.y));
+            if(distance <= CORE_RADIUS){
+                target.add(0, 0, polarization);
+                Configuration.normalizeVerySafe(target);
+            }
+        }
     }
+
+    private double square(double x){
+      return x*x;
+    }
+
 }

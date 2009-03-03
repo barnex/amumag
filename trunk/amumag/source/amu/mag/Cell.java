@@ -76,19 +76,21 @@ public final class Cell implements Serializable {
   // because higher resolution is not necessary for the moment (or the cell
   // actually is a real leaf, of course).
   public transient boolean updateLeaf;
-  //public transient double depth;
-  public transient static double alphaLLG = Double.NaN;
-
   public transient boolean uniform;
-  //public double uniformDebug; // for saving as 1/0 vector field.
-  //public transient boolean chargeFree;
+  // does some cell need my Q? If not, I won't calculate it.
+  //public transient boolean qNeeded;
 
-  static boolean precess;
+  //public transient boolean chargeFree;
 
   // indicates when the adaptive mesh recusion can stop (stop=true: this is the last cell)
   // also temporarily (ab)used as "unlink tag" to indicate which cells have to be
   // removed by the CSGModule.
   public transient boolean unlinkTag;
+
+  static boolean precess;
+  public transient static double alphaLLG = Double.NaN;
+
+  
 
   //__________________________________________________________________________constructors
   /**
@@ -483,7 +485,7 @@ public final class Cell implements Serializable {
   /**
    * Updates the cell's multipole expansion. If the cell is al leaf, this is done based on the
    * faces, else the children's multipoles are combined. Recursively updates the
-   * children first (-> suitable for multitasking).
+   * children first.
    *
    */
   public final void updateQ(final int level) {
@@ -506,12 +508,11 @@ public final class Cell implements Serializable {
         for(int i=0; i<q.length; i++)
           q[i] += face.charge * unitQc_q[i];
       }
-      // we assume the Q of children is not needed so we don't calculate it.
-      // to be sure, let's NaN it.
-      /*if(child1 != null){
-        child1.invalidateQ();
-        child2.invalidateQ();
-      }*/
+      //
+//      if(child1 != null){
+//        child1.updateQSubLeafIfNeeded();
+//        child2.updateQSubLeafIfNeeded();
+//      }
     }
     else {
 
@@ -580,6 +581,40 @@ public final class Cell implements Serializable {
     }*/
 
   }
+
+  /**
+   * The recursive updateQ() goes down to the UpdateLeafs, who use their
+   * unitQ to end the recursion. However, some of the UpdateLeaf's children
+   * might also need their Q, so alculate those from their unitQ's. If the update-
+   * leaf can use unitQ, then it's definitely safe for its children to do so.
+   */
+//  private void updateQSubLeafIfNeeded() {
+//    final double[] q = multipole.q;
+//
+//    if (qNeeded) {
+//      // update q based on charge on faces.
+//      for (int c = 0; c < faces.length; c++) {
+//        final Face face = faces[c];
+//        final double[] unitQc_q = unitQ[c].q;
+//
+//        //multipole.add(face.charge, unitQ[c]); //inlined
+//        for (int i = 0; i < q.length; i++) {
+//          q[i] += face.charge * unitQc_q[i];
+//        }
+//      }
+//    } else {
+//      throw new Bug();
+//      // if not needed, we NaN it out for security.
+//      //multipole.q[0] = Double.NaN;
+//    }
+//
+//    if (child1 != null) {
+//      child1.updateQSubLeafIfNeeded();
+//      child2.updateQSubLeafIfNeeded();
+//    }
+//
+//  }
+
 
   //debug: 
   // recursively sets Q to NaN. To be applied to cells whose Q are supposed

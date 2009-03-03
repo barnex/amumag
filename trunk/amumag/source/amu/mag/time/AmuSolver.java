@@ -24,19 +24,23 @@ import amu.mag.Unit;
 
 public abstract class AmuSolver {
 
-  // counts number of simulation.update();
-  public int totalUpdates;
+  protected Simulation sim;
 
   // root time step
   public double dt;
-  // previous root time step
+  // previous root time step (used by extrapolating solvers)
   public double prevDt;
-  //public double totalTime;
+
   public int totalSteps;
-  public double maxTorque;
-  protected Simulation sim;
+  // counts number of simulation.update();
+  public int totalUpdates;
+
+  
+  //public double maxTorque;
+  //public double maxH;
+
   public double stepTime;
-  public double realtime; //fraction of the real time speed, e.g. 1ps/s
+  public double realtime; //fraction of the real time speed, e.g. 10ps/s
 
   public AmuSolver() {
   }
@@ -47,10 +51,12 @@ public abstract class AmuSolver {
     } else {
       this.sim = sim;
     }
-
+    initDt();
     Message.title("Solver");
     Message.indent("Type:\t " + toString());
   }
+
+  protected abstract void initDt();
 
   public void doStep(){
     long t = System.nanoTime();
@@ -90,20 +96,22 @@ public abstract class AmuSolver {
     torque.z = (_mxHz + _mxmxHz * Cell.alphaLLG) * gilbert;
   }
 
-  /**
-   * Returns the largest field in the system.
-   * @return
-   */
-  protected double maxH() {
-    double maxH2 = 0.0;
-    int i = 0;
-    for (Cell cell = sim.mesh.baseRoot; cell != null; cell = cell.next) {
-      if (cell.h.norm2() > maxH2) {
-        maxH2 = cell.h.norm2();
-      }
-      i++;
-    }
-    double maxH = Math.sqrt(maxH2);
-    return maxH;
-  }
+//  /**
+//   * Returns the largest field in the system.
+//   * Currently broken
+//   * @return
+//   */
+//  protected double maxH() {
+//    if(true) throw new Bug("broken by adaptive mesh");
+//    double maxH2 = 0.0;
+//    int i = 0;
+//    for (Cell cell = sim.mesh.baseRoot; cell != null; cell = cell.next) {
+//      if (cell.h.norm2() > maxH2) {
+//        maxH2 = cell.h.norm2();
+//      }
+//      i++;
+//    }
+//    double maxH = Math.sqrt(maxH2);
+//    return maxH;
+//  }
 }
