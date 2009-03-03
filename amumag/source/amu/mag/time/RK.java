@@ -21,15 +21,18 @@ import amu.mag.Cell;
 import amu.mag.Simulation;
 import static java.lang.Double.NaN;
 
+/**
+ * Superclass for the Runge-Kutta family of solvers.
+ * @author arne
+ */
 public abstract class RK extends AmuSolver {
 
-  protected double[][] butcher = new double[][]{
-    {NaN,     NaN,      NaN, NaN},
-    {1.0/2.0, NaN,      NaN, NaN},
-    {0.0,     1.0/2.0,  NaN, NaN},
-    {0.0,     0.0, 1.0, NaN, NaN}};
-  protected double[] h = new double[]{NaN, 1.0/2.0, 1.0/2.0, 1.0};
-  protected double[] weight = new double[]{1.0/6.0, 1.0/3.0, 1.0/3.0, 1.0/6.0};
+  // butcher tableau
+  protected double[][] butcher;
+  // "h"-coefficients of butcher tableau
+  protected double[] h;
+  // weight of k1, k2, ... in final result
+  protected double[] weight;
 
   protected RKData[] rk;
 
@@ -43,11 +46,45 @@ public abstract class RK extends AmuSolver {
     rk = new RKData[sim.mesh.cells]; // too much...
     for(int i=0; i<rk.length; i++)
       rk[i] = new RKData(weight.length); //=order
+
   }
 
 
   protected abstract void updateDt();
 
+  private final Vector buffer = new Vector();
+  protected double maxTorque() {
+    double maxTorque = 0.0;
+    for (Cell cell = sim.mesh.baseRoot; cell != null; cell = cell.next) {
+      if (cell.updateLeaf) {
+        torque(cell.m, cell.h, buffer);
+        if (buffer.norm2() > maxTorque) {
+          maxTorque = buffer.norm2();
+        }
+      }
+    }
+    maxTorque = Math.sqrt(maxTorque);
+    return maxTorque;
+  }
+
+   protected double maxH() {
+    double maxH = 0.0;
+    for (Cell cell = sim.mesh.baseRoot; cell != null; cell = cell.next) {
+      if (cell.updateLeaf) {
+
+        if (cell.h.norm2() > maxH) {
+          maxH = cell.h.norm2();
+        }
+      }
+    }
+    maxH = Math.sqrt(maxH);
+    return maxH;
+  }
+
+  protected void maxDm(){
+
+  }
+  
   @Override
   public void stepImpl() {
 
@@ -107,8 +144,6 @@ public abstract class RK extends AmuSolver {
     // (3) bookkeeping
     sim.totalTime = t0 + dt;
     totalSteps++;
-    //fields have been asynchronously updated, some have been invalidated to
-    //detect bugs, add up the pieces again to get the correct h.
-    //sim.mesh.rootCell.resyncH();
+   
   }
 }

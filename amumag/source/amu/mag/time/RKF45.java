@@ -38,4 +38,9 @@ public final class RKF45 extends RKF {
     weightForError = new double[]{16.0/135.0, 0.0, 6656.0/12825.0, 28561.0/56430.0, -9.0/50.0, 2.0/55.0};
     weight = new double[]{25.0/216.0, 0.0, 1408.0/2565.0,  2197.0/4104.0,   -1.0/5.0,  0.0};
   }
+
+  @Override
+  protected void initDt() {
+    dt = 1E-3;
+  }
 }

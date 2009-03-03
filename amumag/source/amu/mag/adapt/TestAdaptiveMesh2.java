@@ -38,7 +38,7 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
   public void update() {
     Message.debug("Updating mesh rules...");
 
-     // update local uniformity
+     // update local uniformity_________________________________________________
      // start from the coarse level, will recursively go down
      for (Cell[][] levelI : mesh.coarseLevel) {
       for (Cell[] levelIJ : levelI) {
@@ -50,9 +50,11 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
       }
     }
 
+     // update Leaf_____________________________________________________________
      // set all false first
      for(Cell cell = mesh.rootCell; cell != null; cell = cell.next){
       cell.updateLeaf = false;
+      //cell.qNeeded = false;
      }
 
     for (Cell[][] levelI : mesh.coarseLevel) {
@@ -65,7 +67,43 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
       }
     }
 
+    // qNeeded?_________________________________________________________________
+    // QNeeded has already been set to false.
+    //updateQNeeded(mesh.rootCell);
+   
   }
+
+  /**
+   * Go through the same tree as updateH(), i.e. until the updateLeafs.
+   * Mark partners of updateLeafs and higher as Q-needed.
+   * Could be faster if only updated below updateLeafs...
+   * @param thiz
+   */
+//  public void updateQNeeded(Cell thiz) {
+    // first the children
+//    if (!thiz.updateLeaf) {
+//      updateQNeeded(thiz.child1);
+//      updateQNeeded(thiz.child2);
+//    }
+//    //then mark my partners as Q-needed: I will need their Q.
+//    for (Cell c : thiz.smooth.partners) {
+//      c.qNeeded = true;
+//    }
+
+
+//    // set all true for debug.
+//
+//    if (thiz.child1 != null) {
+//      updateQNeeded(thiz.child1);
+//      updateQNeeded(thiz.child2);
+//    }
+//    //then mark my partners as Q-needed: I will need their Q.
+//
+//      thiz.qNeeded = true;
+//
+//
+//
+//  }
 
   private void updateLeaf(Cell cell){
     if(cell.child1 == null){
