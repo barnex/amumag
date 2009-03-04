@@ -29,6 +29,7 @@ import amu.mag.adapt.AdaptiveMeshRules;
 import amu.mag.adapt.FixedMesh;
 import amu.io.Message;
 import amu.data.DataModel;
+import amu.mag.adapt.TestAdaptiveMesh2;
 import amu.mag.field.StaticField;
 import amu.mag.fmm.DynamicRewire;
 import amu.mag.fmm.WireModule;
@@ -96,7 +97,7 @@ public abstract class Problem {
 
     //private boolean precession = true;
     //private double dt = 1E-5;
-    private AdaptiveMeshRules aMRules = new FixedMesh();
+    private AdaptiveMeshRules aMRules = new FixedMesh();//TestAdaptiveMesh2(0.0, 0);
     
     private AmuSolver solver = new RKF54(1E-6);
     

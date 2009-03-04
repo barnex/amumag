@@ -27,9 +27,9 @@ public class Test extends Problem {
     setFmmOrder(2);
     setKernelIntegrationAccuracy(6);
     setMagnetization(new Landau(1));
-    setSolver(new RK4("dphi", 0.01));
+    setSolver(new RK4("dphi", 0.02));
 
-    setAdaptivity(new TestAdaptiveMesh2(5.0, 10));
+    //setAdaptivity(new TestAdaptiveMesh2(5.0, 10));
   }
 
   //@Override
