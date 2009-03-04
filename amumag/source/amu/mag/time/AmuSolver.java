@@ -51,7 +51,7 @@ public abstract class AmuSolver {
     } else {
       this.sim = sim;
     }
-    initDt();
+    //initDt();
     Message.title("Solver");
     Message.indent("Type:\t " + toString());
   }
@@ -59,16 +59,19 @@ public abstract class AmuSolver {
   protected abstract void initDt();
 
   public void doStep(){
+
+    //first dt is not defined yet...
+
     long t = System.nanoTime();
 
     // dt is already set by the last step, let's check if we need to trim it for this step
      if(sim.totalTime + dt > sim.maxTime) // trim dt so it fits in the desired run time.
       dt = sim.maxTime - sim.totalTime;
 
-    if(dt == 0.0)
-      throw new Bug("dt=0.0");
-    if(Double.isNaN(dt))
-      throw new Bug("dt=NaN");
+//    if(dt == 0.0)
+//      throw new Bug("dt=0.0");
+//    if(Double.isNaN(dt))
+//      throw new Bug("dt=NaN");
 
     stepImpl(); // also updates dt for the next step
 

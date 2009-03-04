@@ -53,6 +53,11 @@ public final class RK4 extends RK {
     weight = new double[]{1.0 / 6.0, 1.0 / 3.0, 1.0 / 3.0, 1.0 / 6.0};
   }
 
+  @Override
+  public void stepImpl(){
+    updateDt();
+    super.stepImpl();
+  }
   
   @Override
   protected void updateDt() {

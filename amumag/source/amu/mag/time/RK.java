@@ -81,14 +81,12 @@ public abstract class RK extends AmuSolver {
     return maxH;
   }
 
-  protected void maxDm(){
 
-  }
   
   @Override
   public void stepImpl() {
 
-    updateDt();
+    // todo inline and optimize vector ops
 
     //initial RK4
     double t0 = sim.totalTime;
