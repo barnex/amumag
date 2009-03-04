@@ -163,14 +163,12 @@ public final class Mesh implements Serializable {
   private void makeCellsFinal() {
     Message.warning("TODO: init super cells.");
     Message.debug("makeCellsFinal()");
-    for (Cell c = baseRoot; c != null; c = c.next) { //todo: all cells.
+    for (Cell c = coarseRoot; c != null; c = c.next) { 
       for (Vector v : c.vertex) {
-        v.makeImmutable();			    // should have been done by face, redundant.
-      }	    // replace center of initial cell by barycenter (vertices may have been moved).
-      // what with non-base cells?
-
+        v.makeImmutable();			    
+      }	    
+     
       //2008-08-06: experimenting with centers on the grid.
-
       c.center = GeomModule.barycentrumVolume(c);
 
       c.center.makeImmutable();

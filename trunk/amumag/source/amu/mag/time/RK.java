@@ -15,6 +15,7 @@
  */
 package amu.mag.time;
 
+import amu.debug.Bug;
 import amu.geom.Vector;
 import amu.io.Message;
 import amu.mag.Cell;
@@ -55,7 +56,7 @@ public abstract class RK extends AmuSolver {
   private final Vector buffer = new Vector();
   protected double maxTorque() {
     double maxTorque = 0.0;
-    for (Cell cell = sim.mesh.baseRoot; cell != null; cell = cell.next) {
+    for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
       if (cell.updateLeaf) {
         torque(cell.m, cell.h, buffer);
         if (buffer.norm2() > maxTorque) {
@@ -63,13 +64,15 @@ public abstract class RK extends AmuSolver {
         }
       }
     }
+    if(maxTorque == 0.0)
+      throw new Bug("Torque = 0");
     maxTorque = Math.sqrt(maxTorque);
     return maxTorque;
   }
 
    protected double maxH() {
     double maxH = 0.0;
-    for (Cell cell = sim.mesh.baseRoot; cell != null; cell = cell.next) {
+    for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
       if (cell.updateLeaf) {
 
         if (cell.h.norm2() > maxH) {
@@ -77,6 +80,8 @@ public abstract class RK extends AmuSolver {
         }
       }
     }
+    if(maxH == 0.0)
+      throw new Bug("Field = 0");
     maxH = Math.sqrt(maxH);
     return maxH;
   }
@@ -90,13 +95,17 @@ public abstract class RK extends AmuSolver {
 
     //initial RK4
     double t0 = sim.totalTime;
-    {int c = 0; for (Cell cell = sim.mesh.baseRoot; cell != null; cell = cell.next) {
-       //backup m
+    {int c = 0; for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
+    if(cell.updateLeaf){
+
+      //backup m
        rk[c].m0.set(cell.m);
 
        Vector[] k = rk[c].k;
        // RK4 step 1
        torque(cell.m, cell.h, k[0]);
+
+    }
     c++;}}
 
     
@@ -104,7 +113,8 @@ public abstract class RK extends AmuSolver {
     for(int i=1; i<weight.length; i++){
       //set time and update
       
-      {int c = 0; for (Cell cell = sim.mesh.baseRoot; cell != null; cell = cell.next) {
+      {int c = 0; for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
+      if(cell.updateLeaf){
         //reset m
         cell.m.set(rk[c].m0);
         Vector[] k = rk[c].k;
@@ -113,21 +123,23 @@ public abstract class RK extends AmuSolver {
           cell.m.add(dt * butcher[i][j], k[i-1]);
         }
        cell.m.normalize();
-      c++;}
       }
+      c++;}}
       sim.totalTime = t0 + h[i]*dt;
       sim.update();
 
       //new k
-      {int c = 0; for (Cell cell = sim.mesh.baseRoot; cell != null; cell = cell.next) {
+      {int c = 0; for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
+         if(cell.updateLeaf){
         torque(cell.m, cell.h, rk[c].k[i]);
-        c++;}
+         }c++;}
       }
     }
     
     
     //new m
-    {int c = 0; for (Cell cell = sim.mesh.baseRoot; cell != null; cell = cell.next) {
+    {int c = 0; for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
+       if(cell.updateLeaf){
        //reset
        cell.m.set(rk[c].m0);
        Vector[] k = rk[c].k;
@@ -135,7 +147,7 @@ public abstract class RK extends AmuSolver {
        for(int i=0; i<weight.length; i++)
         cell.m.add(dt * weight[i], k[i]);
        cell.m.normalize();
-      c++;}
+       }c++;}
       }
     sim.update();
 
