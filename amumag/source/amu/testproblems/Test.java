@@ -18,8 +18,8 @@ public class Test extends Problem {
     setMs(860E3);
     setA(13E-12);
     setAlpha(0.01);
-    setBoxSizeX(1000E-9);
-    setBoxSizeY(1000E-9);
+    setBoxSizeX(200E-9);
+    setBoxSizeY(200E-9);
     setBoxSizeZ(50E-9);
     setMaxCellSizeX(4E-9);
     setMaxCellSizeY(4E-9);
@@ -27,9 +27,10 @@ public class Test extends Problem {
     setFmmOrder(2);
     setKernelIntegrationAccuracy(6);
     setMagnetization(new Landau(1));
-    setSolver(new RK4("dphi", 0.02));
+    setMagnetization(new Vortex(1));
+    setSolver(new RK4("dm", 0.02));
 
-    //setAdaptivity(new TestAdaptiveMesh2(5.0, 10));
+    setAdaptivity(new TestAdaptiveMesh2(5.0, 4));
   }
 
   //@Override

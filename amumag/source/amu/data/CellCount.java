@@ -34,7 +34,7 @@ public final class CellCount extends DataModel{
   @Override
   public void put(int time, Index r, Vector v) throws IOException {
     int count = 0;
-    for(Cell cell = sim.mesh.baseRoot; cell != null; cell = cell.next){
+    for(Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next){
       if(cell.updateLeaf)
         count ++;
     }

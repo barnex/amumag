@@ -26,6 +26,14 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
 
   //private int coarseRootLevel;
   public TestAdaptiveMesh2(double maxAngle, int maxLevels) {
+    if(maxAngle < 0 || maxAngle > 180)
+      throw new IllegalArgumentException("Adaptive mesh maxAngle should be between 0 and 180 degrees");
+
+    if(maxLevels < 0)
+      throw new IllegalArgumentException("Adaptive mesh maxLevels should be >= 0");
+    //else if(maxLevels >= (mesh.nLevels-1) )
+    //  throw new IllegalArgumentException("In this geometry, adaptive mesh maxLevels should be < " + (mesh.nLevels-1));
+
     cos = Math.cos(Math.PI*maxAngle/180);
     this.maxLevels = maxLevels;
   }
