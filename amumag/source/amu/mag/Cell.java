@@ -77,8 +77,12 @@ public final class Cell implements Serializable {
   // actually is a real leaf, of course).
   public transient boolean updateLeaf;
   public transient boolean uniform;
+
+
   // does some cell need my Q? If not, I won't calculate it.
-  public transient boolean qNeeded;
+
+  public transient boolean qNeeded;   //needed?
+  public transient boolean qFromFaces;//if needed, take from faces or children?
 
   //public transient boolean chargeFree;
 
@@ -137,65 +141,7 @@ public final class Cell implements Serializable {
   }
 
   //__________________________________________________________________________FMM
-  // obsolete -> AmuSolver.torque.
-//  public void updateTorque() {
-//
-//    // - m cross H
-//    double _mxHx = -m.y * h.z + h.y * m.z;
-//    double _mxHy = m.x * h.z - h.x * m.z;
-//    double _mxHz = -m.x * h.y + h.x * m.y;
-//
-//    // - m cross (m cross H)
-//    double _mxmxHx = m.y * _mxHz - _mxHy * m.z;
-//    double _mxmxHy = -m.x * _mxHz + _mxHx * m.z;
-//    double _mxmxHz = m.x * _mxHy - _mxHx * m.y;
-//
-//    torque.x = _mxHx + _mxmxHx * alphaLLG;
-//    torque.y = _mxHy + _mxmxHy * alphaLLG;
-//    torque.z = _mxHz + _mxmxHz * alphaLLG;
-//  }
 
-//  /**
-//   * alpha = 1
-//   */
-//  public void updateTorqueNoPrecession() {
-//    // - m cross H
-//    double _mxHx = -m.y * h.z + h.y * m.z;
-//    double _mxHy = m.x * h.z - h.x * m.z;
-//    double _mxHz = -m.x * h.y + h.x * m.y;
-//
-//    //2008-02-13: added factor alpha: this will not slow down the computational speed of a
-//    //relaxation due to the adaptive step size, but will result in more physical times.
-//    // - m cross (m cross H)
-//    torque.x = alphaLLG * (m.y * _mxHz - _mxHy * m.z);
-//    torque.y = alphaLLG * (-m.x * _mxHz + _mxHx * m.z);
-//    torque.z = alphaLLG * (m.x * _mxHy - _mxHx * m.y);
-//  }
-
-  /**
-   * Updates this cell's smooth field expansion.
-   * First, the field is set to the field of the parent, adding the necessary shift,
-   * then the contributions from this cell's partners are added.
-   * The same multigrid issue as with updateQ(), see updateH().
-   *
-   * TODO: name should be changed.
-   */
-  /*public void updateSmoothField(){
-
-  // update this cell's smooth field, given the smooth field of the parent.
-  // might be done nicer...
-  smooth.update(parent);
-
-  if(child1 != null){ //isleaf
-  child1.updateSmoothField();
-  child2.updateSmoothField();
-  }
-
-  // debug purposes only.
-  hSmooth.x = -smooth.field[1];
-  hSmooth.y = -smooth.field[2];
-  hSmooth.z = -smooth.field[3];
-  }//*/
   public void updateHParallel(final int level) {
 
     smooth.update(parent);
@@ -251,152 +197,6 @@ public final class Cell implements Serializable {
     }
   }
 
-  /**
-   * Updates the smooth ("slow") part of H, assuming all other contributions
-   * are up-to date. excludes hExt. NO ADAPTIVE MESH HERE
-   * @param level
-   */
-//  public void updateHSmoothParallel(final int level) {
-//    smooth.update(parent);
-//
-//    if (child1 != null) { //adaptive mesh
-//      if (level > 0) { // fork for parallel processing
-//
-//        try {
-//          Thread fork = new Thread() {
-//
-//            @Override
-//            public void run() {
-//              child1.updateHSmoothParallel(level - 1);
-//            }
-//          };
-//
-//          fork.start();
-//          child2.updateHSmoothParallel(level - 1);
-//          fork.join();
-//        } catch (InterruptedException ex) {
-//          ex.printStackTrace();
-//        }
-//      } else { // use this thread
-//        child1.updateHSmoothParallel(level - 1);
-//        child2.updateHSmoothParallel(level - 1);
-//      }
-//    } else { //leaf cell
-//      // hack
-//      //hExPrevious.set(hEx);
-//      //hMagPrevious.set(hDemag);
-//      //hMagPrevious.add(hExt);
-//
-//      //hSmooth.x = -smooth.field[1];
-//      //hSmooth.y = -smooth.field[2];
-//      //hSmooth.z = -smooth.field[3];
-//
-//      hDemag.x = hKernel.x -smooth.field[1];
-//      hDemag.y = hKernel.y -smooth.field[2];
-//      hDemag.z = hKernel.z -smooth.field[3];
-//      hDemag.add(hKernel);
-//
-//      h.set(hDemag);
-//      h.add(hEx);
-//      //h.add(hExt);
-//    }
-//  }
-
-  /**
-   * Updates the "fast" contributions to H (kernel and exchange).
-   * Invalidates other fields (hSmooth, hDemag, h, hExt);
-   * @param level
-   */
-  /*public void updateHFastParallel(final int level) {
-
-    if (child1 != null) { //adaptive mesh
-      if (level > 0) { // fork for parallel processing
-
-        try {
-          Thread fork = new Thread() {
-
-            @Override
-            public void run() {
-              child1.updateHFastParallel(level - 1);
-            }
-          };
-
-          fork.start();
-          child2.updateHFastParallel(level - 1);
-          fork.join();
-        } catch (InterruptedException ex) {
-          ex.printStackTrace();
-        }
-      } else { // use this thread
-        child1.updateHFastParallel(level - 1);
-        child2.updateHFastParallel(level - 1);
-      }
-    } else { //leaf cell: update kernel, exch
-//            /*kernel.update(hKernel);
-//      exchange.update();
-//
-//      h.set(Double.NaN, 1234, 5678);
-//      hDemag.set(Double.NaN, 1234, 5678);
-//      hSmooth.set(Double.NaN, 1234, 5678);
-//      hExt.set(Double.NaN, 1234, 5678)
-
-
-      // hack. todo: uncomment when power densities are needed.
-      //hExPrevious.set(hEx);
-      //hMagPrevious.set(hDemag);
-      //hMagPrevious.add(hExt);
-
-      kernel.update(hKernel);
-      exchange.update();
-
-      //hDemag.set(hSmooth);
-      //hDemag.add(hKernel);
-      hDemag.x =  hKernel.x-smooth.field[1];
-      hDemag.y =  hKernel.y-smooth.field[2];
-      hDemag.z =  hKernel.z-smooth.field[3];
-
-      // debug, todo: comment out.
-      h.set(Double.NaN, 123, 456);
-      //hExt.set(h);
-    }
-  }*/
-
-  /**
-   * updates H, assuming hSmooth, hKernel, hExt, hEx are all up to date
-   * issued after a root step of the amusolver, which has been updating
-   * field contributions asynchronously.
-   */
-  /*public void resyncH() {
-
-    if (child1 != null) {
-      child1.resyncH();
-      child2.resyncH();
-    }
-
-    // hack todo: uncomment when power densities are needed
-    //hExPrevious.set(hEx);
-    //hMagPrevious.set(hDemag);
-    //hMagPrevious.add(hExt);
-
-    hSmooth.x = -smooth.field[1];
-    hSmooth.y = -smooth.field[2];
-    hSmooth.z = -smooth.field[3];
-
-    //hDemag.set(hSmooth);
-    //hDemag.add(hKernel);
-    hDemag.x = hSmooth.x + hKernel.x;
-    hDemag.y = hSmooth.y + hKernel.y;
-    hDemag.z = hSmooth.z + hKernel.z;
-
-    //h.set(hDemag);
-    //h.add(hEx);
-    //h.add(hExt);
-    h.x = hDemag.x + hEx.x;// + hExt.x;
-    h.y = hDemag.y + hEx.y;// + hExt.y;
-    h.z = hDemag.z + hEx.z;// + hExt.z;
-  }*/
-
-  //__________________________________________________________________________
 
   /**
    * recursively sets m of all the children to a value;
@@ -490,20 +290,22 @@ public final class Cell implements Serializable {
    */
   public final void updateQ(final int level) {
 
+    // (0) reset q
+
     final double[] q = multipole.q;
     //multipole.reset(); //inlined:
     for(int i = 0; i < q.length; i++)                                       //set q to zero -> system.arraycopy?
 	    q[i] = 0.0;
 
-    //test: update chidren no matter what:
 
-    //else {
+    // (1) ask to update chidren no matter what.
+    // They may decide not to actually update themselves if they are not needed.
+  
     if(child1 != null){
 
       if (level > 0) { // fork for parallel processing
         try {
           Thread fork = new Thread() {
-
             @Override
             public void run() {
               child1.updateQ(level - 1);
@@ -519,10 +321,29 @@ public final class Cell implements Serializable {
         child1.updateQ(level - 1);
         child2.updateQ(level - 1);
       }
+    }
 
-      double[] childQ = child1.multipole.q;
+    // (2) now update myself, if needed
+    if (qNeeded) {
 
-      //if (!child1.chargeFree) {
+      // (2.1) update Q from charges on the faces (if I am some small cell, perhaps)
+      if (qFromFaces) {
+        // update q based on charge on faces.
+        for (int c = 0; c < faces.length; c++) {
+          final Face face = faces[c];
+          final double[] unitQc_q = unitQ[c].q;
+
+          //multipole.add(face.charge, unitQ[c]); //inlined
+          for (int i = 0; i < q.length; i++) {
+            q[i] += face.charge * unitQc_q[i];
+          }
+        }
+      }
+      //(2.2) update Q form children (if I am some larger cell, perhaps)
+      else {
+        double[] childQ = child1.multipole.q;
+
+        //if (!child1.chargeFree) {
         for (int in = 0; in < multipole.q.length; in++) {
           final int[] qIndexIn = child1.multipole.qIndex[in];
           final int[] smoothFieldMonoDiffIn = FMM.monoDiff[in];
@@ -532,9 +353,9 @@ public final class Cell implements Serializable {
             assert child1.smooth.shiftFactor[ip] != 0.0;
           }
         }
-      //}
+        //}
 
-      //if (!child2.chargeFree) {
+        //if (!child2.chargeFree) {
         childQ = child2.multipole.q;
         for (int in = 0; in < multipole.q.length; in++) {
           final int[] qIndexIn = child2.multipole.qIndex[in];
@@ -545,23 +366,21 @@ public final class Cell implements Serializable {
             assert child2.smooth.shiftFactor[ip] != 0.0;
           }
         }
-      //}
-    }
+      }//end if not update from faces
 
+    }// end if qNeeded
+    else{
+      // Q not needed: NaN it out for debug
+      for (int i = 0; i < q.length; i++) {
+            q[i] = Double.NaN;
+          }
+    }
     // adaptive mesh: update even the smallest cells (for now), their Q may be needed by others...
     //if (child1 == null) {
-    if(updateLeaf || child1 == null){
-      multipole.reset(); // overwrite recursive Q by unitQ: TODO: no childQ in this case!!
-      // update q based on charge on faces.
-      for (int c = 0; c < faces.length; c++) {
-        final Face face = faces[c];
-        final double[] unitQc_q = unitQ[c].q;
-
-        //multipole.add(face.charge, unitQ[c]); //inlined
-        for(int i=0; i<q.length; i++)
-          q[i] += face.charge * unitQc_q[i];
-      }
-    }
+//    if(updateLeaf || child1 == null){
+//      multipole.reset(); // overwrite recursive Q by unitQ: TODO: no childQ in this case!!
+//
+//    }
 
 
 
@@ -1030,6 +849,157 @@ public final class Cell implements Serializable {
       return 0.0;
   }*/
 }
+
+  /**
+   * Updates the smooth ("slow") part of H, assuming all other contributions
+   * are up-to date. excludes hExt. NO ADAPTIVE MESH HERE
+   * @param level
+   */
+//  public void updateHSmoothParallel(final int level) {
+//    smooth.update(parent);
+//
+//    if (child1 != null) { //adaptive mesh
+//      if (level > 0) { // fork for parallel processing
+//
+//        try {
+//          Thread fork = new Thread() {
+//
+//            @Override
+//            public void run() {
+//              child1.updateHSmoothParallel(level - 1);
+//            }
+//          };
+//
+//          fork.start();
+//          child2.updateHSmoothParallel(level - 1);
+//          fork.join();
+//        } catch (InterruptedException ex) {
+//          ex.printStackTrace();
+//        }
+//      } else { // use this thread
+//        child1.updateHSmoothParallel(level - 1);
+//        child2.updateHSmoothParallel(level - 1);
+//      }
+//    } else { //leaf cell
+//      // hack
+//      //hExPrevious.set(hEx);
+//      //hMagPrevious.set(hDemag);
+//      //hMagPrevious.add(hExt);
+//
+//      //hSmooth.x = -smooth.field[1];
+//      //hSmooth.y = -smooth.field[2];
+//      //hSmooth.z = -smooth.field[3];
+//
+//      hDemag.x = hKernel.x -smooth.field[1];
+//      hDemag.y = hKernel.y -smooth.field[2];
+//      hDemag.z = hKernel.z -smooth.field[3];
+//      hDemag.add(hKernel);
+//
+//      h.set(hDemag);
+//      h.add(hEx);
+//      //h.add(hExt);
+//    }
+//  }
+
+//  /**
+//   * Updates the "fast" contributions to H (kernel and exchange).
+//   * Invalidates other fields (hSmooth, hDemag, h, hExt);
+//   * @param level
+//   */
+//  /*public void updateHFastParallel(final int level) {
+//
+//    if (child1 != null) { //adaptive mesh
+//      if (level > 0) { // fork for parallel processing
+//
+//        try {
+//          Thread fork = new Thread() {
+//
+//            @Override
+//            public void run() {
+//              child1.updateHFastParallel(level - 1);
+//            }
+//          };
+//
+//          fork.start();
+//          child2.updateHFastParallel(level - 1);
+//          fork.join();
+//        } catch (InterruptedException ex) {
+//          ex.printStackTrace();
+//        }
+//      } else { // use this thread
+//        child1.updateHFastParallel(level - 1);
+//        child2.updateHFastParallel(level - 1);
+//      }
+//    } else { //leaf cell: update kernel, exch
+//            /*kernel.update(hKernel);
+//      exchange.update();
+//
+//      h.set(Double.NaN, 1234, 5678);
+//      hDemag.set(Double.NaN, 1234, 5678);
+//      hSmooth.set(Double.NaN, 1234, 5678);
+//      hExt.set(Double.NaN, 1234, 5678)
+
+
+      // hack. todo: uncomment when power densities are needed.
+      //hExPrevious.set(hEx);
+      //hMagPrevious.set(hDemag);
+      //hMagPrevious.add(hExt);
+
+//      kernel.update(hKernel);
+//      exchange.update();
+//
+//      //hDemag.set(hSmooth);
+//      //hDemag.add(hKernel);
+//      hDemag.x =  hKernel.x-smooth.field[1];
+//      hDemag.y =  hKernel.y-smooth.field[2];
+//      hDemag.z =  hKernel.z-smooth.field[3];
+//
+//      // debug, todo: comment out.
+//      h.set(Double.NaN, 123, 456);
+//      //hExt.set(h);
+//    }
+//  }*/
+
+  /**
+   * updates H, assuming hSmooth, hKernel, hExt, hEx are all up to date
+   * issued after a root step of the amusolver, which has been updating
+   * field contributions asynchronously.
+   */
+  /*public void resyncH() {
+
+    if (child1 != null) {
+      child1.resyncH();
+      child2.resyncH();
+    }
+
+    // hack todo: uncomment when power densities are needed
+    //hExPrevious.set(hEx);
+    //hMagPrevious.set(hDemag);
+    //hMagPrevious.add(hExt);
+
+    hSmooth.x = -smooth.field[1];
+    hSmooth.y = -smooth.field[2];
+    hSmooth.z = -smooth.field[3];
+
+    //hDemag.set(hSmooth);
+    //hDemag.add(hKernel);
+    hDemag.x = hSmooth.x + hKernel.x;
+    hDemag.y = hSmooth.y + hKernel.y;
+    hDemag.z = hSmooth.z + hKernel.z;
+
+    //h.set(hDemag);
+    //h.add(hEx);
+    //h.add(hExt);
+    h.x = hDemag.x + hEx.x;// + hExt.x;
+    h.y = hDemag.y + hEx.y;// + hExt.y;
+    h.z = hDemag.z + hEx.z;// + hExt.z;
+  }*/
+
+  //__________________________________________________________________________
+
+
+
+
 
 // Donald Knuth wrote:
 // "We should forget about small efficiencies, about 97% of the time. 

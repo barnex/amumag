@@ -38,18 +38,18 @@ public class Test extends Problem {
 
     //setExternalField(new StaticField(100E-3, 0, 0));
 
-    save(new CellCount(sim), 1);
-    save(new SpaceAverage(new Adaptivity(sim)), 1);
-    //save(new Adaptivity(sim), 1);
-    save("m", 10);
-    //save("maxTorque", 1);
-    save("dt", 1);
-    //save("badSteps", 1);
-    //save("lastError", 1);
-    save("stepTime", 1);
-    //save(new SpaceAverage(getData("m")), 1);
-    //save(new SpaceAverage(getData("hExt")), 1);
-    //save(new SpaceAverage(getData("energyDensity")), 1);//*/
+//    save(new CellCount(sim), 1);
+//    save(new SpaceAverage(new Adaptivity(sim)), 1);
+//    //save(new Adaptivity(sim), 1);
+//    save("m", 10);
+//    //save("maxTorque", 1);
+//    save("dt", 1);
+//    //save("badSteps", 1);
+//    //save("lastError", 1);
+//    save("stepTime", 1);
+//    //save(new SpaceAverage(getData("m")), 1);
+//    //save(new SpaceAverage(getData("hExt")), 1);
+//    //save(new SpaceAverage(getData("energyDensity")), 1);//*/
     setAlpha(1);
 
 
