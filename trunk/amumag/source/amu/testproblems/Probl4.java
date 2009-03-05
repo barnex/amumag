@@ -29,8 +29,8 @@ public class Probl4 extends Problem {
     //setFmmAlpha(0.9);
     setKernelIntegrationAccuracy(4);
     setMagnetization(new Uniform(1, 1, 1));
-    setSolver(new RK4("dphi", 0.01));
-    setAdaptivity(new TestAdaptiveMesh2(5.0, 6));
+    setSolver(new RK4("dphi", 0.005));
+    setAdaptivity(new TestAdaptiveMesh2(5.0, 4));
   }
 
 
@@ -39,6 +39,10 @@ public class Probl4 extends Problem {
     save("stepTime", 1);
     save("realtime", 1);
     save(new CellCount(sim), 1);
+    save(new QNeededCount(sim), 1);
+    save(new QFacesCount(sim), 1);
+    save(new QChildrenCount(sim), 1);
+    
     save("m", 100);
     save("dt", 1);
     //save(new Integral(getData("energyDensity")), 10);
