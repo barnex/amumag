@@ -27,7 +27,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception{
 
-        amu.mag.Main.main(new String[]{"amu.testproblems.Test", "2"});
+        amu.mag.Main.main(new String[]{"amu.testproblems.Probl4"});
         //x.AmuView.main(new String[]{"/home/arne/Desktop/test.amu/m"});
        
         /*for(double d=-10; d < 11; d+=0.1){

@@ -8,6 +8,7 @@ import amu.mag.time.*;
 import amu.io.*;
 import amu.geom.solid.*;
 import amu.data.*;
+import amu.mag.adapt.TestAdaptiveMesh2;
 import amu.mag.time.*;
 //import static java.lang.Math.*;
 
@@ -23,27 +24,32 @@ public class Probl4 extends Problem {
     setBoxSizeZ(3E-9);
     setMaxCellSizeX(4E-9);
     setMaxCellSizeY(4E-9);
-    setMaxCellSizeZ(16E-9);
+    setMaxCellSizeZ(4E-9);
     setFmmOrder(2);
-    setFmmAlpha(0.9);
-    setKernelIntegrationAccuracy(3);
+    //setFmmAlpha(0.9);
+    setKernelIntegrationAccuracy(4);
     setMagnetization(new Uniform(1, 1, 1));
-  //setSolver(new Relax5(0.05, 2, 2));
-
+    setSolver(new RK4("dphi", 0.01));
+    setAdaptivity(new TestAdaptiveMesh2(5.0, 6));
   }
 
 
   //@Override
   public void run() throws Exception {
+    save("stepTime", 1);
+    save("realtime", 1);
+    save(new CellCount(sim), 1);
     save("m", 100);
     save("dt", 1);
-    save(new Integral(getData("energyDensity")), 10);
-    save(new SpaceAverage(getData("m")), 10);
+    //save(new Integral(getData("energyDensity")), 10);
+    save(new SpaceAverage(getData("m")), 1);
     //setPrecession(false);
-    setAlpha(1);
-    runTime(10E-9);
+    setAlpha(2);
+    runTime(2E-9);
 
-    setExternalField(new StaticField(-35.5E-3, -6.3E-3, 0));
+    //setExternalField(new StaticField(-35.5E-3, -6.3E-3, 0)); // type2
+    setExternalField(new StaticField(-24.6E-3, 4.3E-3, 0)); // type1
+
     //setPrecession(true);
     setAlpha(0.02);
     //setSolver(new AmuSolver5(0.05, 2, 2));

@@ -62,7 +62,7 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
      // set all false first
      for(Cell cell = mesh.rootCell; cell != null; cell = cell.next){
       cell.updateLeaf = false;
-      //cell.qNeeded = false;
+      cell.qNeeded = false;
      }
 
     for (Cell[][] levelI : mesh.coarseLevel) {
@@ -77,7 +77,7 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
 
     // qNeeded?_________________________________________________________________
     // QNeeded has already been set to false.
-    //updateQNeeded(mesh.rootCell);
+    updateQNeeded(mesh.rootCell);
    
   }
 
@@ -87,31 +87,29 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
    * Could be faster if only updated below updateLeafs...
    * @param thiz
    */
-//  public void updateQNeeded(Cell thiz) {
-    // first the children
+  public void updateQNeeded(Cell thiz) {
+
+//    // first the children
 //    if (!thiz.updateLeaf) {
 //      updateQNeeded(thiz.child1);
 //      updateQNeeded(thiz.child2);
 //    }
-//    //then mark my partners as Q-needed: I will need their Q.
-//    for (Cell c : thiz.smooth.partners) {
-//      c.qNeeded = true;
-//    }
+
+    
+    //then mark my partners as Q-needed: I will need their Q.
+    for (Cell c : thiz.smooth.partners) {
+      c.qNeeded = true;
+    }
 
 
-//    // set all true for debug.
-//
-//    if (thiz.child1 != null) {
-//      updateQNeeded(thiz.child1);
-//      updateQNeeded(thiz.child2);
-//    }
-//    //then mark my partners as Q-needed: I will need their Q.
-//
-//      thiz.qNeeded = true;
-//
-//
-//
-//  }
+    // set all true for debug.
+    if (thiz.child1 != null) {
+      updateQNeeded(thiz.child1);
+      updateQNeeded(thiz.child2);
+    }
+    thiz.qNeeded = true;
+
+  }
 
   private void updateLeaf(Cell cell){
     if(cell.child1 == null){
