@@ -18,6 +18,7 @@ package amu.mag.time;
 
 import amu.io.Message;
 import amu.mag.Cell;
+import amu.mag.Simulation;
 import static java.lang.Double.NaN;
 
 /**
@@ -30,7 +31,7 @@ public final class RK4 extends RK {
   private double maxDm = -1;
   private double maxDt = -1;
 
-  public RK4(String flag, double value) {
+    public RK4(String flag, double value) {
 
     if(value <= 0.0)
       throw new IllegalArgumentException("value should be > 0");
@@ -88,6 +89,9 @@ public final class RK4 extends RK {
       Message.warning("dt=Infinity");
       dt = 0.001;
     }
+
+    // important: make sure we do not go beyond the requested run time!
+    dt = sim.cropDt(dt);
   }
 
   /**

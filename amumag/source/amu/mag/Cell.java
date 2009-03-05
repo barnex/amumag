@@ -78,7 +78,7 @@ public final class Cell implements Serializable {
   public transient boolean updateLeaf;
   public transient boolean uniform;
   // does some cell need my Q? If not, I won't calculate it.
-  //public transient boolean qNeeded;
+  public transient boolean qNeeded;
 
   //public transient boolean chargeFree;
 
@@ -491,30 +491,14 @@ public final class Cell implements Serializable {
   public final void updateQ(final int level) {
 
     final double[] q = multipole.q;
-
     //multipole.reset(); //inlined:
     for(int i = 0; i < q.length; i++)                                       //set q to zero -> system.arraycopy?
 	    q[i] = 0.0;
 
-    // adaptive mesh: update even the smallest cells (for now), their Q may be needed by others...
-    if (child1 == null) {
-    //if(updateLeaf){
-      // update q based on charge on faces.
-      for (int c = 0; c < faces.length; c++) {
-        final Face face = faces[c];
-        final double[] unitQc_q = unitQ[c].q;
+    //test: update chidren no matter what:
 
-        //multipole.add(face.charge, unitQ[c]); //inlined
-        for(int i=0; i<q.length; i++)
-          q[i] += face.charge * unitQc_q[i];
-      }
-      //
-//      if(child1 != null){
-//        child1.updateQSubLeafIfNeeded();
-//        child2.updateQSubLeafIfNeeded();
-//      }
-    }
-    else {
+    //else {
+    if(child1 != null){
 
       if (level > 0) { // fork for parallel processing
         try {
@@ -564,7 +548,23 @@ public final class Cell implements Serializable {
       //}
     }
 
-    
+    // adaptive mesh: update even the smallest cells (for now), their Q may be needed by others...
+    //if (child1 == null) {
+    if(updateLeaf || child1 == null){
+      multipole.reset(); // overwrite recursive Q by unitQ: TODO: no childQ in this case!!
+      // update q based on charge on faces.
+      for (int c = 0; c < faces.length; c++) {
+        final Face face = faces[c];
+        final double[] unitQc_q = unitQ[c].q;
+
+        //multipole.add(face.charge, unitQ[c]); //inlined
+        for(int i=0; i<q.length; i++)
+          q[i] += face.charge * unitQc_q[i];
+      }
+    }
+
+
+
     /*if (Simulation.dipoleCutoff != 0.0) {
       if (child1 == null) {//leaf
         chargeFree = true;

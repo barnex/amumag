@@ -64,9 +64,7 @@ public abstract class AmuSolver {
 
     long t = System.nanoTime();
 
-    // dt is already set by the last step, let's check if we need to trim it for this step
-     if(sim.totalTime + dt > sim.maxTime) // trim dt so it fits in the desired run time.
-      dt = sim.maxTime - sim.totalTime;
+ 
 
 //    if(dt == 0.0)
 //      throw new Bug("dt=0.0");

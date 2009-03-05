@@ -82,6 +82,18 @@ public final class Simulation {
     output = new OutputModule(this, baseDir);
   }
 
+  /**
+   * If necessary, crops dt so that the time step fits into the desired run time.
+   * @param dt
+   * @return
+   */
+  public double cropDt(double dt) {
+       // dt is already set by the last step, let's check if we need to trim it for this step
+     if(totalTime + dt > maxTime) // trim dt so it fits in the desired run time.
+      dt = maxTime - totalTime;
+     return dt;
+  }
+
   //________________________________________________________________________io
   /**
    * Looks for a variable with the given field name in Cell and Evolver
