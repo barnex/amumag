@@ -78,9 +78,9 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
 
     // qNeeded?_________________________________________________________________
     // QNeeded has already been set to false.
-    updateQNeededByPartners(mesh.rootCell);
-    updateQFromFaces(mesh.rootCell);
-    updateQNeededByParent(mesh.rootCell);
+    //updateQNeededByPartners(mesh.rootCell);
+    //updateQFromFaces(mesh.rootCell);
+    //updateQNeededByParent(mesh.rootCell);
    
   }
 
@@ -156,7 +156,13 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
             break;
           }
         }
-
+        // at this point, the cell is an updateleaf
+        // the Q of the children needs to be zeroed out: in some rare cases,
+        // their Q will be needed. E.g., when a cell is close to an adaptive mesh
+        // "border" some smaller cells might needs it Q. Since the of a leaf cell's
+        // children is very small and only rarely needed, it's OK to set it to zero.
+        cell.child1.resetAllQ();
+        cell.child2.resetAllQ();
       }
       else{
         //not uniform: sorry...

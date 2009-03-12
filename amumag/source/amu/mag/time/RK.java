@@ -54,7 +54,7 @@ public abstract class RK extends AmuSolver {
   protected abstract void updateDt();
 
   private final Vector buffer = new Vector();
-  protected double maxTorque() {
+  protected final double maxTorque() {
     double maxTorque = 0.0;
     for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
       if (cell.updateLeaf) {
@@ -70,7 +70,7 @@ public abstract class RK extends AmuSolver {
     return maxTorque;
   }
 
-   protected double maxH() {
+   protected final double maxH() {
     double maxH = 0.0;
     for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
       if (cell.updateLeaf) {
@@ -94,66 +94,111 @@ public abstract class RK extends AmuSolver {
     // todo inline and optimize vector ops
 
     //initial RK4
-    double t0 = sim.totalTime;
-    {int c = 0; for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
-    if(cell.updateLeaf){
+    final double t0 = sim.totalTime;
+    {
+      int c = 0;
+      for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
+        if (cell.updateLeaf) {
 
-      //backup m
-       rk[c].m0.set(cell.m);
+          final RKData rkc = rk[c];
+          final Vector m = cell.m;
+          //backup m
+          //rk[c].m0.set(cell.m); inlined:
+          rkc.m0.x = m.x;
+          rkc.m0.y = m.y;
+          rkc.m0.z = m.z;
 
-       Vector[] k = rk[c].k;
-       // RK4 step 1
-       torque(cell.m, cell.h, k[0]);
 
-    }
-    c++;}}
+          final Vector[] k = rkc.k;
+          // RK4 step 1
+          torque(m, cell.h, k[0]);
 
-    
-    //butcher tableau
-    for(int i=1; i<weight.length; i++){
-      //set time and update
-      
-      {int c = 0; for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
-      if(cell.updateLeaf){
-        //reset m
-        cell.m.set(rk[c].m0);
-        Vector[] k = rk[c].k;
-
-        for(int j=0; j<i; j++){
-          cell.m.add(dt * butcher[i][j], k[i-1]);
         }
-       cell.m.normalize();
+        c++;
       }
-      c++;}}
-      sim.totalTime = t0 + h[i]*dt;
+    }
+
+
+    //butcher tableau
+    for (int i = 1; i < weight.length; i++) {
+      //set time and update
+      final double[] butcherI = butcher[i];
+
+      {
+        int c = 0;
+        for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
+          if (cell.updateLeaf) {
+            final RKData rkc = rk[c];
+            final Vector m = cell.m;
+
+            //reset m
+            //cell.m.set(rk[c].m0); inlined:
+            m.x = rkc.m0.x;
+            m.y = rkc.m0.y;
+            m.z = rkc.m0.z;
+
+            final Vector[] k = rk[c].k;
+
+            for (int j = 0; j < i; j++) {
+              //cell.m.add(dt * butcher[i][j], k[i-1]); inlined:
+              final Vector kI_1 = k[i - 1];
+              final double dtXbutcherIJ = dt * butcherI[j];
+              m.x += dtXbutcherIJ * kI_1.x;
+              m.y += dtXbutcherIJ * kI_1.y;
+              m.z += dtXbutcherIJ * kI_1.z;
+
+            }
+            m.normalize();
+          }
+          c++;
+        }
+      }
+      sim.totalTime = t0 + h[i] * dt;
       sim.update();
 
       //new k
-      {int c = 0; for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
-         if(cell.updateLeaf){
-        torque(cell.m, cell.h, rk[c].k[i]);
-         }c++;}
+      {
+        int c = 0;
+        for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
+          if (cell.updateLeaf) {
+            torque(cell.m, cell.h, rk[c].k[i]);
+          }
+          c++;
+        }
       }
     }
-    
-    
-    //new m
-    {int c = 0; for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
-       if(cell.updateLeaf){
-       //reset
-       cell.m.set(rk[c].m0);
-       Vector[] k = rk[c].k;
 
-       for(int i=0; i<weight.length; i++)
-        cell.m.add(dt * weight[i], k[i]);
-       cell.m.normalize();
-       }c++;}
+
+    //new m
+    {
+      int c = 0;
+      for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
+        if (cell.updateLeaf) {
+          //reset
+
+          final RKData rkc = rk[c];
+          final Vector m = cell.m;
+
+          //cell.m.set(rk[c].m0); inlined:
+          m.x = rkc.m0.x;
+          m.y = rkc.m0.y;
+          m.z = rkc.m0.z;
+
+          Vector[] k = rk[c].k;
+
+          for (int i = 0; i < weight.length; i++) {
+            m.add(dt * weight[i], k[i]);
+          }
+          m.normalize();
+        }
+        c++;
       }
+    }
     sim.update();
 
     // (3) bookkeeping
     sim.totalTime = t0 + dt;
     totalSteps++;
-   
+
   }
 }

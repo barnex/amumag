@@ -79,7 +79,7 @@ public abstract class AmuSolver {
 
   protected abstract void stepImpl();
 
-  protected void torque(Vector m, Vector h, Vector torque) {
+  protected final void torque(final Vector m, final Vector h, final Vector torque) {
 
     // - m cross H
     double _mxHx = -m.y * h.z + h.y * m.z;

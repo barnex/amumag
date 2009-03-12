@@ -434,7 +434,7 @@ public final class Simulation {
   /**
    * updates the magnetic charge on all faces, also large ones.
    */
-  private void updateCharges() {
+  private final void updateCharges() {
 
     // set the magnetization of ALL the cells, based on the updateLeaf Cells
     mesh.rootCell.distributeMOverLevels();

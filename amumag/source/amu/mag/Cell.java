@@ -115,6 +115,14 @@ public final class Cell implements Serializable {
     multipole = new Multipole();
   }
 
+  public final void resetAllQ() {
+    multipole.reset();
+    if(child1 != null){
+      child1.resetAllQ();
+      child2.resetAllQ();
+    }
+  }
+
   //__________________________________________________________________________init
   // does not really belong here.
   private void createVertices(Pool<Vector> vertexPool) {
@@ -191,9 +199,13 @@ public final class Cell implements Serializable {
 
       //hDemag.add(hKernel);
 
-      h.set(hDemag);
-      h.add(hEx);
-      //h.add(hExt);
+      //h.set(hDemag);  inlined:
+      //h.add(hEx);     inlined:
+
+      h.x = hDemag.x + hEx.x;
+      h.y = hDemag.y + hEx.y;
+      h.z = hDemag.z + hEx.z;
+
     }
   }
 
@@ -289,23 +301,18 @@ public final class Cell implements Serializable {
    *
    */
   public final void updateQ(final int level) {
-
     // (0) reset q
-
     final double[] q = multipole.q;
     //multipole.reset(); //inlined:
     for(int i = 0; i < q.length; i++)                                       //set q to zero -> system.arraycopy?
 	    q[i] = 0.0;
 
+    if(!updateLeaf){
 
-    // (1) ask to update chidren no matter what.
-    // They may decide not to actually update themselves if they are not needed.
-  
-    if(child1 != null){
-
-      if (level > 0) { // fork for parallel processing
+      // fork for children
+      {if (level > 0) { // fork for parallel processing
         try {
-          Thread fork = new Thread() {
+          final Thread fork = new Thread() {
             @Override
             public void run() {
               child1.updateQ(level - 1);
@@ -320,28 +327,10 @@ public final class Cell implements Serializable {
       } else { // use this thread
         child1.updateQ(level - 1);
         child2.updateQ(level - 1);
-      }
-    }
+      }}
 
-    // (2) now update myself, if needed
-    if (qNeeded) {
-
-      // (2.1) update Q from charges on the faces (if I am some small cell, perhaps)
-      if (qFromFaces) {
-        // update q based on charge on faces.
-        for (int c = 0; c < faces.length; c++) {
-          final Face face = faces[c];
-          final double[] unitQc_q = unitQ[c].q;
-
-          //multipole.add(face.charge, unitQ[c]); //inlined
-          for (int i = 0; i < q.length; i++) {
-            q[i] += face.charge * unitQc_q[i];
-          }
-        }
-      }
-      //(2.2) update Q form children (if I am some larger cell, perhaps)
-      else {
-        double[] childQ = child1.multipole.q;
+    // update from children
+      {double[] childQ = child1.multipole.q;
 
         //if (!child1.chargeFree) {
         for (int in = 0; in < multipole.q.length; in++) {
@@ -365,23 +354,22 @@ public final class Cell implements Serializable {
             multipole.q[in] += childQ[smoothFieldMonoDiffIn[ip]] * child2.smooth.shiftFactor[ip];
             assert child2.smooth.shiftFactor[ip] != 0.0;
           }
-        }
-      }//end if not update from faces
-
-    }// end if qNeeded
-    else{
-      // Q not needed: NaN it out for debug
-      for (int i = 0; i < q.length; i++) {
-            q[i] = Double.NaN;
-          }
+        }}
     }
-    // adaptive mesh: update even the smallest cells (for now), their Q may be needed by others...
-    //if (child1 == null) {
-//    if(updateLeaf || child1 == null){
-//      multipole.reset(); // overwrite recursive Q by unitQ: TODO: no childQ in this case!!
-//
-//    }
+  else{
+      // updateleaf update Q from charges on the faces
+      
+        // update q based on charge on faces.
+        for (int c = 0; c < faces.length; c++) {
+          final Face face = faces[c];
+          final double[] unitQc_q = unitQ[c].q;
 
+          //multipole.add(face.charge, unitQ[c]); //inlined
+          for (int i = 0; i < q.length; i++) {
+            q[i] += face.charge * unitQc_q[i];
+          }
+        }
+  }
 
 
     /*if (Simulation.dipoleCutoff != 0.0) {
