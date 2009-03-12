@@ -21,23 +21,34 @@ import amu.mag.Cell;
 
 public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
 
+  /**
+   * The cosine of the max allowed angle between spins for them to be considered parallel
+   */
   private double cos;
+
+  /**
+   * The maximum number of cell levels to group.
+   * Maximum 2^maxLevels cells will be grouped.
+   */
   private final int maxLevels;
 
-  //private int coarseRootLevel;
+  /**
+   *
+   * @param maxAngle max angle between spins for them to be considered parallel
+   * @param maxLevels Maximum 2^maxLevels cells will be grouped
+   */
   public TestAdaptiveMesh2(double maxAngle, int maxLevels) {
     if(maxAngle < 0 || maxAngle > 180)
       throw new IllegalArgumentException("Adaptive mesh maxAngle should be between 0 and 180 degrees");
 
     if(maxLevels < 0)
       throw new IllegalArgumentException("Adaptive mesh maxLevels should be >= 0");
-    //else if(maxLevels >= (mesh.nLevels-1) )
-    //  throw new IllegalArgumentException("In this geometry, adaptive mesh maxLevels should be < " + (mesh.nLevels-1));
-
+    
     cos = Math.cos(Math.PI*maxAngle/180);
     this.maxLevels = maxLevels;
   }
 
+  
   public int getCoarseRootLevel() {
     return mesh.nLevels - 1 - maxLevels;
   }
@@ -62,8 +73,8 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
      // set all false first
      for(Cell cell = mesh.rootCell; cell != null; cell = cell.next){
       cell.updateLeaf = false;
-      cell.qNeeded = false;
-      cell.qFromFaces = false;
+      //cell.mNeededExch = false;
+      cell.m = cell.my_m; // reset m pointer to myself
      }
 
     for (Cell[][] levelI : mesh.coarseLevel) {
@@ -163,6 +174,10 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
         // children is very small and only rarely needed, it's OK to set it to zero.
         cell.child1.resetAllQ();
         cell.child2.resetAllQ();
+        // now, my chidren should have their m the same as me
+        // to do so efficiently, we just point their m to mine
+        //pointMtoParent(cell.child1);
+        //pointMtoParent(cell.child2);
       }
       else{
         //not uniform: sorry...
@@ -177,7 +192,13 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
     }
   }
 
-
+  private final void pointMtoParent(Cell cell){
+    cell.m = cell.parent.m;
+    if(cell.child1 != null){
+      pointMtoParent(cell.child1);
+      pointMtoParent(cell.child2);
+    }
+  }
 
   /**
    * Recursively updates whether a cell and its children are uniform

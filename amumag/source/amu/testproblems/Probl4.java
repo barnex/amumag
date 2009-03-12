@@ -24,7 +24,7 @@ public class Probl4 extends Problem {
     setBoxSizeZ(3E-9);
     setMaxCellSizeX(4E-9);
     setMaxCellSizeY(4E-9);
-    setMaxCellSizeZ(4E-9);
+    setMaxCellSizeZ(8E-9);
     setFmmOrder(2);
     //setFmmAlpha(0.9);
     setKernelIntegrationAccuracy(4);

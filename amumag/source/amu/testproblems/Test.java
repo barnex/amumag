@@ -11,7 +11,7 @@ import amu.geom.solid.*;
 import amu.mag.adapt.*;
 import x.*;
 
-public class Test extends Problem {
+public final class Test extends Problem {
 
   public void init() {
     setOutputDir("/home/arne/Desktop/test.amu");
@@ -36,11 +36,7 @@ public class Test extends Problem {
   //@Override
   public void run() throws Exception {
 
-    //iterateTest();
-
-    //setExternalField(new StaticField(100E-3, 0, 0));
-
-    /*save(new CellCount(sim), 1);
+    save(new CellCount(sim), 1);
     save(new QNeededCount(sim), 1);
     save(new SpaceAverage(new Adaptivity(sim)), 1);
     //save(new Adaptivity(sim), 1);
@@ -63,8 +59,7 @@ public class Test extends Problem {
     save(getData("m"), "relaxed");
     setExternalField(new StaticField(0, 0, 0));
     setAlpha(0.01);
-    runTime(1E-10);*/
+    runTime(1E-10);
   }
 
-  //private void iterateTest(){}
 }

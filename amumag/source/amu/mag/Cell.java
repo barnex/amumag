@@ -55,7 +55,8 @@ public final class Cell implements Serializable {
   public transient Cell[] nearCells;						// nearCells is transformed to nearFaces, is set to null after init()
   public transient Kernel kernel;
 
-  public transient final Vector m = new Vector();                             // (reduced) magnetization
+  public transient final Vector my_m = new Vector();            // allocates space for my magnetization, needed to reset m
+  public transient Vector m = my_m;                             // magnetization, may point to a larger cell if I'm sub-leaf
   public transient final Vector h = new Vector();
   //public transient final Vector torque = new Vector();
  
@@ -93,6 +94,7 @@ public final class Cell implements Serializable {
 
   static boolean precess;
   public transient static double alphaLLG = Double.NaN;
+  public transient boolean mNeededExch;
 
   
 
