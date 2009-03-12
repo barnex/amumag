@@ -376,26 +376,35 @@ public final class Simulation {
     return alphaFMM != 0.0;
   }
   //____________________________________________________________________update
-  private static final Vector ZERO = new Vector(0, 0, 0, true);
-  private final Vector rSiUnits = new Vector();
+ 
   public final Vector hExt = new Vector();
+
+
+
+
+
+
+
+
+
+  ////////////////////////////////////////////////////////////// UPDATE SECTION ///
 
   /**
    * full update.
    */
   public void update() {
 
-    // todo: only update every so often.
-    // mesh.aMRules.update(); // now in solver so it does not happen during an rk step
+    // adaptive mesh rules are updated by the solver
 
-    if (dynamicRewire != null && solver.totalUpdates % rewireFrequency == 0) { //allows rewiring in the middle of an RK step...
-      dynamicRewire.wire();
-      updateOrderAndAlphaDependend();
-    }
+// dynamic rewire disabled
+//    if (dynamicRewire != null && solver.totalUpdates % rewireFrequency == 0) { //allows rewiring in the middle of an RK step...
+//      dynamicRewire.wire();
+//      updateOrderAndAlphaDependend();
+//    }
 
     //(1) update magnetic charges and moments
     updateCharges();
-    mesh.rootCell.updateQ(Main.LOG_CPUS);
+    mesh.rootCell.updateQ(Main.LOG_CPUS);//could be done iteratively
 
     //(2) set the external field via the root cell.
     hExt.set(externalField.get(getTotalTime()));
@@ -410,48 +419,59 @@ public final class Simulation {
     solver.totalUpdates++;
   }
 
-//    public void updateHSmooth(){
-//
-//        //(1) update magnetic charges and moments
-//        updateCharges();
-//        mesh.rootCell.updateQ(Main.LOG_CPUS);
-//
-////        //(2) set the space-dependend external field.
-////        for(Cell cell=mesh.coarseRoot; cell != null; cell = cell.next){
-////            rSiUnits.set(cell.center);
-////            rSiUnits.multiply(Unit.LENGTH);
-////            cell.hExt.set(externalField.get(getTotalTime(),rSiUnits));
-////        }
-//
-//        //(3) update all other fields and torque, added to the already present external field.
-//        //Cell.precess = precess;
-//	mesh.rootCell.updateHSmoothParallel(Main.LOG_CPUS);
-//    }
-//    public void updateHFast(){
-//        updateCharges();
-//        mesh.rootCell.updateHFastParallel(Main.LOG_CPUS);
-//    }
+  /**
+   * if necessary, sets the cell's m to the average of its children, recusively.
+   * @param cell
+   */
+  private void propagateMUp(Cell cell){
+    if(!cell.updateLeaf){
+      propagateMUp(cell.child1);
+      propagateMUp(cell.child2);
+      cell.m.set(cell.child1.m);
+      cell.m.add(cell.child2.m);
+      cell.m.normalize();
+    }
+    else if(cell.child1 != null){ //leaf cell with children
+      propagateMDown(cell.child1);
+      propagateMDown(cell.child2);
+    }
+  }
+
+  /**
+   * sets m to its parent, recusively
+   *
+   */
+  private void propagateMDown(Cell cell){
+    cell.m.set(cell.parent.m);
+    if(cell.child1 != null){
+      propagateMDown(cell.child1);
+      propagateMDown(cell.child2);
+    }
+  }
+
   /**
    * updates the magnetic charge on all faces, also large ones.
    */
   private final void updateCharges() {
 
     // set the magnetization of ALL the cells, based on the updateLeaf Cells
-    mesh.rootCell.distributeMOverLevels();
+    // above updateLeafs: recusively set to average of children
+    // below udateLeafs: set m of children to me!
+    for (Cell[][] levelI : mesh.coarseLevel) {
+      for (Cell[] levelIJ : levelI) {
+        for (Cell cell : levelIJ) {
+          if (cell != null) {
+            propagateMUp(cell);
+          }
+        }
+      }
+    }
 
     // discharge all
     for (Face face = mesh.rootFace; face != null; face = face.next) {
       face.charge = 0.0;
       face.adhocChargeCounter = 0;
     }
-
-    // charge faces the normal way
-    // all faces, big and small will be charge correctly
-    // because the magnetization has been distributed over all levels
-    // and we make sure each face gets charged only once
-//    for (Cell cell = mesh.coarseRoot; cell != null; cell = cell.next) {
-//      cell.chargeFaces();
-//    }
 
     // charge faces the normal way, starting from the smallest cells and going
     // larger. A small face shared between a small and an elongated cell, e.g.,
