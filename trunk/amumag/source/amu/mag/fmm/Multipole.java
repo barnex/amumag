@@ -31,7 +31,7 @@ public final class Multipole implements Serializable{
     
     
     public Multipole() {
-	//q = new double[FMM.monomials.length];
+
     }
 
     /**
@@ -54,10 +54,6 @@ public final class Multipole implements Serializable{
     public void init(Cell cell) {
 	
 	q = new double[FMM.monomials.length];
-	//debug:
-	// hmmm, code is not deterministic anymore...
-	//for(int i=0; i<q.length; i++)
-	    //q[i] = Math.random();
 	
 	for(Cell child: cell.getChildren()){
 	    int[][] qI = new int[FMM.monomials.length][];		//should be here, one for each child (?) maybe they are equale, QHash could take care of this

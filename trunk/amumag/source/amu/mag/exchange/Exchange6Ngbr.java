@@ -200,8 +200,8 @@ public final class Exchange6Ngbr {
         System.gc();
     }
     
-    public void update(){
-        Vector hEx = cell.hEx;
+    public final void update(){
+        final Vector hEx = cell.hEx;
         
         hEx.x = 0.0;
         hEx.y = 0.0;

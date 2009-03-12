@@ -103,7 +103,11 @@ public final class Vector implements Comparable<Vector>, Serializable {
    * Normalizes the vector.
    */
   public void normalize() {
-    divide(norm());
+    //divide(norm());
+    final double invnorm = 1.0/Math.sqrt(x*x + y*y + z*z);
+    x *= invnorm;
+    y *= invnorm;
+    z *= invnorm;
   }
 
   /**

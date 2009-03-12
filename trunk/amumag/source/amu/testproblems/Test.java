@@ -14,42 +14,45 @@ import x.*;
 public class Test extends Problem {
 
   public void init() {
-    setOutputDir("/home/arne/Desktop/test2.amu");
+    setOutputDir("/home/arne/Desktop/test.amu");
     setMs(860E3);
     setA(13E-12);
     setAlpha(0.01);
-    setBoxSizeX(200E-9);
-    setBoxSizeY(200E-9);
+    setBoxSizeX(500E-9);
+    setBoxSizeY(500E-9);
     setBoxSizeZ(50E-9);
     setMaxCellSizeX(4E-9);
     setMaxCellSizeY(4E-9);
     setMaxCellSizeZ(10000000);
     setFmmOrder(2);
-    setKernelIntegrationAccuracy(6);
+    setKernelIntegrationAccuracy(5);
     setMagnetization(new Landau(1));
-    setMagnetization(new Vortex(1));
+    //setMagnetization(new Vortex(1));
     setSolver(new RK4("dphi", 0.02));
 
-    setAdaptivity(new TestAdaptiveMesh2(5.0, 4));
+    setAdaptivity(new TestAdaptiveMesh2(5.0, 8));
   }
 
   //@Override
   public void run() throws Exception {
 
+    //iterateTest();
+
     //setExternalField(new StaticField(100E-3, 0, 0));
 
-//    save(new CellCount(sim), 1);
-//    save(new SpaceAverage(new Adaptivity(sim)), 1);
-//    //save(new Adaptivity(sim), 1);
-//    save("m", 10);
-//    //save("maxTorque", 1);
-//    save("dt", 1);
-//    //save("badSteps", 1);
-//    //save("lastError", 1);
-//    save("stepTime", 1);
-//    //save(new SpaceAverage(getData("m")), 1);
-//    //save(new SpaceAverage(getData("hExt")), 1);
-//    //save(new SpaceAverage(getData("energyDensity")), 1);//*/
+    /*save(new CellCount(sim), 1);
+    save(new QNeededCount(sim), 1);
+    save(new SpaceAverage(new Adaptivity(sim)), 1);
+    //save(new Adaptivity(sim), 1);
+    save("m", 10);
+    //save("maxTorque", 1);
+    save("dt", 1);
+    //save("badSteps", 1);
+    //save("lastError", 1);
+    save("stepTime", 1);
+    //save(new SpaceAverage(getData("m")), 1);
+    //save(new SpaceAverage(getData("hExt")), 1);
+    //save(new SpaceAverage(getData("energyDensity")), 1);//
     setAlpha(1);
 
 
@@ -60,6 +63,8 @@ public class Test extends Problem {
     save(getData("m"), "relaxed");
     setExternalField(new StaticField(0, 0, 0));
     setAlpha(0.01);
-    runTime(1E-10);
+    runTime(1E-10);*/
   }
+
+  //private void iterateTest(){}
 }

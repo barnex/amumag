@@ -38,13 +38,13 @@ public final class SmoothField implements Serializable {
    * Sets this smoothField to its parents shifted smoothField.
    * -> can be inlined in update().
    */
-  public void setToShiftedParent(Cell parent) {
+  public final void setToShiftedParent(final Cell parent) {
     final int l = FMM.order;
-    double[] parentField = parent.getSmoothField();
+    final double[] parentField = parent.smooth.field;
     for (int indexM = 0; indexM < parentField.length; indexM++) {
-      IntVector vecM = FMM.monomials[indexM];
+      final IntVector vecM = FMM.monomials[indexM];
       double sum = 0;
-      int max = FMM.boundForOrder[l - vecM.order];
+      final int max = FMM.boundForOrder[l - vecM.order];
       for (int i = 0; i < max; i++) {
         sum += parentField[FMM.monoSum[indexM][i]] * shiftFactor[i];			//do not include zero's
       }
@@ -56,7 +56,7 @@ public final class SmoothField implements Serializable {
    * First, the field is set to the field of the parent, adding the necessary shift,
    * then the contributions from this cell's partners are added.
    */
-  public void update(Cell parent) {
+  public final void update(final Cell parent) {
     if (parent != null) {
       setToShiftedParent(parent);
     }
@@ -66,22 +66,22 @@ public final class SmoothField implements Serializable {
     final int l = FMM.order;
 
     for (int i = 0; i < partners.length; i++) {				// add contributions from partner cells to the smooth field
-      Cell partner = partners[i];
+      final Cell partner = partners[i];
 
       //2009-01-28: charge-free approx
       /*if (partner.chargeFree){
         //System.out.print('*');
         continue; //skip partner.
       }*/
-      double[] partnerQ = partner.multipole.q;
-      double[] dHashDPartnerShiftsI = DerivativeMap.d[partnerShifts[i]];		// Still contains a lot of zeros
+      final double[] partnerQ = partner.multipole.q;
+      final double[] dHashDPartnerShiftsI = DerivativeMap.d[partnerShifts[i]];		// Still contains a lot of zeros
 
       for (int im = 0; im < field.length; im++) {
-        IntVector m = FMM.monomials[im];
-        int mOrder = m.order;
-        int max = FMM.boundForOrder[l - mOrder];
-        int[] monoSumIm = FMM.monoSum[im];
-        double min1powMOrder = (mOrder % 2 == 0 ? 1.0 : -1.0);
+        final IntVector m = FMM.monomials[im];
+        final int mOrder = m.order;
+        final int max = FMM.boundForOrder[l - mOrder];
+        final int[] monoSumIm = FMM.monoSum[im];
+        final double min1powMOrder = (mOrder % 2 == 0 ? 1.0 : -1.0);
 
         for (int ip = 0; ip < max; ip++) {
           field[im] += min1powMOrder *

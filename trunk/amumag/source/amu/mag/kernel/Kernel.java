@@ -34,13 +34,13 @@ public final class Kernel implements Serializable {
   }
 
   // calulates the kernel part of the demag field and puts the result in v.
-  public void update(Vector v) {
+  public final void update(final Vector v) {
     v.x = 0.0;
     v.y = 0.0;
     v.z = 0.0;
     for (int f = 0; f < nearFaces.length; f++) {
-      Face face = nearFaces[f];
-      Vector kern = kernel[f];
+      final Face face = nearFaces[f];
+      final Vector kern = kernel[f];
       final double charge = face.charge;			// 2007-06-20
       v.x += kern.x * charge;               // todo absorb these - somewhere
       v.y += kern.y * charge;
