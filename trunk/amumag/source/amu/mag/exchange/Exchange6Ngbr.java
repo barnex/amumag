@@ -62,23 +62,28 @@ public final class Exchange6Ngbr {
             index.set(cellPos);
             index.add(-1, Index.UNIT[dir]);
             Cell neighCellL = mesh.getCell(level, index);
-            neighCell[1+2*dir] = neighCellL; //2009-03-13
+            
             if (neighCellL != null) {
                 neighM[1+2*dir] = neighCellL.m;
+                neighCell[1+2*dir] = neighCellL; //2009-03-13
             }
-            else
+            else{
                 neighM[1+2*dir] = cell.m; //remove me!!
-            
+                neighCell[1+2*dir] = cell; //2009-03-13
+            }
+
             index.set(cellPos);
             index.add(Index.UNIT[dir]);
             Cell neighCellR = mesh.getCell(level, index);
-            neighCell[1+2*dir] = neighCellR; //2009-03-13
             if (neighCellR != null) {
-                neighM[1+2*dir+1] = neighCellR.m;
+                neighM[1+2*dir + 1] = neighCellR.m;
+                neighCell[1+2*dir + 1] = neighCellR; //2009-03-13
             }
-            else
-                neighM[1+2*dir+1] = cell.m; //remove me!!
-            
+            else{
+                neighM[1+2*dir + 1] = cell.m; //remove me!!
+                neighCell[1+2*dir + 1] = cell; //2009-03-13
+            }
+
             Vector dL;
             if(neighCellL != null)
                 dL = neighCellL.center.minus(cell.center);
@@ -179,6 +184,17 @@ public final class Exchange6Ngbr {
     }
 
     private boolean warning1issued = false;
+
+    // the m pointers of cells are sometimes re-arranges by the adaptive mesh:
+    // m pointers of sub-leaf cells point to their parents.
+    // we thus need to update those pointers here too...
+  public void updateMPointers() {
+    for(int i=0; i<neighCell.length; i++){
+      if(neighCell[i] != null){
+        neighM[i] = neighCell[i].m;
+      }
+    }
+  }
     
     private double[] intern(double[] laplacian) {
         DoubleArrayWrapper wrapper = new DoubleArrayWrapper(laplacian);
