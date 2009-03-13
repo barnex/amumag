@@ -43,7 +43,7 @@ public class Probl4 extends Problem {
     save(new QFacesCount(sim), 1);
     save(new QChildrenCount(sim), 1);
     
-    save("m", 100);
+    //save("m", 100);
     save("dt", 1);
     //save(new Integral(getData("energyDensity")), 10);
     save(new SpaceAverage(getData("m")), 1);
@@ -53,7 +53,7 @@ public class Probl4 extends Problem {
 
     //setExternalField(new StaticField(-35.5E-3, -6.3E-3, 0)); // type2
     setExternalField(new StaticField(-24.6E-3, 4.3E-3, 0)); // type1
-
+    save("m", 10E-12);
     //setPrecession(true);
     setAlpha(0.02);
     //setSolver(new AmuSolver5(0.05, 2, 2));

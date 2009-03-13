@@ -34,7 +34,8 @@ public final class Exchange6Ngbr {
     public static final int LEFT = 0, CENTER = 1, RIGHT = 2;
     
     public double[] laplacian = new double[7];
-    
+
+    public Cell[] neighCell = new Cell[7];
     public Vector[] neighM = new Vector[7]; //magnetization of neighbors, 6 real neighbors and the cell itself
                                             // cell, neighXL, neighXR, neighYL, neighYR, ...
     
@@ -56,10 +57,12 @@ public final class Exchange6Ngbr {
             // set pointers to the neighbours' magnetization
             
             neighM[0] = cell.m;
-            
+            neighCell[0] = cell;  //2009-03-13
+
             index.set(cellPos);
             index.add(-1, Index.UNIT[dir]);
             Cell neighCellL = mesh.getCell(level, index);
+            neighCell[1+2*dir] = neighCellL; //2009-03-13
             if (neighCellL != null) {
                 neighM[1+2*dir] = neighCellL.m;
             }
@@ -69,6 +72,7 @@ public final class Exchange6Ngbr {
             index.set(cellPos);
             index.add(Index.UNIT[dir]);
             Cell neighCellR = mesh.getCell(level, index);
+            neighCell[1+2*dir] = neighCellR; //2009-03-13
             if (neighCellR != null) {
                 neighM[1+2*dir+1] = neighCellR.m;
             }
@@ -206,7 +210,7 @@ public final class Exchange6Ngbr {
         hEx.x = 0.0;
         hEx.y = 0.0;
         hEx.z = 0.0;
-        
+        // todo: rm array indices
         for(int i=0; i<laplacian.length; i++){
             hEx.x += laplacian[i] * neighM[i].x;
             hEx.y += laplacian[i] * neighM[i].y;

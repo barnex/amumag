@@ -155,7 +155,7 @@ public class DR3DRenderer extends Renderer{
         }
     }
 
-    private static final Color softwhite = new Color(255, 255, 255);
+    //private static final Color softwhite = new Color(255, 255, 255);
     
     public void surface(){
         surface(Color.WHITE, 0.9);
@@ -244,7 +244,10 @@ public class DR3DRenderer extends Renderer{
             g.setColor(background);
             g.fillRect(0, 0, width, height);
         }
-                
+
+        g.setColor(Color.BLACK);
+        g.drawString(message, 1, height-g.getFontMetrics().getHeight());
+
         if(model == null)
             return;        
         
