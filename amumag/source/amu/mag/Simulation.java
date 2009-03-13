@@ -35,6 +35,7 @@ import amu.data.DataModel;
 import amu.data.LiveMeshDataModel;
 import amu.data.LiveTableDataModel;
 import amu.debug.InvalidProblemDescription;
+import amu.mag.adapt.TestAdaptiveMesh2;
 import amu.mag.field.StaticField;
 import amu.mag.time.AmuSolver;
 import java.io.File;
@@ -412,8 +413,7 @@ public final class Simulation {
     mesh.rootCell.smooth.field[2] = -hExt.y;
     mesh.rootCell.smooth.field[3] = -hExt.z;
 
-    //(3) update all other fields and torque, added to the already present external field.
-    //Cell.precess = precess;
+    //(3) update all fields.
     mesh.rootCell.updateHParallel(Main.LOG_CPUS);
 
     solver.totalUpdates++;
@@ -431,7 +431,8 @@ public final class Simulation {
       cell.m.add(cell.child2.m);
       cell.m.normalize();
     }
-    else if(cell.child1 != null){ //leaf cell with children
+    //2009-03-13: not needed anymore, done by pointers...
+    else if(!TestAdaptiveMesh2.DEBUG_MPOINTERS && cell.child1 != null){ //leaf cell with children
       propagateMDown(cell.child1);
       propagateMDown(cell.child2);
     }

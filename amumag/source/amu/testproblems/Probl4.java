@@ -43,7 +43,7 @@ public class Probl4 extends Problem {
     save(new QFacesCount(sim), 1);
     save(new QChildrenCount(sim), 1);
     
-    //save("m", 100);
+    save("m", 50);
     save("dt", 1);
     //save(new Integral(getData("energyDensity")), 10);
     save(new SpaceAverage(getData("m")), 1);

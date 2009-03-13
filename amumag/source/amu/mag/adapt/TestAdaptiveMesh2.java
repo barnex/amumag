@@ -31,6 +31,7 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
    * Maximum 2^maxLevels cells will be grouped.
    */
   private final int maxLevels;
+  public static boolean DEBUG_MPOINTERS = false;
 
   /**
    *
@@ -82,73 +83,21 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
         for (Cell cell : levelIJ) {
           if (cell != null) {
             updateLeaf(cell);
+            // also sets m pointers to parents for sub-leafs
           }
         }
       }
     }
 
-    // qNeeded?_________________________________________________________________
-    // QNeeded has already been set to false.
-    //updateQNeededByPartners(mesh.rootCell);
-    //updateQFromFaces(mesh.rootCell);
-    //updateQNeededByParent(mesh.rootCell);
-   
-  }
-
-  /**
-   * Go through the same tree as updateH(), i.e. until the updateLeafs.
-   * Mark partners as Q-needed.
-   * @param thiz
-   */
-  private void updateQNeededByPartners(final Cell thiz) {
-
-    //mark my partners as Q-needed: I will need their Q.
-
-    for (Cell c : thiz.smooth.partners) {
-      c.qNeeded = true;
-    }
-
-    // if I'm an updateLeaf, stop here, my children won't use Q's
-    if (!thiz.updateLeaf) {
-      updateQNeededByPartners(thiz.child1);
-      updateQNeededByPartners(thiz.child2);
+    // updateLeaf has re-arranged some m pointers
+    // they have to be set also in exchange
+    if(DEBUG_MPOINTERS){
+   for(Cell cell = mesh.coarseRoot; cell != null; cell = cell.next){
+     cell.exchange.updateMPointers();
+   }
     }
   }
 
-  private void updateQFromFaces(final Cell thiz){
-    // if I'm an updateLeaf, I can definitely take my Q from the faces:
-    if(thiz.updateLeaf){
-      thiz.qFromFaces = true;
-    }
-
-    // then look at my children
-    if (thiz.child1 != null) {
-      // If I can take Q from my faces, then my children can do so too:
-      if(thiz.qFromFaces){
-        thiz.child1.qFromFaces = true;
-        thiz.child2.qFromFaces = true;
-      }
-      // and their children will be able to do so too, if they have any.
-      updateQFromFaces(thiz.child1);
-      updateQFromFaces(thiz.child2);
-    }
-  }
-
-  /**
-   * Start from root and go down till updateLeafs. If Q is needed and can not be
-   * taken from the faces, then childQ will be needed.
-   * @param thiz
-   */
-  public void updateQNeededByParent(Cell thiz) {
-    if(thiz.parent != null){
-      if(thiz.parent.qNeeded && !thiz.parent.qFromFaces)
-        thiz.qNeeded = true;
-    }
-    if(thiz.child1 != null){
-      updateQNeededByParent(thiz.child1);
-      updateQNeededByParent(thiz.child2);
-    }
-  }
 
   private void updateLeaf(Cell cell){
     if(cell.child1 == null){
@@ -175,9 +124,12 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
         cell.child1.resetAllQ();
         cell.child2.resetAllQ();
         // now, my chidren should have their m the same as me
-        // to do so efficiently, we just point their m to mine
-        //pointMtoParent(cell.child1);
-        //pointMtoParent(cell.child2);
+        // to do so efficiently, we just point their m to mine.
+        // beware: we will need to update the m pointers in exchange as well!
+        if(DEBUG_MPOINTERS){
+        pointMtoParent(cell.child1);
+        pointMtoParent(cell.child2);
+        }
       }
       else{
         //not uniform: sorry...
@@ -217,6 +169,62 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
       cell.uniform = true;
     }
   }
+
+  //  /**
+//   * Go through the same tree as updateH(), i.e. until the updateLeafs.
+//   * Mark partners as Q-needed.
+//   * @param thiz
+//   */
+//  private void updateQNeededByPartners(final Cell thiz) {
+//
+//    //mark my partners as Q-needed: I will need their Q.
+//
+//    for (Cell c : thiz.smooth.partners) {
+//      c.qNeeded = true;
+//    }
+//
+//    // if I'm an updateLeaf, stop here, my children won't use Q's
+//    if (!thiz.updateLeaf) {
+//      updateQNeededByPartners(thiz.child1);
+//      updateQNeededByPartners(thiz.child2);
+//    }
+//  }
+
+//  private void updateQFromFaces(final Cell thiz){
+//    // if I'm an updateLeaf, I can definitely take my Q from the faces:
+//    if(thiz.updateLeaf){
+//      thiz.qFromFaces = true;
+//    }
+//
+//    // then look at my children
+//    if (thiz.child1 != null) {
+//      // If I can take Q from my faces, then my children can do so too:
+//      if(thiz.qFromFaces){
+//        thiz.child1.qFromFaces = true;
+//        thiz.child2.qFromFaces = true;
+//      }
+//      // and their children will be able to do so too, if they have any.
+//      updateQFromFaces(thiz.child1);
+//      updateQFromFaces(thiz.child2);
+//    }
+//  }
+
+//  /**
+//   * Start from root and go down till updateLeafs. If Q is needed and can not be
+//   * taken from the faces, then childQ will be needed.
+//   * @param thiz
+//   */
+//  public void updateQNeededByParent(Cell thiz) {
+//    if(thiz.parent != null){
+//      if(thiz.parent.qNeeded && !thiz.parent.qFromFaces)
+//        thiz.qNeeded = true;
+//    }
+//    if(thiz.child1 != null){
+//      updateQNeededByParent(thiz.child1);
+//      updateQNeededByParent(thiz.child2);
+//    }
+//  }
+
 
   @Override
   public boolean isUniform(Cell cell) {
