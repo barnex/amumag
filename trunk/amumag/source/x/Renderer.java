@@ -37,6 +37,7 @@ public abstract class Renderer {
     protected int width, height;
     
     public Color background = Color.WHITE;
+    protected String message = "";
 
     //public abstract void colorSurface();
     
@@ -61,13 +62,12 @@ public abstract class Renderer {
     public abstract void paint(Graphics2D g, int width, int height) throws IOException;
             
     public abstract void setColorMap(ColorMap map) throws IOException;
-    
-    
+
     public void savePng(File file, double xmin, double xmax, double ymin, double ymax) throws IOException{
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D graphics = (Graphics2D)(img.getGraphics());
         graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);   
+        //graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         paint(graphics, width, height);
         ImageIO.write(img, "png", file);
     }
@@ -79,4 +79,10 @@ public abstract class Renderer {
     public void updateColors() throws IOException {
         // overridden by 3D renderer.
     }
+
+
+
+  void setMessage(String string) {
+    this.message = string;
+  }
 }

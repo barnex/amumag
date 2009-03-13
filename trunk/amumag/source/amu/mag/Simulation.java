@@ -441,8 +441,12 @@ public final class Simulation {
    * sets m to its parent, recusively
    *
    */
-  private void propagateMDown(Cell cell){
-    cell.m.set(cell.parent.m);
+  private void propagateMDown(final Cell cell){
+    //cell.m.set(cell.parent.m); inlined:
+    cell.m.x = cell.parent.m.x;
+    cell.m.y = cell.parent.m.y;
+    cell.m.z = cell.parent.m.z;
+
     if(cell.child1 != null){
       propagateMDown(cell.child1);
       propagateMDown(cell.child2);

@@ -141,7 +141,29 @@ public final class AmuView {
             JOptionPane.showMessageDialog(frame, ex.toString(), "IOException", JOptionPane.ERROR_MESSAGE);
         }
     }
-    
+
+    public void movie(String outputDir) throws IOException{
+      File dir = new File(outputDir);
+      if(!dir.exists())
+        dir.mkdirs();
+
+      int nzeros = (int)(Math.log10(originalData.getTimeDomain())+1);
+
+      for(int t=0; t < originalData.getTimeDomain(); t++){
+        //time(t);
+        timeProbedData.setTime(t);
+        renderer.updateColors();
+        renderer.setMessage("" + ((float)originalData.getTime()[t]) + " s");
+
+        String file = t + ".png";
+        int nchars = nzeros + ".png".length();
+        while(file.length() < nchars)
+          file = "0" + file;
+
+        renderer.savePng(new File(dir, file));
+      }
+    }
+
     public void show() {
         frame.setVisible(true);
         updateMenubar();
@@ -221,8 +243,10 @@ public final class AmuView {
             view.scroller.setValue(time);
         timeProbedData.setTime(time);
         renderer.updateColors();
+        renderer.setMessage("" + originalData.getTime()[time] + " s");
         repaint();
         msg("Time: " + originalData.getTime()[time] + " s");
+
     }
 
     public int time() {
