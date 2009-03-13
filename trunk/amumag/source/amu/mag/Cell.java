@@ -276,7 +276,7 @@ public final class Cell implements Serializable {
   public void chargeFaces() {
     for (int i = 0; i < faces.length; i++) {
       Face face = faces[i];
-      if (face.scalarArea != 0.0) {
+      if (face.adhocChargeCounter != -1) { // means needed
 
         if (face.sideness == 0) { // inner face should receive 2 charges
           if (face.adhocChargeCounter != 2) {
@@ -368,6 +368,10 @@ public final class Cell implements Serializable {
 
           //multipole.add(face.charge, unitQ[c]); //inlined
           for (int i = 0; i < q.length; i++) {
+
+            if(face.adhocChargeCounter == -1)
+              throw new Bug();
+
             q[i] += face.charge * unitQc_q[i];
           }
         }

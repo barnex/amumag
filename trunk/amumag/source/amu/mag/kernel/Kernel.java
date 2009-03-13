@@ -42,6 +42,10 @@ public final class Kernel implements Serializable {
       final Face face = nearFaces[f];
       final Vector kern = kernel[f];
       final double charge = face.charge;			// 2007-06-20
+
+      if(face.adhocChargeCounter == -1)
+        throw new Bug(); //todo: rm me
+
       v.x += kern.x * charge;               // todo absorb these - somewhere
       v.y += kern.y * charge;
       v.z += kern.z * charge;

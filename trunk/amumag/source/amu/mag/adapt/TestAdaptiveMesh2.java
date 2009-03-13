@@ -18,6 +18,7 @@ package amu.mag.adapt;
 import amu.debug.Bug;
 import amu.io.Message;
 import amu.mag.Cell;
+import amu.mag.Face;
 
 public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
 
@@ -71,11 +72,14 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
     }
 
      // update Leaf_____________________________________________________________
-     // set all false first
+
+     // reset everything first
      for(Cell cell = mesh.rootCell; cell != null; cell = cell.next){
       cell.updateLeaf = false;
-      //cell.mNeededExch = false;
       cell.m = cell.my_m; // reset m pointer to myself
+     }
+     for(Face face = mesh.rootFace; face != null; face= face.next){ //could be coarserootFace...
+      face.adhocChargeCounter = -1; // means charge not needed
      }
 
     for (Cell[][] levelI : mesh.coarseLevel) {
@@ -89,12 +93,18 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
       }
     }
 
+    // workaround
+    for(Face face = mesh.rootFace; face != null; face= face.next){ //could be coarserootFace...
+      if(face.scalarArea == 0.0)
+      face.adhocChargeCounter = -1; // means charge not needed
+    }
+
     // updateLeaf has re-arranged some m pointers
     // they have to be set also in exchange
-    if(DEBUG_MPOINTERS){
-   for(Cell cell = mesh.coarseRoot; cell != null; cell = cell.next){
-     cell.exchange.updateMPointers();
-   }
+    if (DEBUG_MPOINTERS) {
+      for (Cell cell = mesh.coarseRoot; cell != null; cell = cell.next) {
+        cell.exchange.updateMPointers();
+      }
     }
   }
 
@@ -116,7 +126,7 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
             break;
           }
         }
-        // at this point, the cell is an updateleaf
+        // at this point, the cell is an updateleaf, BUT NOT A SMALLEST CELL
         // the Q of the children needs to be zeroed out: in some rare cases,
         // their Q will be needed. E.g., when a cell is close to an adaptive mesh
         // "border" some smaller cells might needs it Q. Since the of a leaf cell's
@@ -141,7 +151,20 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
         updateLeaf(cell.child1);
         updateLeaf(cell.child2);
       }
+    }// not a smallest cell
+    // updateLeaf is now nicely set
+
+    // When we have a leaf, we mark its faces and near faces as needed,
+    // by setting the charge counter to 0.
+    if (cell.updateLeaf) {
+      for (int i = 0; i < cell.faces.length; i++) {
+        cell.faces[i].adhocChargeCounter = 0; // 0 means charge needed
+      }
+      for (int i = 0; i < cell.kernel.nearFaces.length; i++) {
+        cell.kernel.nearFaces[i].adhocChargeCounter = 0; // 0 means charge needed
+      }
     }
+    
   }
 
   private final void pointMtoParent(Cell cell){

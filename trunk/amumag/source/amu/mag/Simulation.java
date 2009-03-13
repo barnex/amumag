@@ -466,7 +466,7 @@ public final class Simulation {
       for (Cell[] levelIJ : levelI) {
         for (Cell cell : levelIJ) {
           if (cell != null) {
-            propagateMUp(cell);
+            propagateMUp(cell); // also propagates down
           }
         }
       }
@@ -475,7 +475,8 @@ public final class Simulation {
     // discharge all
     for (Face face = mesh.rootFace; face != null; face = face.next) {
       face.charge = 0.0;
-      face.adhocChargeCounter = 0;
+      if(face.adhocChargeCounter != -1) // -1 means charge not needed
+        face.adhocChargeCounter = 0;    // reset
     }
 
     // charge faces the normal way, starting from the smallest cells and going
@@ -488,7 +489,22 @@ public final class Simulation {
         for (Cell[] levelIJ : levelI) {
           for (Cell cell : levelIJ) {
             if (cell != null) {
-              cell.chargeFaces();
+              //cell.chargeFaces();   inlined:
+              {
+                final Vector m = cell.m;
+                final Vector[] normal = cell.normal;
+                final Face[] faces = cell.faces;
+                for (int i = 0; i < faces.length; i++) {
+                  Face face = faces[i];
+
+                    if(face.adhocChargeCounter == 0
+                    || (face.adhocChargeCounter == 1 && face.sideness == 0)){
+                      final Vector n = normal[i];
+                      face.adhocChargeCounter++;
+                      face.charge += (n.x*m.x  +  n.y*m.y + n.z*m.z);
+                    }
+                }}// block end
+
             }
           }
         }
