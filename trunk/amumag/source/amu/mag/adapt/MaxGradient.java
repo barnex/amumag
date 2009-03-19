@@ -20,7 +20,7 @@ import amu.io.Message;
 import amu.mag.Cell;
 import amu.mag.Face;
 
-public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
+public final class MaxGradient extends AdaptiveMeshRules {
 
   /**
    * The cosine of the max allowed angle between spins for them to be considered parallel
@@ -39,18 +39,18 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
    * @param maxAngle max angle between spins for them to be considered parallel
    * @param maxLevels Maximum 2^maxLevels cells will be grouped
    */
-  public TestAdaptiveMesh2(double maxAngle, int maxLevels) {
+  public MaxGradient(double maxAngle, int maxLevels) {
     if(maxAngle < 0 || maxAngle > 180)
       throw new IllegalArgumentException("Adaptive mesh maxAngle should be between 0 and 180 degrees");
 
     if(maxLevels < 0)
       throw new IllegalArgumentException("Adaptive mesh maxLevels should be >= 0");
-    
+
     cos = Math.cos(Math.PI*maxAngle/180);
     this.maxLevels = maxLevels;
   }
 
-  
+
   public int getCoarseRootLevel() {
     return mesh.nLevels - 1 - maxLevels;
   }
@@ -77,6 +77,7 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
      for(Cell cell = mesh.rootCell; cell != null; cell = cell.next){
       cell.updateLeaf = false;
       cell.m = cell.my_m; // reset m pointer to myself
+      cell.m_ex = cell.my_m;
      }
      for(Face face = mesh.rootFace; face != null; face= face.next){ //could be coarserootFace...
       face.adhocChargeCounter = -1; // means charge not needed
@@ -111,22 +112,48 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
 
   private void updateLeaf(Cell cell){
     if(cell.child1 == null){
-      // smallest cell, has to be leaf
+      // (0) smallest cell, UPDATELEAF = true
       cell.updateLeaf = true;
     }
     else{
-      // bigger cell
-      if(cell.uniform){
+      // (1) bigger cell, UPDATELEAF = perhaps
+      if(cell.uniform){ // prequisite 1
         //should be uniform, looks fine so far
         cell.updateLeaf = true;
         //but all near cells should be uniform too, and equal to this cell:
         for(Cell near: cell.nearCells){
-          if(!(near.uniform && near.m.dot(cell.m) > cos)){
+          if(!(near.uniform && near.m.dot(cell.m) > cos)){ //prequisite2
             cell.updateLeaf = false;
             break;
           }
         }
-        // at this point, the cell is an updateleaf, BUT NOT A SMALLEST CELL
+      }
+      else{//not uniform: sorry...
+        cell.updateLeaf = false;
+      }
+
+      // if the big cell is not an updateLeaf, too bad, but perhaps it children may be
+      if(!cell.updateLeaf){
+        updateLeaf(cell.child1);
+        updateLeaf(cell.child2);
+      }
+    }// not a smallest cell
+
+    //// updateLeaf is now determined
+
+    // When we have a leaf...
+    if (cell.updateLeaf) {
+
+      // (1) we mark its own faces and near faces as needed, by setting the charge counter to 0.
+      for (int i = 0; i < cell.faces.length; i++) {
+        cell.faces[i].adhocChargeCounter = 0; // 0 means charge needed
+      }
+      for (int i = 0; i < cell.kernel.nearFaces.length; i++) {
+        cell.kernel.nearFaces[i].adhocChargeCounter = 0; // 0 means charge needed
+      }
+
+      // (2) if it's not a smallest cell:
+      if(cell.child1 != null){
         // the Q of the children needs to be zeroed out: in some rare cases,
         // their Q will be needed. E.g., when a cell is close to an adaptive mesh
         // "border" some smaller cells might needs it Q. Since the of a leaf cell's
@@ -141,34 +168,13 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
         pointMtoParent(cell.child2);
         }
       }
-      else{
-        //not uniform: sorry...
-        cell.updateLeaf = false;
-      }
+    }// end if update leaf.
 
-      // if the cell is not an updateLeaf, too bad, but perhaps it children may be
-      if(!cell.updateLeaf){
-        updateLeaf(cell.child1);
-        updateLeaf(cell.child2);
-      }
-    }// not a smallest cell
-    // updateLeaf is now nicely set
-
-    // When we have a leaf, we mark its faces and near faces as needed,
-    // by setting the charge counter to 0.
-    if (cell.updateLeaf) {
-      for (int i = 0; i < cell.faces.length; i++) {
-        cell.faces[i].adhocChargeCounter = 0; // 0 means charge needed
-      }
-      for (int i = 0; i < cell.kernel.nearFaces.length; i++) {
-        cell.kernel.nearFaces[i].adhocChargeCounter = 0; // 0 means charge needed
-      }
-    }
-    
   }
 
   private final void pointMtoParent(Cell cell){
-    cell.m = cell.parent.m;
+    // currently only m_ex, change to m when debugged.
+    cell.m_ex = cell.parent.m_ex;
     if(cell.child1 != null){
       pointMtoParent(cell.child1);
       pointMtoParent(cell.child2);
@@ -186,67 +192,12 @@ public final class TestAdaptiveMesh2 extends AdaptiveMeshRules {
       updateUniform(cell.child2);
 
       cell.uniform = cell.child1.uniform && cell.child2.uniform
-              && cell.child1.m.dot(cell.child2.m) > cos;
+              && cell.child1.m.dot(cell.child2.m) * cell.size.x > cos;  ///////// change !!!
     }
     else{//smallest cell
       cell.uniform = true;
     }
   }
-
-  //  /**
-//   * Go through the same tree as updateH(), i.e. until the updateLeafs.
-//   * Mark partners as Q-needed.
-//   * @param thiz
-//   */
-//  private void updateQNeededByPartners(final Cell thiz) {
-//
-//    //mark my partners as Q-needed: I will need their Q.
-//
-//    for (Cell c : thiz.smooth.partners) {
-//      c.qNeeded = true;
-//    }
-//
-//    // if I'm an updateLeaf, stop here, my children won't use Q's
-//    if (!thiz.updateLeaf) {
-//      updateQNeededByPartners(thiz.child1);
-//      updateQNeededByPartners(thiz.child2);
-//    }
-//  }
-
-//  private void updateQFromFaces(final Cell thiz){
-//    // if I'm an updateLeaf, I can definitely take my Q from the faces:
-//    if(thiz.updateLeaf){
-//      thiz.qFromFaces = true;
-//    }
-//
-//    // then look at my children
-//    if (thiz.child1 != null) {
-//      // If I can take Q from my faces, then my children can do so too:
-//      if(thiz.qFromFaces){
-//        thiz.child1.qFromFaces = true;
-//        thiz.child2.qFromFaces = true;
-//      }
-//      // and their children will be able to do so too, if they have any.
-//      updateQFromFaces(thiz.child1);
-//      updateQFromFaces(thiz.child2);
-//    }
-//  }
-
-//  /**
-//   * Start from root and go down till updateLeafs. If Q is needed and can not be
-//   * taken from the faces, then childQ will be needed.
-//   * @param thiz
-//   */
-//  public void updateQNeededByParent(Cell thiz) {
-//    if(thiz.parent != null){
-//      if(thiz.parent.qNeeded && !thiz.parent.qFromFaces)
-//        thiz.qNeeded = true;
-//    }
-//    if(thiz.child1 != null){
-//      updateQNeededByParent(thiz.child1);
-//      updateQNeededByParent(thiz.child2);
-//    }
-//  }
 
 
   @Override

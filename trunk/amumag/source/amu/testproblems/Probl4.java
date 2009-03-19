@@ -8,7 +8,7 @@ import amu.mag.time.*;
 import amu.io.*;
 import amu.geom.solid.*;
 import amu.data.*;
-import amu.mag.adapt.TestAdaptiveMesh2;
+import amu.mag.adapt.MaxAngle;
 import amu.mag.time.*;
 //import static java.lang.Math.*;
 
@@ -30,7 +30,7 @@ public class Probl4 extends Problem {
     setKernelIntegrationAccuracy(4);
     setMagnetization(new Uniform(1, 1, 1));
     setSolver(new RK4("dphi", 0.005));
-    setAdaptivity(new TestAdaptiveMesh2(5.0, 4));
+    setAdaptivity(new MaxAngle(5.0, 4));
   }
 
 

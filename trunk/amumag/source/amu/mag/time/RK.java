@@ -148,7 +148,11 @@ public abstract class RK extends AmuSolver {
               m.z += dtXbutcherIJ * kI_1.z;
 
             }
+
             m.normalize();
+            // push_down;
+            // cell.child1.m.set(m);
+            // cell.child2.m.set(m);
           }
           c++;
         }
@@ -189,7 +193,9 @@ public abstract class RK extends AmuSolver {
           for (int i = 0; i < weight.length; i++) {
             m.add(dt * weight[i], k[i]);
           }
+
           m.normalize();
+          // push_down.
         }
         c++;
       }

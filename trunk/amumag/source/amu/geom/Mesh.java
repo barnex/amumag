@@ -25,7 +25,7 @@ import amu.core.Index;
 import amu.debug.Bug;
 import amu.mag.Unit;
 import amu.mag.adapt.AdaptiveMeshRules;
-import amu.mag.adapt.TestAdaptiveMesh;
+import amu.mag.adapt.*;
 import amu.mag.fmm.WireModule;
 import amu.io.Message;
 import java.io.OutputStream;

@@ -57,6 +57,7 @@ public final class Cell implements Serializable {
 
   public transient final Vector my_m = new Vector();            // allocates space for my magnetization, needed to reset m
   public transient Vector m = my_m;                             // magnetization, may point to a larger cell if I'm sub-leaf
+  public transient Vector m_ex = my_m;
   public transient final Vector h = new Vector();
   //public transient final Vector torque = new Vector();
  
