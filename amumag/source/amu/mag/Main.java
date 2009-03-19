@@ -26,7 +26,6 @@ public final class Main {
             
     public static int CPUS = Runtime.getRuntime().availableProcessors();
     public static int LOG_CPUS = log2(CPUS);
-    //private static int THREADS = pow2(LOG_CPUS);
     
     public static final String WD = System.getProperty("user.dir");
     public static final String CP = System.getProperty("java.class.path");

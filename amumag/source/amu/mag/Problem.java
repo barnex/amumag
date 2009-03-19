@@ -29,7 +29,7 @@ import amu.mag.adapt.AdaptiveMeshRules;
 import amu.mag.adapt.FixedMesh;
 import amu.io.Message;
 import amu.data.DataModel;
-import amu.mag.adapt.TestAdaptiveMesh2;
+import amu.mag.adapt.MaxAngle;
 import amu.mag.field.StaticField;
 import amu.mag.fmm.DynamicRewire;
 import amu.mag.fmm.WireModule;
@@ -37,6 +37,7 @@ import amu.mag.time.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import x.Live2D;
 import static java.lang.Double.POSITIVE_INFINITY;
 
 public abstract class Problem {
@@ -488,5 +489,24 @@ public abstract class Problem {
     
     public final double square(double r){
         return r*r;
+    }
+
+    private Live2D live2D = null;
+    private int snapcount = 0;
+    public void snapshot() throws IOException{
+
+      if(live2D == null)
+        live2D = new Live2D(sim);
+
+      File dir = new File(getBaseDir(), "snapshot");
+      if(!dir.exists())
+        dir.mkdir();
+
+      String number = "" + snapcount;
+      while(number.length() < 5)
+        number = "0" + number;
+
+      live2D.savePng(new File(dir, number + ".png"));
+      snapcount++;
     }
 }

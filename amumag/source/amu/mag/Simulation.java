@@ -35,7 +35,7 @@ import amu.data.DataModel;
 import amu.data.LiveMeshDataModel;
 import amu.data.LiveTableDataModel;
 import amu.debug.InvalidProblemDescription;
-import amu.mag.adapt.TestAdaptiveMesh2;
+import amu.mag.adapt.MaxAngle;
 import amu.mag.field.StaticField;
 import amu.mag.time.AmuSolver;
 import java.io.File;
@@ -393,11 +393,11 @@ public final class Simulation {
   /**
    * full update.
    */
-  public void update() {
+  public synchronized void update() { // remove sync !!
 
     // adaptive mesh rules are updated by the solver
 
-// dynamic rewire disabled
+//    dynamic rewire disabled
 //    if (dynamicRewire != null && solver.totalUpdates % rewireFrequency == 0) { //allows rewiring in the middle of an RK step...
 //      dynamicRewire.wire();
 //      updateOrderAndAlphaDependend();
@@ -432,7 +432,8 @@ public final class Simulation {
       cell.m.normalize();
     }
     //2009-03-13: not needed anymore, done by pointers...
-    else if(!TestAdaptiveMesh2.DEBUG_MPOINTERS && cell.child1 != null){ //leaf cell with children
+    //!TestAdaptiveMesh2.DEBUG_MPOINTERS && 
+    else if(cell.child1 != null){ //leaf cell with children
       propagateMDown(cell.child1);
       propagateMDown(cell.child2);
     }
@@ -444,9 +445,9 @@ public final class Simulation {
    */
   private void propagateMDown(final Cell cell){
     //cell.m.set(cell.parent.m); inlined:
-    cell.m.x = cell.parent.m.x;
-    cell.m.y = cell.parent.m.y;
-    cell.m.z = cell.parent.m.z;
+    cell.my_m.x = cell.parent.my_m.x; // change back to m
+    cell.my_m.y = cell.parent.my_m.y;
+    cell.my_m.z = cell.parent.my_m.z;
 
     if(cell.child1 != null){
       propagateMDown(cell.child1);
@@ -491,7 +492,13 @@ public final class Simulation {
             if (cell != null) {
               //cell.chargeFaces();   inlined:
               {
-                final Vector m = cell.m;
+                final Vector m = cell.my_m; // change back to m
+
+//                if(!cell.my_m.equals(cell.m))
+//                  System.out.println("*");
+//                if(!cell.my_m.equals(cell.m_ex))
+//                  System.out.println("-");
+
                 final Vector[] normal = cell.normal;
                 final Face[] faces = cell.faces;
                 for (int i = 0; i < faces.length; i++) {

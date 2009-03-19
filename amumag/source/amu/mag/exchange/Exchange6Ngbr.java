@@ -56,7 +56,7 @@ public final class Exchange6Ngbr {
 
             // set pointers to the neighbours' magnetization
             
-            neighM[0] = cell.m;
+            //neighM[0] = cell.m;
             neighCell[0] = cell;  //2009-03-13
 
             index.set(cellPos);
@@ -64,24 +64,26 @@ public final class Exchange6Ngbr {
             Cell neighCellL = mesh.getCell(level, index);
             
             if (neighCellL != null) {
-                neighM[1+2*dir] = neighCellL.m;
+                //neighM[1+2*dir] = neighCellL.m;
                 neighCell[1+2*dir] = neighCellL; //2009-03-13
             }
             else{
-                neighM[1+2*dir] = cell.m; //remove me!!
-                neighCell[1+2*dir] = cell; //2009-03-13
+              // will not be used. (could be removed from array)
+                //neighM[1+2*dir] = Vector.UNIT[0]; //crappy value to assure not used //cell.m; //remove me!!
+                neighCell[1+2*dir] = null; //2009-03-13
             }
 
             index.set(cellPos);
             index.add(Index.UNIT[dir]);
             Cell neighCellR = mesh.getCell(level, index);
             if (neighCellR != null) {
-                neighM[1+2*dir + 1] = neighCellR.m;
+                //neighM[1+2*dir + 1] = neighCellR.m;
                 neighCell[1+2*dir + 1] = neighCellR; //2009-03-13
             }
             else{
-                neighM[1+2*dir + 1] = cell.m; //remove me!!
-                neighCell[1+2*dir + 1] = cell; //2009-03-13
+              // will not be used. (could be removed from array)
+                //neighM[1+2*dir + 1] = Vector.UNIT[0]; //crappy value to assure not used //cell.m; //remove me!!
+                neighCell[1+2*dir + 1] = null; //2009-03-13
             }
 
             Vector dL;
@@ -181,18 +183,22 @@ public final class Exchange6Ngbr {
             }
         // share equal laplacians.
         laplacian = intern(laplacian);
+        // 2009-03-13: set m pointers only now, to test if the method works.
+        updateMPointers();
     }
 
     private boolean warning1issued = false;
-
+    private final Vector UNUSED = new Vector(0, 0, 0);
     // the m pointers of cells are sometimes re-arranges by the adaptive mesh:
     // m pointers of sub-leaf cells point to their parents.
     // we thus need to update those pointers here too...
   public void updateMPointers() {
     for(int i=0; i<neighCell.length; i++){
       if(neighCell[i] != null){
-        neighM[i] = neighCell[i].m;
+        neighM[i] = neighCell[i].m_ex;
       }
+      else
+        neighM[i] = UNUSED; // could be done only once at init
     }
   }
     

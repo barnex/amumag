@@ -8,7 +8,7 @@ import amu.mag.time.*;
 import amu.io.*;
 import amu.geom.solid.*;
 import amu.data.*;
-import amu.mag.adapt.TestAdaptiveMesh2;
+import amu.mag.adapt.MaxAngle;
 import amu.mag.time.*;
 //import static java.lang.Math.*;
 
@@ -30,7 +30,7 @@ public class Logo extends Problem {
     setKernelIntegrationAccuracy(1);//6!!!!!!!!!!!!!!!!!!!!!
     setMagnetization(new Uniform(0.2, 0.1, 1.0));
     setSolver(new RK4("dphi", 0.005));
-    setAdaptivity(new TestAdaptiveMesh2(0.0, 0));
+    setAdaptivity(new MaxAngle(0.0, 0));
 
     double w = 50E-9;
     Shape cyl = new Cylinder(2*w);
