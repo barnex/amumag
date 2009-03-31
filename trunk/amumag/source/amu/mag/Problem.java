@@ -313,6 +313,11 @@ public abstract class Problem {
       this.aMRules = am;
     }
 
+    public void setAdaptivity(double maxAngle, int maxLevels){
+      requireNotYetInitiated();
+      this.aMRules = new MaxAngle(maxAngle, maxLevels);
+    }
+
     public void setSolver(AmuSolver solver){
         if(initiated){
             sim.solver = solver;
