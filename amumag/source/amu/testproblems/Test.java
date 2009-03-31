@@ -46,7 +46,7 @@ public final class Test extends Problem {
     for(int i=0; i<700; i++){
       snapshot();
       runTime(10E-12);
-    }
+    } 
 
     setExternalField(new StaticField(0, 0, 0));
 

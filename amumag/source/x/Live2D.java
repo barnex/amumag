@@ -290,9 +290,9 @@ public final class Live2D extends JPanel{
       g.setColor(magColorMap.get(cell.m));
       setCellShape(cell);
 	    g.fill(cellShape);
-      g.setColor(g.getColor().darker());
+      g.setColor(Color.BLACK);
       g.draw(cellShape);
-      g.setColor(magCompColorMap.get(cell.m));
+      //g.setColor(magCompColorMap.get(cell.m));
       //drawNormalizedArrow(g, cell);
   }
 
