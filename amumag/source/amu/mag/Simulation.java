@@ -81,6 +81,7 @@ public final class Simulation {
   //__________________________________________________________________________
   public Simulation(File baseDir) throws IOException {
     output = new OutputModule(this, baseDir);
+    Message.warning("testing maximum 2 levels of adaptiveness.");
   }
 
   /**
@@ -433,27 +434,27 @@ public final class Simulation {
     }
     //2009-03-13: not needed anymore, done by pointers...
     //!TestAdaptiveMesh2.DEBUG_MPOINTERS && 
-    else if(cell.child1 != null){ //leaf cell with children
-      propagateMDown(cell.child1);
-      propagateMDown(cell.child2);
-    }
+//    else if(cell.child1 != null){ //leaf cell with children
+//      propagateMDown(cell.child1);
+//      propagateMDown(cell.child2);
+//    }
   }
 
   /**
    * sets m to its parent, recusively
    *
    */
-  private void propagateMDown(final Cell cell){
-    //cell.m.set(cell.parent.m); inlined:
-    cell.my_m.x = cell.parent.my_m.x; // change back to m
-    cell.my_m.y = cell.parent.my_m.y;
-    cell.my_m.z = cell.parent.my_m.z;
-
-    if(cell.child1 != null){
-      propagateMDown(cell.child1);
-      propagateMDown(cell.child2);
-    }
-  }
+//  private void propagateMDown(final Cell cell){
+//    //cell.m.set(cell.parent.m); inlined:
+//    cell.my_m.x = cell.parent.my_m.x; // change back to m
+//    cell.my_m.y = cell.parent.my_m.y;
+//    cell.my_m.z = cell.parent.my_m.z;
+//
+//    if(cell.child1 != null){
+//      propagateMDown(cell.child1);
+//      propagateMDown(cell.child2);
+//    }
+//  }
 
   /**
    * updates the magnetic charge on all faces, also large ones.
@@ -492,7 +493,7 @@ public final class Simulation {
             if (cell != null) {
               //cell.chargeFaces();   inlined:
               {
-                final Vector m = cell.my_m; // change back to m
+                final Vector m = cell.m; // changed back to m
 
 //                if(!cell.my_m.equals(cell.m))
 //                  System.out.println("*");

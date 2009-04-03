@@ -195,7 +195,7 @@ public final class Exchange6Ngbr {
   public void updateMPointers() {
     for(int i=0; i<neighCell.length; i++){
       if(neighCell[i] != null){
-        neighM[i] = neighCell[i].m_ex;
+        neighM[i] = neighCell[i].m; // was: m_ex, changed back...
       }
       else
         neighM[i] = UNUSED; // could be done only once at init

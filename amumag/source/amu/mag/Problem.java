@@ -234,6 +234,7 @@ public abstract class Problem {
             else
                 throw new Bug();
         }
+
         mesh.makeFinal();
         
         sim.setMesh(mesh);   

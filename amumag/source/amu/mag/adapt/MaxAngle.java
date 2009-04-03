@@ -57,7 +57,7 @@ public final class MaxAngle extends AdaptiveMeshRules {
 
   @Override
   public void update() {
-    Message.debug("Updating mesh rules...");
+    //Message.debug("Updating mesh rules...");
 
      // update local uniformity_________________________________________________
      // start from the coarse level, will recursively go down
@@ -76,8 +76,8 @@ public final class MaxAngle extends AdaptiveMeshRules {
      // reset everything first
      for(Cell cell = mesh.rootCell; cell != null; cell = cell.next){
       cell.updateLeaf = false;
-      cell.m = cell.my_m; // reset m pointer to myself
-      cell.m_ex = cell.my_m;
+      //cell.m = cell.my_m; // reset m pointer to myself
+      //cell.m_ex = cell.my_m;
      }
      for(Face face = mesh.rootFace; face != null; face= face.next){ //could be coarserootFace...
       face.adhocChargeCounter = -1; // means charge not needed
@@ -122,7 +122,9 @@ public final class MaxAngle extends AdaptiveMeshRules {
         cell.updateLeaf = true;
         //but all near cells should be uniform too, and equal to this cell:
         for(Cell near: cell.nearCells){
-          if(!(near.uniform && near.m.dot(cell.m) > cos)){ //prequisite2
+          //if(!(near.uniform && near.m.dot(cell.m) > cos)){ //prequisite2
+          if(!(near.uniform
+                  && near.m.x * cell.m.x  + near.m.y * cell.m.y + near.m.z * cell.m.z > cos)){ //prequisite2
             cell.updateLeaf = false;
             break;
           }
@@ -163,23 +165,23 @@ public final class MaxAngle extends AdaptiveMeshRules {
         // now, my chidren should have their m the same as me
         // to do so efficiently, we just point their m to mine.
         // beware: we will need to update the m pointers in exchange as well!
-        if(DEBUG_MPOINTERS){
-        pointMtoParent(cell.child1);
-        pointMtoParent(cell.child2);
-        }
+//        if(DEBUG_MPOINTERS){
+//        pointMtoParent(cell.child1);
+//        pointMtoParent(cell.child2);
+//        }
       }
     }// end if update leaf.
     
   }
 
-  private final void pointMtoParent(Cell cell){
-    // currently only m_ex, change to m when debugged.
-    cell.m_ex = cell.parent.m_ex;
-    if(cell.child1 != null){
-      pointMtoParent(cell.child1);
-      pointMtoParent(cell.child2);
-    }
-  }
+//  private final void pointMtoParent(Cell cell){
+//    // currently only m_ex, change to m when debugged.
+//    cell.m_ex = cell.parent.m_ex;
+//    if(cell.child1 != null){
+//      pointMtoParent(cell.child1);
+//      pointMtoParent(cell.child2);
+//    }
+//  }
 
   /**
    * Recursively updates whether a cell and its children are uniform
