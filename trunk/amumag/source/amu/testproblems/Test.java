@@ -19,41 +19,25 @@ public final class Test extends Problem {
     setMs(860E3);
     setA(13E-12);
     setAlpha(0.01);
-    setBoxSizeX(500E-9);
-    setBoxSizeY(500E-9);
+    setBoxSizeX(250E-9);
+    setBoxSizeY(250E-9);
     setBoxSizeZ(50E-9);
     setMaxCellSizeX(4E-9);
     setMaxCellSizeY(4E-9);
-    setMaxCellSizeZ(10000000);
+    setMaxCellSizeZ(16E-9);
     setFmmOrder(2);
-    setKernelIntegrationAccuracy(1);
-    setMagnetization(new Saved("/home/arne/Desktop/relaxed"));
-    //setMagnetization(new Vortex(1));
+    setKernelIntegrationAccuracy(3);
+    setMagnetization(new Landau(1));
     setSolver(new RK4("dm", 0.02));
 
-    setAdaptivity(new MaxAngle(5.0, 10));
+    setAdaptivity(new MaxAngle(5.0, 2));
   }
 
   //@Override
   public void run() throws Exception {
 
     setAlpha(1);
-    runTime(10E-12);
-    
-    setAlpha(0.01);
-    setExternalField(new StaticField(10E-3, 0, 0).multiply(new Ramp(100E-12)));
-    
-    for(int i=0; i<700; i++){
-      snapshot();
-      runTime(10E-12);
-    } 
-
-    setExternalField(new StaticField(0, 0, 0));
-
-    for(int i=0; i<10000; i++){
-      snapshot();
-      runTime(10E-12);
-    }
+    runTime(100E-12);
 
 //
 //    save(new CellCount(sim), 1);

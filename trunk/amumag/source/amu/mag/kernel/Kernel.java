@@ -43,7 +43,7 @@ public final class Kernel implements Serializable {
       final Vector kern = kernel[f];
       final double charge = face.charge;			// 2007-06-20
 
-      if(face.adhocChargeCounter == -1)
+      if(face.adhocChargeCounter == -1 && face.scalarArea != 0.0)
         throw new Bug(); //todo: rm me
 
       v.x += kern.x * charge;               // todo absorb these - somewhere

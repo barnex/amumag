@@ -55,9 +55,9 @@ public final class Cell implements Serializable {
   public transient Cell[] nearCells;						// nearCells is transformed to nearFaces, is set to null after init()
   public transient Kernel kernel;
 
-  public transient final Vector my_m = new Vector();            // allocates space for my magnetization, needed to reset m
-  public transient Vector m = my_m;                             // magnetization, may point to a larger cell if I'm sub-leaf
-  public transient Vector m_ex = my_m;
+//  public transient final Vector my_m = new Vector();            // allocates space for my magnetization, needed to reset m
+  public transient Vector m = new Vector();                            // magnetization, may point to a larger cell if I'm sub-leaf
+//  public transient Vector m_ex = my_m;
   public transient final Vector h = new Vector();
   //public transient final Vector torque = new Vector();
  
@@ -370,7 +370,7 @@ public final class Cell implements Serializable {
           //multipole.add(face.charge, unitQ[c]); //inlined
           for (int i = 0; i < q.length; i++) {
 
-            if(face.adhocChargeCounter == -1)
+            if(face.adhocChargeCounter == -1 && face.scalarArea != 0.0)
               throw new Bug();
 
             q[i] += face.charge * unitQc_q[i];

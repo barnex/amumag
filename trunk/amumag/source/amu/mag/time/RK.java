@@ -153,6 +153,24 @@ public abstract class RK extends AmuSolver {
             // push_down;
             // cell.child1.m.set(m);
             // cell.child2.m.set(m);
+            // it seems the java function call overhead trashes performance if we
+            // propagate m down recursively, so let's hand-code it ... sigh.
+            // so we have to limit ourselves to a few levels, should be ok most
+            // of the time but we should check this once...
+            // alas, this cripples the output, unles we only use 2 adaptive mesh levels.
+            final Cell child1 = cell.child1;
+            final Cell child2 = cell.child2;
+            if (child1 != null) {
+              child1.m.x = child2.m.x = m.x;
+              child1.m.y = child2.m.y = m.y;
+              child1.m.z = child2.m.z = m.z;
+
+              if (child1.child1 != null) {
+                child1.child1.m.x = child1.child2.m.x = child2.child1.m.x = child2.child2.m.x;
+                child1.child1.m.y = child1.child2.m.y = child2.child1.m.y = child2.child2.m.y;
+                child1.child1.m.z = child1.child2.m.z = child2.child1.m.z = child2.child2.m.z;
+              }
+            }
           }
           c++;
         }
@@ -196,6 +214,21 @@ public abstract class RK extends AmuSolver {
 
           m.normalize();
           // push_down.
+
+          final Cell child1 = cell.child1;
+            final Cell child2 = cell.child2;
+            if (child1 != null) {
+              child1.m.x = child2.m.x = m.x;
+              child1.m.y = child2.m.y = m.y;
+              child1.m.z = child2.m.z = m.z;
+
+              if (child1.child1 != null) {
+                child1.child1.m.x = child1.child2.m.x = child2.child1.m.x = child2.child2.m.x;
+                child1.child1.m.y = child1.child2.m.y = child2.child1.m.y = child2.child2.m.y;
+                child1.child1.m.z = child1.child2.m.z = child2.child1.m.z = child2.child2.m.z;
+              }
+            }
+
         }
         c++;
       }
