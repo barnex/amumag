@@ -93,7 +93,8 @@ public abstract class RKF extends RK {
 
     Vector[] k = rk[c].k;
     // RK4 step 1
-    torque(cell.m, cell.h, k[0]);
+    //torque(cell.m, cell.h, k[0]);
+    k[0] = cell.dmdt;
   }
 
   private final void stage2(Cell cell, int c, int i) {
@@ -108,7 +109,8 @@ public abstract class RKF extends RK {
   }
 
   private final void stage3(Cell cell, int c, int i) {
-    torque(cell.m, cell.h, rk[c].k[i]);
+    //torque(cell.m, cell.h, rk[c].k[i]);
+    rk[c].k[i] = cell.dmdt;
   }
 
   private final void stage4(Cell cell, int c) {

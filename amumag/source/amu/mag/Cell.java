@@ -66,6 +66,8 @@ public final class Cell implements Serializable {
   public transient final Vector hDemag = new Vector();
   public transient final Vector hKernel = new Vector();
   public transient final Vector hEx = new Vector();
+  public transient final Vector dmdt = new Vector();
+
   //public transient final Vector hExt = new Vector();
   //public transient final Vector hSmooth = new Vector();
   // general purpuose storage for the sake of visualizers.
@@ -208,6 +210,7 @@ public final class Cell implements Serializable {
       h.x = hDemag.x + hEx.x;
       h.y = hDemag.y + hEx.y;
       h.z = hDemag.z + hEx.z;
+
 
     }
   }
