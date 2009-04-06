@@ -329,8 +329,8 @@ public final class Simulation {
    * Depends on: mesh
    * Invalidates: nothing
    */
-  public void setDzyaloshinsky(double d) {
-    dzyaloshinsky = new DzyaloshinskyModule(this, new Vector(0, 0, d));
+  public void setDzyaloshinsky(double x, double y, double z) {
+    dzyaloshinsky = new DzyaloshinskyModule(this, new Vector(x, y, z));
   }
 
   //_________________________________________________________________set::misc
@@ -422,8 +422,14 @@ public final class Simulation {
     //(3) update all fields.
     mesh.rootCell.updateHParallel(Main.LOG_CPUS);
 
-    // (4) special contributions and torque
+    // special contributions
+    // DZ needs to be first, adds to hEx before dmdt is calculated
+    if(dzyaloshinsky != null)
+      dzyaloshinsky.update();
+
+    
     updateDmdtNormal();
+
     if(dampingTensorEta != 0.0 || dampingTensorAlpha != 0.0)
       DampingTensor.update(this);
 
