@@ -58,7 +58,7 @@ public abstract class RK extends AmuSolver {
     double maxTorque = 0.0;
     for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
       if (cell.updateLeaf) {
-        torque(cell.m, cell.h, buffer);
+        torque2(cell.m, cell.h, buffer);
         if (buffer.norm2() > maxTorque) {
           maxTorque = buffer.norm2();
         }
@@ -111,7 +111,9 @@ public abstract class RK extends AmuSolver {
 
           final Vector[] k = rkc.k;
           // RK4 step 1
-          torque(m, cell.h, k[0]);
+
+          //torque(m, cell.h, k[0]);
+          k[0] = cell.dmdt; // changed for damping tensor
 
         }
         c++;
@@ -183,7 +185,8 @@ public abstract class RK extends AmuSolver {
         int c = 0;
         for (Cell cell = sim.mesh.coarseRoot; cell != null; cell = cell.next) {
           if (cell.updateLeaf) {
-            torque(cell.m, cell.h, rk[c].k[i]);
+            //torque(cell.m, cell.h, rk[c].k[i]);
+            rk[c].k[i] = cell.dmdt;
           }
           c++;
         }

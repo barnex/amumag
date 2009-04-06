@@ -51,6 +51,7 @@ import static java.lang.Math.sqrt;
  */
 public final class Simulation {
 
+
   // Computational mesh.
   public Mesh mesh;
   // FMM settings
@@ -66,6 +67,9 @@ public final class Simulation {
   // Evolver settings
   public ExternalField externalField;
   public AmuSolver solver;
+  public double dampingTensorEta = 0.0; // damping tensor prefactor
+  public double dampingTensorAlpha = 0.0;
+
   //public boolean precess = true;
   /** Total simulation time needs to be stored here and not in the solver,
    *  since the latter can be replaced by a new one.
@@ -77,6 +81,7 @@ public final class Simulation {
 
   // Output settings
   public final OutputModule output;
+
 
   //__________________________________________________________________________
   public Simulation(File baseDir) throws IOException {
@@ -394,7 +399,7 @@ public final class Simulation {
   /**
    * full update.
    */
-  public synchronized void update() { // remove sync !!
+  public void update() { 
 
     // adaptive mesh rules are updated by the solver
 
@@ -417,8 +422,37 @@ public final class Simulation {
     //(3) update all fields.
     mesh.rootCell.updateHParallel(Main.LOG_CPUS);
 
+    // (4) special contributions and torque
+    updateDmdtNormal();
+    if(dampingTensorEta != 0.0 || dampingTensorAlpha != 0.0)
+      DampingTensor.update(this);
+
     solver.totalUpdates++;
   }
+
+  public void updateDmdtNormal() {
+    for (Cell cell = mesh.coarseRoot; cell != null; cell = cell.next) {
+
+      final Vector m = cell.m;
+      final Vector h = cell.h;
+
+      // - m cross H
+      double _mxHx = -m.y * h.z + h.y * m.z;
+      double _mxHy = m.x * h.z - h.x * m.z;
+      double _mxHz = -m.x * h.y + h.x * m.y;
+
+      // - m cross (m cross H)
+      double _mxmxHx = m.y * _mxHz - _mxHy * m.z;
+      double _mxmxHy = -m.x * _mxHz + _mxHx * m.z;
+      double _mxmxHz = m.x * _mxHy - _mxHx * m.y;
+
+      double gilbert = 1.0 / (1.0 + Cell.alphaLLG * Cell.alphaLLG);
+      cell.dmdt.x = (_mxHx + _mxmxHx * Cell.alphaLLG) * gilbert;
+      cell.dmdt.y = (_mxHy + _mxmxHy * Cell.alphaLLG) * gilbert;
+      cell.dmdt.z = (_mxHz + _mxmxHz * Cell.alphaLLG) * gilbert;
+    }
+  }
+
 
   /**
    * if necessary, sets the cell's m to the average of its children, recusively.
