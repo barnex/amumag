@@ -1,0 +1,52 @@
+include ../../common.mk
+include $(GOROOT)/src/Make.inc
+PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
+
+TARG=sim
+
+CGOFILES=\
+	cpu.go\
+
+GOFILES=\
+	device.go\
+	backend.go\
+	tensor.go\
+	fft.go\
+	conv.go\
+	solver.go\
+	euler.go\
+	heun.go\
+	semianal.go\
+	kernel.go\
+	demag.go\
+	exchange.go\
+	material.go\
+	util.go\
+	sim.go\
+	simbackend.go\
+	simconfig.go\
+	simfield.go\
+	simgeom.go\
+	simmaterial.go\
+	simoutput.go\
+	simrun.go\
+	simsolver.go\
+	draw.go\
+	remotedevice.go\
+	simserver.go\
+	timer.go\
+	dashboard.go\
+	appliedfield.go\
+	mesh.go\
+	redux.go\
+	adaptive_euler.go\
+	adaptive_heun.go\
+	main.go\
+        daemon.go\
+	stdout.go\
+
+CGO_LDFLAGS+=$(CURDIR)/../cpukern/libgcukern.so
+
+CLEANFILES+=$(PKGDIR)/$(TARG).a $(PKGDIR)/cgo_$(TARG).so 
+	
+include $(GOROOT)/src/Make.pkg
